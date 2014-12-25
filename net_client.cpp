@@ -1,7 +1,8 @@
+#include "stdafx.h"
+#include "socket_base.h"
+#include "defs.h"
 #include "net_client.h"
 #include <sys/types.h>
-#include <sys/socket.h>
-#include <arpa/inet.h>
 
 
 CNetClient::CNetClient(std::string sip) : m_sip(sip)
@@ -33,7 +34,7 @@ bool CNetClient::connect()
 
 bool CNetClient::disConnect()
 {
-	close(m_socketClient);
+	base::close(m_socketClient);
 	return true;
 }
 

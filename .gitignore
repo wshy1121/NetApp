@@ -1,2 +1,8 @@
 *.o
+
 *.a
+/NetApp/Debug
+/NetApp/ipch/
+/NetApp/*.sdf
+
+/NetApp/*.opensdf

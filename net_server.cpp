@@ -1,10 +1,10 @@
+#include "stdafx.h"
 #include "net_server.h"
+#include "string_base.h"
+#include "socket_base.h"
 #include <sys/types.h>
-#include <sys/socket.h>
 #include <stdio.h>
 #include <string.h>
-#include <netinet/in.h>
-#include "defs.h"
 
 
 
@@ -111,11 +111,11 @@ void *CNetServer::_listenThread(void *arg)
 
 void *CNetServer::_clientThread(void *arg)
 {
-	char recvBuf[MAX_BUFFER_SIZE];
-	memset(recvBuf,0,MAX_BUFFER_SIZE);
+	char recvBuf[1024];
+	memset(recvBuf,0,sizeof(recvBuf));
 
-	char sendBuf[MAX_BUFFER_SIZE];
-	memset(sendBuf,0,MAX_BUFFER_SIZE);
+	char sendBuf[1024];
+	memset(sendBuf,0,sizeof(recvBuf));
 
 	fd_set fd_read, fd_write;
 	while(true)
@@ -156,7 +156,7 @@ void *CNetServer::_clientThread(void *arg)
 				memset(recvBuf, 0, sizeof(recvBuf));
 				if(0 < receive(*iterRead, recvBuf, sizeof(recvBuf)))
 				{
-					strcpy(sendBuf, recvBuf);
+					base::strcpy(sendBuf, recvBuf);
 					
 					for (iterTmp=listRead.begin(); iterTmp!=listRead.end(); ++iterTmp)	
 					{
@@ -170,7 +170,7 @@ void *CNetServer::_clientThread(void *arg)
 					{
 						if(*iterRead == *iterTmp)
 						{
-							close(*iterRead);
+							base::close(*iterRead);
 							iterTmp = listRead.erase(iterTmp);
 							break;
 						}
