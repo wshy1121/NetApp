@@ -6,7 +6,6 @@
 #include <sys/types.h>
 #include <stdio.h>
 #include <string.h>
-#include "Global.h"
 
 
 
@@ -16,7 +15,7 @@ CNetServer* CNetServer::_instance = NULL;
 
 CNetServer::CNetServer():SERVER_PORT(8889), m_sockLister(INVALID_SOCKET)
 {
-
+	m_listClientRead = CList::createCList();
 	return ;
 }
 
@@ -95,29 +94,33 @@ void *CNetServer::_listenThread(void *arg)
 	sockaddr_in clientAddr;
 	socklen_t nLen = sizeof(sockaddr);
 	struct timeval cctv = {0, 50};
-	SocketList &listRead = m_listClientRead;	
 	char recvBuf[1024];
+	node *pNode = NULL;
 	while(true)
 	{
 		FD_ZERO(&fd_read);
 		FD_ZERO(&fd_write);
 		FD_SET(m_sockLister, &fd_read);
-		SocketList::iterator iterTmp;
-		for (iterTmp=listRead.begin(); iterTmp!=listRead.end(); ++iterTmp)	
+
+		ClientConn *pClientConnTmp = NULL;
+		each_link_node(&m_listClientRead->head_node, pNode)
 		{
-			FD_SET(*iterTmp, &fd_read);
+			pClientConnTmp = clientConnContain(pNode);
+			FD_SET(pClientConnTmp->socket, &fd_read);
 		}
 		
-		int count = select(listRead.size()+1, &fd_read, &fd_write, NULL, &cctv);
+		int count = select(m_listClientRead->size()+1, &fd_read, &fd_write, NULL, &cctv);
 		for (int i=0; i< count; ++i)
 		{
-			SocketList::iterator iterRead;
-			for (iterRead=listRead.begin(); iterRead!=listRead.end(); ++iterRead)
+			ClientConn *pClientConnRead = NULL;
+			node *pHead = &m_listClientRead->head_node;
+			for ((pNode)=(pHead)->next; (pHead) != (pNode);)
 			{
-				if(FD_ISSET(*iterRead, &fd_read))
+				pClientConnRead = clientConnContain(pNode);
+				if(FD_ISSET(pClientConnRead->socket, &fd_read))
 				{
 					memset(recvBuf,0,sizeof(recvBuf));
-					int recvLen = receive(*iterRead, recvBuf, sizeof(recvBuf));
+					int recvLen = receive(pClientConnRead->socket, recvBuf, sizeof(recvBuf));
 					if(0 < recvLen)
 					{
 						WORK_DATA *pWorkData = CDataWorkManager::instance()->createWorkData(recvLen);
@@ -127,28 +130,24 @@ void *CNetServer::_listenThread(void *arg)
 					//异常处理
 					else
 					{
-						CGuardMutex guardMutex(m_clientReadMutex);
-						base::close(*iterRead);
-						time_printf("close  %d\n", *iterRead);
-						iterRead = listRead.erase(iterRead);
-						if (iterRead==listRead.end())
-						{
-							break;
-						}
+						base::close(pClientConnRead->socket);
+						
+						pNode = m_listClientRead->erase(pNode);						
+						base::free(pClientConnRead);
+						continue;
 					}
 				}
+				(pNode)=(pNode)->next;
 			}
-
-			//处理数据发送
 			
 			//处理连接消息
 			if(FD_ISSET(m_sockLister, &fd_read))
 			{
 				SOCKET socket = accept(m_sockLister,(sockaddr*)&clientAddr,&nLen);
 				{
-					CGuardMutex guardMutex(m_clientReadMutex);	
-					m_listClientRead.push_back(socket);
-					time_printf("accept	%d\n", socket);
+					ClientConn *pClientConn = (ClientConn *)base::malloc(sizeof(ClientConn));
+					pClientConn->socket = socket;
+					m_listClientRead->push_back(&pClientConn->node);
 				}
 			}
 		}

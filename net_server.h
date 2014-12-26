@@ -4,7 +4,12 @@
 #include "link_tool.h"
 #include "defs.h"
 
-#include <list>
+typedef struct ClientConn
+{
+	SOCKET socket;
+	struct node node;
+}ClientConn;
+#define clientConnContain(ptr)  container_of(ptr, ClientConn, node)
 
 
 class CNetServer
@@ -28,11 +33,7 @@ private:
 	static  CNetServer* _instance;
 	SOCKET m_sockLister;
 
-	typedef std::list<SOCKET> SocketList;
-	SocketList m_listClientRead;
-
-	CPthreadMutex m_clientReadMutex;
-
+	CList *m_listClientRead;
 };
 
 #endif //_CHAT_ROOT_SERVER_
