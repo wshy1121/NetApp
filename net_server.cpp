@@ -2,6 +2,7 @@
 #include "net_server.h"
 #include "string_base.h"
 #include "socket_base.h"
+#include "data_work.h"
 #include <sys/types.h>
 #include <stdio.h>
 #include <string.h>
@@ -121,15 +122,19 @@ void *CNetServer::_listenThread(void *arg)
 				if(FD_ISSET(*iterRead, &fd_read))
 				{
 					memset(recvBuf,0,sizeof(recvBuf));
-					if(0 < receive(*iterRead, recvBuf, sizeof(recvBuf)))
+					int recvLen = receive(*iterRead, recvBuf, sizeof(recvBuf));
+					if(0 < recvLen)
 					{
+						WORK_DATA *pWorkData = CDataWorkManager::instance()->createWorkData(recvLen);
+						memcpy(pWorkData->m_pContent, recvBuf, recvLen);
+						CDataWorkManager::instance()->pushWorkData(pWorkData);
 					}
 					//Òì³£´¦Àí
 					else
 					{
 						CGuardMutex guardMutex(m_clientReadMutex);
 						base::close(*iterRead);
-						printf("close  %d\n", *iterRead);
+						time_printf("close  %d\n", *iterRead);
 						iterRead = listRead.erase(iterRead);
 						if (iterRead==listRead.end())
 						{
@@ -148,7 +153,7 @@ void *CNetServer::_listenThread(void *arg)
 				{
 					CGuardMutex guardMutex(m_clientReadMutex);	
 					m_listClientRead.push_back(socket);
-					printf("accept	%d\n", socket);
+					time_printf("accept	%d\n", socket);
 				}
 			}
 		}
@@ -159,52 +164,6 @@ void *CNetServer::_listenThread(void *arg)
 
 void *CNetServer::_clientThread(void *arg)
 {
-	char recvBuf[1024];
-	memset(recvBuf,0,sizeof(recvBuf));
-	fd_set fd_read, fd_write;
-	while(true)
-	{
-		SocketList &listRead = m_listClientRead;
-		FD_ZERO(&fd_read);
-		FD_ZERO(&fd_write);
-		
-		SocketList::iterator iterTmp;
-		for (iterTmp=listRead.begin(); iterTmp!=listRead.end(); ++iterTmp)	
-		{
-			FD_SET(*iterTmp, &fd_read);
-		}
-	
-		struct timeval cctv = {0, 50};
-		int count = select(listRead.size(), &fd_read, &fd_write, NULL, &cctv);
-		
-		SocketList::iterator iterRead = listRead.begin();
-		while(count > 0)
-		{
-			if(FD_ISSET(*iterRead, &fd_read))
-			{
-				memset(recvBuf, 0, sizeof(recvBuf));
-				if(0 < receive(*iterRead, recvBuf, sizeof(recvBuf)))
-				{
-				}
-				else
-				{
-					CGuardMutex guardMutex(m_clientReadMutex);
-					for (iterTmp=listRead.begin(); iterTmp!=listRead.end(); )
-					{
-						if(*iterRead == *iterTmp)
-						{
-							base::close(*iterRead);
-							printf("close  %d\n", *iterRead);
-							iterTmp = listRead.erase(iterTmp);
-							break;
-						}
-					}
-				}
-				break;
-			}
-			++iterRead;
-		}
-	}
 	return NULL;
 }
 
