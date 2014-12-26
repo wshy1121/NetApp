@@ -5,6 +5,7 @@
 #include <sys/types.h>
 #include <stdio.h>
 #include <string.h>
+#include "Global.h"
 
 
 
@@ -83,7 +84,7 @@ void *CNetServer::listenThread(void *arg)
 
 void *CNetServer::clientThread(void *arg)
 {
-	return CNetServer::instance()->_clientThread(arg);
+	return NULL;
 }
 
 void *CNetServer::_listenThread(void *arg)
@@ -94,15 +95,62 @@ void *CNetServer::_listenThread(void *arg)
 	{
 		return NULL;
 	}
-
-	while(1)
+	fd_set fd_read, fd_write;
+	sockaddr_in clientAddr;
+	socklen_t nLen = sizeof(sockaddr);
+	struct timeval cctv = {0, 50};
+	SocketList &listRead = m_listClientRead;	
+	char recvBuf[1024];
+	while(true)
 	{
-		sockaddr_in clientAddr;
-		socklen_t nLen = sizeof(sockaddr);
-		SOCKET socket = accept(m_sockLister,(sockaddr*)&clientAddr,&nLen);
+		FD_ZERO(&fd_read);
+		FD_ZERO(&fd_write);
+		FD_SET(m_sockLister, &fd_read);
+		SocketList::iterator iterTmp;
+		for (iterTmp=listRead.begin(); iterTmp!=listRead.end(); ++iterTmp)	
 		{
-			CGuardMutex guardMutex(m_clientReadMutex);	
-			m_listClientRead.push_back(socket);
+			FD_SET(*iterTmp, &fd_read);
+		}
+		
+		int count = select(listRead.size()+1, &fd_read, &fd_write, NULL, &cctv);
+		for (int i=0; i< count; ++i)
+		{
+			SocketList::iterator iterRead;
+			for (iterRead=listRead.begin(); iterRead!=listRead.end(); ++iterRead)
+			{
+				if(FD_ISSET(*iterRead, &fd_read))
+				{
+					memset(recvBuf,0,sizeof(recvBuf));
+					if(0 < receive(*iterRead, recvBuf, sizeof(recvBuf)))
+					{
+					}
+					//异常处理
+					else
+					{
+						CGuardMutex guardMutex(m_clientReadMutex);
+						base::close(*iterRead);
+						printf("close  %d\n", *iterRead);
+						iterRead = listRead.erase(iterRead);
+						if (iterRead==listRead.end())
+						{
+							break;
+						}
+					}
+				}
+			}
+
+			//处理数据发送
+			
+			//处理连接消息
+			if(FD_ISSET(m_sockLister, &fd_read))
+			{
+				SOCKET socket = accept(m_sockLister,(sockaddr*)&clientAddr,&nLen);
+				{
+					CGuardMutex guardMutex(m_clientReadMutex);	
+					m_listClientRead.push_back(socket);
+					printf("accept	%d\n", socket);
+				}
+			}
 		}
 	}
 	return NULL;
@@ -113,15 +161,10 @@ void *CNetServer::_clientThread(void *arg)
 {
 	char recvBuf[1024];
 	memset(recvBuf,0,sizeof(recvBuf));
-
-	char sendBuf[1024];
-	memset(sendBuf,0,sizeof(recvBuf));
-
 	fd_set fd_read, fd_write;
 	while(true)
 	{
 		SocketList &listRead = m_listClientRead;
-		SocketList &listWirte = m_listClientWrite;
 		FD_ZERO(&fd_read);
 		FD_ZERO(&fd_write);
 		
@@ -130,38 +173,18 @@ void *CNetServer::_clientThread(void *arg)
 		{
 			FD_SET(*iterTmp, &fd_read);
 		}
-		for (iterTmp=listWirte.begin(); iterTmp!=listWirte.end(); ++iterTmp)	
-		{
-			FD_SET(*iterTmp, &fd_write);
-		}
-		
+	
 		struct timeval cctv = {0, 50};
-		int count = select(100, &fd_read, &fd_write, NULL, &cctv);
+		int count = select(listRead.size(), &fd_read, &fd_write, NULL, &cctv);
 		
 		SocketList::iterator iterRead = listRead.begin();
 		while(count > 0)
 		{
-			SocketList::iterator iterWrite;
-			for (iterWrite=listWirte.begin(); iterWrite!=listWirte.end(); ++iterWrite)	
-			{
-				if(FD_ISSET(*iterWrite, &fd_write))
-				{
-					--count;
-					send(*iterWrite, sendBuf, strlen(sendBuf));
-				}
-			}
-			listWirte.clear();
 			if(FD_ISSET(*iterRead, &fd_read))
 			{
 				memset(recvBuf, 0, sizeof(recvBuf));
 				if(0 < receive(*iterRead, recvBuf, sizeof(recvBuf)))
 				{
-					base::strcpy(sendBuf, recvBuf);
-					
-					for (iterTmp=listRead.begin(); iterTmp!=listRead.end(); ++iterTmp)	
-					{
-						listWirte.push_back(*iterTmp);
-					}
 				}
 				else
 				{
@@ -171,15 +194,8 @@ void *CNetServer::_clientThread(void *arg)
 						if(*iterRead == *iterTmp)
 						{
 							base::close(*iterRead);
+							printf("close  %d\n", *iterRead);
 							iterTmp = listRead.erase(iterTmp);
-							break;
-						}
-					}
-					for (iterTmp=listWirte.begin(); iterTmp!=listWirte.end(); )
-					{
-						if(*iterRead == *iterTmp)
-						{
-							iterTmp = listWirte.erase(iterTmp);
 							break;
 						}
 					}
