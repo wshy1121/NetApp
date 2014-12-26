@@ -9,8 +9,8 @@
 #CROSS  = arm-none-linux-gnueabi-
 #CROSS  = arm-linux-gnueabihf-
 
-CFLAGS += -I ../CrossPlat 
-LIB_OBJS += net_client.o net_server.o 
+CFLAGS += -I ../CrossPlat  -I ../LogCore
+LIB_OBJS += net_client.o net_server.o  data_work.o
 
 CPP	=	@echo " g++ $@"; $(CROSS)g++
 CC	=	@echo " gcc $@"; $(CROSS)gcc
