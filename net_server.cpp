@@ -71,7 +71,6 @@ bool CNetServer::startServer()
 	}
 
 	base::pthread_create(&m_hListenThread, NULL,listenThread,NULL);
-	base::pthread_create(&m_hClientThread, NULL,clientThread,NULL);
 
 	printf("server is start!\n");
 	return true;
@@ -83,10 +82,6 @@ void *CNetServer::listenThread(void *arg)
 	return CNetServer::instance()->_listenThread(arg);
 }
 
-void *CNetServer::clientThread(void *arg)
-{
-	return NULL;
-}
 
 void *CNetServer::_listenThread(void *arg)
 {
@@ -162,10 +157,6 @@ void *CNetServer::_listenThread(void *arg)
 }
 
 
-void *CNetServer::_clientThread(void *arg)
-{
-	return NULL;
-}
 
 
 int CNetServer::receive(SOCKET fd,char *szText,int len)
