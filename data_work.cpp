@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "data_work.h"
 #include "mem_base.h"
+#include "open_src.h"
 #include "Global.h"
 
 extern CPthreadMutex g_insMutexCalc;
@@ -67,16 +68,19 @@ void CDataWorkManager::threadProc()
 		}
 		m_workListMutex.Enter();
 		struct node *pNode =  m_workList->begin();
-		WORK_DATA *pRecvData = workDataContain(pNode);
+		WORK_DATA *pWorkData = workDataContain(pNode);
 		m_workList->pop_front();	
 		m_workListMutex.Leave();
-		time_printf("pRecvData->m_pContent  %s\n", pRecvData->m_pContent);
-		//dealRecvData(&pRecvData->calcInf);
-		destroyWorkData(pRecvData);
+		dealWorkData(pWorkData);
+		destroyWorkData(pWorkData);
 	}
 }
 
-
+void CDataWorkManager::dealWorkData(WORK_DATA *pWorkData)
+{
+	char *content = pWorkData->m_pContent;
+	int contentLen = pWorkData->m_contentLen;
+}
 void* CDataWorkManager::threadFunc(void *pArg)
 {
 	CDataWorkManager::instance()->threadProc();

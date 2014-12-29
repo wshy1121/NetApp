@@ -26,6 +26,7 @@ private:
 	CDataWorkManager();	
 	void threadProc();
 	static void* threadFunc(void *pArg);
+	void dealWorkData(WORK_DATA *pWorkData);
 private:
 	static CDataWorkManager *_instance;
 private:

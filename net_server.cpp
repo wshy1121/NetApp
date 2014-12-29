@@ -6,6 +6,9 @@
 #include <sys/types.h>
 #include <stdio.h>
 #include <string.h>
+#include <fcntl.h>
+#include "open_src.h"
+#include "Global.h"
 
 
 
@@ -13,8 +16,9 @@ extern CPthreadMutex g_insMutexCalc;
 
 CNetServer* CNetServer::_instance = NULL;
 
-CNetServer::CNetServer():SERVER_PORT(8889), m_sockLister(INVALID_SOCKET)
+CNetServer::CNetServer():SERVER_PORT(8889), m_sockLister(INVALID_SOCKET), m_recvBufLen(1024*1024)
 {
+	m_recvBuf = (char *)base::malloc(m_recvBufLen);
 	m_listClientRead = CList::createCList();
 	return ;
 }
@@ -50,6 +54,8 @@ bool CNetServer::startServer()
 		printf("create sock error!\n");
 		return false;
 	}
+	int nRecvBuf = m_recvBufLen;
+	setsockopt(m_sockLister, SOL_SOCKET,SO_RCVBUF, (const char*)&nRecvBuf, sizeof(int));
 
 	int opt = 0;
 	if (setsockopt(m_sockLister, SOL_SOCKET, SO_REUSEADDR, (char*) &opt, sizeof(opt))< 0)
@@ -94,7 +100,6 @@ void *CNetServer::_listenThread(void *arg)
 	sockaddr_in clientAddr;
 	socklen_t nLen = sizeof(sockaddr);
 	struct timeval cctv = {0, 50};
-	char recvBuf[1024];
 	node *pNode = NULL;
 	while(true)
 	{
@@ -119,13 +124,34 @@ void *CNetServer::_listenThread(void *arg)
 				pClientConnRead = clientConnContain(pNode);
 				if(FD_ISSET(pClientConnRead->socket, &fd_read))
 				{
-					memset(recvBuf,0,sizeof(recvBuf));
-					int recvLen = receive(pClientConnRead->socket, recvBuf, sizeof(recvBuf));
+					int recvLen = receive(pClientConnRead->socket, m_recvBuf, m_recvBufLen);
+					
 					if(0 < recvLen)
 					{
-						WORK_DATA *pWorkData = CDataWorkManager::instance()->createWorkData(recvLen);
-						memcpy(pWorkData->m_pContent, recvBuf, recvLen);
-						CDataWorkManager::instance()->pushWorkData(pWorkData);
+						int beginIndex = -1;
+						for (int i=0; i<recvLen; ++i)
+						{
+							if (m_recvBuf[i] == '{')
+							{
+								beginIndex = i;
+							}
+							else if (m_recvBuf[i] == '}' && beginIndex != -1)
+							{
+								int traceInfLen = i-beginIndex+1;
+								m_traceInf[traceInfLen] = '\0';
+								memcpy(m_traceInf, m_recvBuf+beginIndex, traceInfLen);
+								if (beginIndex > m_recvBufLen - 4*1024)
+								{
+									time_printf("beginIndex  m_traceInf  %d  %s", beginIndex, m_traceInf);
+								}
+								beginIndex = -1;
+								
+								//WORK_DATA *pWorkData = CDataWorkManager::instance()->createWorkData(recvLen);
+								//memcpy(pWorkData->m_pContent, m_recvBuf, recvLen);
+								//CDataWorkManager::instance()->pushWorkData(pWorkData);
+
+							}
+						}
 					}
 					//异常处理
 					else
@@ -143,12 +169,10 @@ void *CNetServer::_listenThread(void *arg)
 			//处理连接消息
 			if(FD_ISSET(m_sockLister, &fd_read))
 			{
-				SOCKET socket = accept(m_sockLister,(sockaddr*)&clientAddr,&nLen);
-				{
-					ClientConn *pClientConn = (ClientConn *)base::malloc(sizeof(ClientConn));
-					pClientConn->socket = socket;
-					m_listClientRead->push_back(&pClientConn->node);
-				}
+				SOCKET socket = accept(m_sockLister,(sockaddr*)&clientAddr,&nLen);					
+				ClientConn *pClientConn = (ClientConn *)base::malloc(sizeof(ClientConn));
+				pClientConn->socket = socket;
+				m_listClientRead->push_back(&pClientConn->node);
 			}
 		}
 	}

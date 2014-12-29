@@ -33,7 +33,10 @@ private:
 	static  CNetServer* _instance;
 	SOCKET m_sockLister;
 
-	CList *m_listClientRead;
+	CList *m_listClientRead;	
+	char *m_recvBuf;
+	int m_recvBufLen;
+	char m_traceInf[4 * 1024];
 };
 
 #endif //_CHAT_ROOT_SERVER_
