@@ -4,6 +4,8 @@
 #include "open_src.h"
 #include "Global.h"
 
+char *dataFormat = "{\"opr\" : \"%s\", \"threadId\" : %d, \"line\" : %d, \"fileName\" : \"%s\", \"funcName\" : \"%s\", \"displayLevel\" : %d, \"content\" : \"%s\"}";
+
 extern CPthreadMutex g_insMutexCalc;
 
 CDataWorkManager *CDataWorkManager::_instance = NULL;

@@ -27,6 +27,7 @@ private:
 private:
 	CNetServer();
 	void *_listenThread(void *arg);
+	void dealException(int clientId);
 	int receive(SOCKET fd,char *szText,int len);
 	int send(SOCKET fd,char *szText,int len);
 	int creatClientId();

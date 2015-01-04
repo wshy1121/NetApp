@@ -13,7 +13,7 @@
 
 
 extern CPthreadMutex g_insMutexCalc;
-
+extern char *dataFormat;
 CNetServer* CNetServer::_instance = NULL;
 
 CNetServer::CNetServer():SERVER_PORT(8889), m_sockLister(INVALID_SOCKET), m_recvBufLen(1024*1024)
@@ -143,6 +143,7 @@ void *CNetServer::_listenThread(void *arg)
 					//Òì³£´¦Àí
 					else
 					{					
+						dealException(pClientConnRead->clientId);
 						resetClientId(pClientConnRead->clientId);
 						base::close(pClientConnRead->socket);
 						
@@ -169,6 +170,19 @@ void *CNetServer::_listenThread(void *arg)
 	return NULL;
 }
 
+void CNetServer::dealException(int clientId)
+{
+	char dispAllData[128];
+	int dispAllDataLen;
+	base::snprintf(dispAllData, sizeof(dispAllData), dataFormat, "dispAll", 0, 0, "", "", 0, "");
+	dispAllDataLen = strlen(dispAllData);
+	
+	WORK_DATA *pWorkData = CDataWorkManager::instance()->createWorkData(dispAllDataLen);
+	pWorkData->clientId = clientId;
+	memcpy(pWorkData->m_pContent, dispAllData, dispAllDataLen);
+	CDataWorkManager::instance()->pushWorkData(pWorkData);	
+	return ;
+}
 
 
 
