@@ -3,6 +3,7 @@
 
 #include "link_tool.h"
 #include "thread_base.h"
+#include "time_calc.h"
 
 typedef struct WORK_DATA
 {
@@ -26,7 +27,9 @@ private:
 	CDataWorkManager();	
 	void threadProc();
 	static void* threadFunc(void *pArg);
+	void dealitemData(const char *itemData);	
 	void dealWorkData(WORK_DATA *pWorkData);
+	TimeCalcInf::TimeCalcOpr switchOpr(const char *opr);
 private:
 	static CDataWorkManager *_instance;
 private:

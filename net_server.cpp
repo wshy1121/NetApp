@@ -128,30 +128,14 @@ void *CNetServer::_listenThread(void *arg)
 					
 					if(0 < recvLen)
 					{
-						int beginIndex = -1;
-						for (int i=0; i<recvLen; ++i)
+						if (recvLen == m_recvBufLen)
 						{
-							if (m_recvBuf[i] == '{')
-							{
-								beginIndex = i;
-							}
-							else if (m_recvBuf[i] == '}' && beginIndex != -1)
-							{
-								int traceInfLen = i-beginIndex+1;
-								m_traceInf[traceInfLen] = '\0';
-								memcpy(m_traceInf, m_recvBuf+beginIndex, traceInfLen);
-								if (beginIndex > m_recvBufLen - 4*1024)
-								{
-									time_printf("beginIndex  m_traceInf  %d  %s", beginIndex, m_traceInf);
-								}
-								beginIndex = -1;
-								
-								//WORK_DATA *pWorkData = CDataWorkManager::instance()->createWorkData(recvLen);
-								//memcpy(pWorkData->m_pContent, m_recvBuf, recvLen);
-								//CDataWorkManager::instance()->pushWorkData(pWorkData);
-
-							}
+							printf("receive may lost data!!!\n");
 						}
+						
+						WORK_DATA *pWorkData = CDataWorkManager::instance()->createWorkData(recvLen);
+						memcpy(pWorkData->m_pContent, m_recvBuf, recvLen);
+						CDataWorkManager::instance()->pushWorkData(pWorkData);					
 					}
 					//“Ï≥£¥¶¿Ì
 					else
