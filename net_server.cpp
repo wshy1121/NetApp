@@ -20,6 +20,8 @@ CNetServer::CNetServer():SERVER_PORT(8889), m_sockLister(INVALID_SOCKET), m_recv
 {
 	m_recvBuf = (char *)base::malloc(m_recvBufLen);
 	m_listClientRead = CList::createCList();
+	m_cientIds.reset();
+	m_newId = 0;
 	return ;
 }
 
@@ -134,12 +136,14 @@ void *CNetServer::_listenThread(void *arg)
 						}
 						
 						WORK_DATA *pWorkData = CDataWorkManager::instance()->createWorkData(recvLen);
+						pWorkData->clientId = pClientConnRead->clientId;
 						memcpy(pWorkData->m_pContent, m_recvBuf, recvLen);
 						CDataWorkManager::instance()->pushWorkData(pWorkData);					
 					}
 					//Òì³£´¦Àí
 					else
-					{
+					{					
+						resetClientId(pClientConnRead->clientId);
 						base::close(pClientConnRead->socket);
 						
 						pNode = m_listClientRead->erase(pNode);						
@@ -156,6 +160,8 @@ void *CNetServer::_listenThread(void *arg)
 				SOCKET socket = accept(m_sockLister,(sockaddr*)&clientAddr,&nLen);					
 				ClientConn *pClientConn = (ClientConn *)base::malloc(sizeof(ClientConn));
 				pClientConn->socket = socket;
+				pClientConn->clientId = creatClientId();
+				setClientId(pClientConn->clientId);
 				m_listClientRead->push_back(&pClientConn->node);
 			}
 		}
@@ -199,4 +205,28 @@ int CNetServer::send(SOCKET fd,char *szText,int len)
 	return len;
 }
 
+int CNetServer::creatClientId()
+{
+	if (m_newId < MAX_CLIENT_SIZE)
+	{
+		return m_newId++;
+	}
+	else
+	{
+		m_newId = 0;
+		return m_newId;
+	}
+}
+
+void CNetServer::setClientId(int clientId)
+{
+	m_cientIds.set(clientId);
+	return ;
+}
+
+void CNetServer::resetClientId(int clientId)
+{
+	m_cientIds.reset(clientId);
+	return ;
+}
 

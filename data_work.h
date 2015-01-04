@@ -8,7 +8,8 @@
 typedef struct WORK_DATA
 {
 	char *m_pContent;
-	int m_contentLen;	
+	int m_contentLen;
+	int clientId;
 	struct node node;
 }WORK_DATA;
 
@@ -27,7 +28,7 @@ private:
 	CDataWorkManager();	
 	void threadProc();
 	static void* threadFunc(void *pArg);
-	void dealitemData(const char *itemData);	
+	void dealitemData(int clientId, const char *itemData);	
 	void dealWorkData(WORK_DATA *pWorkData);
 	TimeCalcInf::TimeCalcOpr switchOpr(const char *opr);
 private:

@@ -76,7 +76,7 @@ void CDataWorkManager::threadProc()
 	}
 }
 
-void CDataWorkManager::dealitemData(const char *itemData)
+void CDataWorkManager::dealitemData(int clientId, const char *itemData)
 {
 	Json::Reader reader;
 	Json::Value traceInf;
@@ -103,7 +103,8 @@ void CDataWorkManager::dealitemData(const char *itemData)
 	pCalcInf->m_funcName = pCalcInf->m_pContent + contentLen + fileLen;
 
 	pCalcInf->m_opr = opr;
-	pCalcInf->m_threadId = threadId;
+	pCalcInf->m_traceInfoId.threadId = threadId;
+	pCalcInf->m_traceInfoId.clientId = clientId;
 	pCalcInf->m_line = line;
 	pCalcInf->m_displayLevel = display_level;
 	
@@ -127,7 +128,7 @@ void CDataWorkManager::dealWorkData(WORK_DATA *pWorkData)
 		}
 		else if (recvBuf[i] == '}' && beginIndex != -1)
 		{							
-			dealitemData(recvBuf+beginIndex);				
+			dealitemData(pWorkData->clientId, recvBuf+beginIndex);				
 			beginIndex = -1;
 		}
 	}
