@@ -1,10 +1,11 @@
 #include "stdafx.h"
+#include <string.h>
 #include "data_work.h"
 #include "mem_base.h"
 #include "open_src.h"
 #include "Global.h"
 
-char *dataFormat = "{\"opr\" : \"%s\", \"threadId\" : %d, \"line\" : %d, \"fileName\" : \"%s\", \"funcName\" : \"%s\", \"displayLevel\" : %d, \"content\" : \"%s\"}";
+const char *dataFormat = "{\"opr\" : \"%s\", \"threadId\" : %d, \"line\" : %d, \"fileName\" : \"%s\", \"funcName\" : \"%s\", \"displayLevel\" : %d, \"content\" : \"%s\"}";
 
 extern CPthreadMutex g_insMutexCalc;
 
@@ -13,7 +14,7 @@ CDataWorkManager *CDataWorkManager::_instance = NULL;
 CDataWorkManager::CDataWorkManager()
 {
 	m_workList = CList::createCList();
-	base::pthread_create(&m_threadId, NULL,threadFunc,NULL);
+	//base::pthread_create(&m_threadId, NULL,threadFunc,NULL);
 }
 
 CDataWorkManager *CDataWorkManager::instance()
@@ -78,22 +79,15 @@ void CDataWorkManager::threadProc()
 	}
 }
 
-void CDataWorkManager::dealitemData(int clientId, const char *itemData)
+void CDataWorkManager::dealitemData(int clientId, char *infs[])
 {
-	Json::Reader reader;
-	Json::Value traceInf;
-	
-	if (!reader.parse(itemData, traceInf))
-	{
-		printf("reader.parse fained!!!itemData:%s", itemData);
-	}
-	TimeCalcInf::TimeCalcOpr opr = switchOpr(traceInf["opr"].asCString());
-	base::pthread_t threadId = traceInf["threadId"].asInt();
-	int line = traceInf["line"].asInt();
-	char *file_name = (char *)traceInf["fileName"].asCString();
-	char *funcName = (char *)traceInf["funcName"].asCString();
-	int display_level = traceInf["displayLevel"].asInt();
-	const char *traceContent = traceInf["content"].asCString();
+	TimeCalcInf::TimeCalcOpr opr = switchOpr(infs[0]);
+	base::pthread_t threadId = atoi(infs[1]);
+	int line = atoi(infs[2]);
+	char *file_name = infs[3];
+	char *funcName = infs[4];
+	int display_level = atoi(infs[5]);
+	const char *traceContent = infs[6];
 
 	int contentLen = strlen(traceContent) + 1;
 	int fileLen = strlen(file_name) + 1;
@@ -118,22 +112,7 @@ void CDataWorkManager::dealitemData(int clientId, const char *itemData)
 
 void CDataWorkManager::dealWorkData(WORK_DATA *pWorkData)
 {
-	const char *recvBuf = pWorkData->m_pContent;
-	int recvLen = pWorkData->m_contentLen;
-	
-	int beginIndex = -1;
-	for (int i=0; i<recvLen; ++i)
-	{
-		if (recvBuf[i] == '{')
-		{
-			beginIndex = i;
-		}
-		else if (recvBuf[i] == '}' && beginIndex != -1)
-		{							
-			dealitemData(pWorkData->clientId, recvBuf+beginIndex);				
-			beginIndex = -1;
-		}
-	}
+
 }
 void* CDataWorkManager::threadFunc(void *pArg)
 {
@@ -173,6 +152,10 @@ TimeCalcInf::TimeCalcOpr CDataWorkManager::switchOpr(const char *opr)
 	{
 		oprInt = TimeCalcInf::e_dispAll;
 	}
+	else if (strcmp(opr, "cleanAll") == 0)
+	{
+		oprInt = TimeCalcInf::e_cleanAll;
+	}
 	else if (strcmp(opr, "insertTag") == 0)
 	{
 		oprInt = TimeCalcInf::e_insertTag;
@@ -180,6 +163,14 @@ TimeCalcInf::TimeCalcOpr CDataWorkManager::switchOpr(const char *opr)
 	else if (strcmp(opr, "printfMemInfMap") == 0)
 	{
 		oprInt = TimeCalcInf::e_printfMemInfMap;
+	}
+	else if (strcmp(opr, "openFile") == 0)
+	{
+		oprInt = TimeCalcInf::e_openFile;
+	}
+	else if (strcmp(opr, "closeFile") == 0)
+	{
+		oprInt = TimeCalcInf::e_closeFile;
 	}
 	else
 	{

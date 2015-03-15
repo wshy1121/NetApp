@@ -16,7 +16,7 @@ extern CPthreadMutex g_insMutexCalc;
 extern char *dataFormat;
 CNetServer* CNetServer::_instance = NULL;
 
-CNetServer::CNetServer():SERVER_PORT(8889), m_sockLister(INVALID_SOCKET), m_recvBufLen(1024*1024)
+CNetServer::CNetServer():SERVER_PORT(8889), m_sockLister(INVALID_SOCKET), m_recvBufLen(1024*1024), m_nfds(0)
 {
 	m_recvBuf = (char *)base::malloc(m_recvBufLen);
 	m_listClientRead = CList::createCList();
@@ -76,6 +76,7 @@ bool CNetServer::startServer()
 		printf("bind sock error!\n");
 		return false;
 	}
+	m_nfds = m_sockLister;
 
 	base::pthread_create(&m_hListenThread, NULL,listenThread,NULL);
 
@@ -101,10 +102,11 @@ void *CNetServer::_listenThread(void *arg)
 	fd_set fd_read, fd_write;
 	sockaddr_in clientAddr;
 	socklen_t nLen = sizeof(sockaddr);
-	struct timeval cctv = {0, 50};
+	
 	node *pNode = NULL;
 	while(true)
 	{
+		struct timeval cctv = {0, 5000};
 		FD_ZERO(&fd_read);
 		FD_ZERO(&fd_write);
 		FD_SET(m_sockLister, &fd_read);
@@ -116,7 +118,7 @@ void *CNetServer::_listenThread(void *arg)
 			FD_SET(pClientConnTmp->socket, &fd_read);
 		}
 		
-		int count = select(m_listClientRead->size()+1, &fd_read, &fd_write, NULL, &cctv);
+		int count = select(m_nfds+1, &fd_read, &fd_write, NULL, &cctv);
 		for (int i=0; i< count; ++i)
 		{
 			ClientConn *pClientConnRead = NULL;
@@ -126,29 +128,18 @@ void *CNetServer::_listenThread(void *arg)
 				pClientConnRead = clientConnContain(pNode);
 				if(FD_ISSET(pClientConnRead->socket, &fd_read))
 				{
-					int recvLen = receive(pClientConnRead->socket, m_recvBuf, m_recvBufLen);
-					
-					if(0 < recvLen)
+					char *infs[INF_SIZE];
+					bool bRet = receiveInfData(pClientConnRead->socket, infs);
+					if(bRet)
 					{
-						if (recvLen == m_recvBufLen)
-						{
-							printf("receive may lost data!!!\n");
-						}
-						
-						WORK_DATA *pWorkData = CDataWorkManager::instance()->createWorkData(recvLen);
-						pWorkData->clientId = pClientConnRead->clientId;
-						memcpy(pWorkData->m_pContent, m_recvBuf, recvLen);
-						CDataWorkManager::instance()->pushWorkData(pWorkData);					
+						CDataWorkManager::instance()->dealitemData(pClientConnRead->clientId, infs);
 					}
 					//异常处理
 					else
-					{					
+					{	
 						dealException(pClientConnRead->clientId);
-						resetClientId(pClientConnRead->clientId);
-						base::close(pClientConnRead->socket);
-						
-						pNode = m_listClientRead->erase(pNode);						
-						base::free(pClientConnRead);
+						closeFile(pClientConnRead->clientId);
+						pNode = dealDisconnect(pClientConnRead);
 						continue;
 					}
 				}
@@ -158,43 +149,134 @@ void *CNetServer::_listenThread(void *arg)
 			//处理连接消息
 			if(FD_ISSET(m_sockLister, &fd_read))
 			{
-				SOCKET socket = accept(m_sockLister,(sockaddr*)&clientAddr,&nLen);					
-				ClientConn *pClientConn = (ClientConn *)base::malloc(sizeof(ClientConn));
-				pClientConn->socket = socket;
-				pClientConn->clientId = creatClientId();
-				setClientId(pClientConn->clientId);
-				m_listClientRead->push_back(&pClientConn->node);
+				SOCKET socket = accept(m_sockLister,(sockaddr*)&clientAddr,&nLen);		
+				if (m_nfds < socket)
+				{
+					m_nfds = socket;
+				}
+				ClientConn *pClientConn = dealConnect(socket);
+				openFile(pClientConn->clientId, (char *)"Debug.cpp");
 			}
 		}
 	}
 	return NULL;
 }
-
-void CNetServer::dealException(int clientId)
+void CNetServer::openFile(int fileKey, char *fileName)
 {
-	char dispAllData[128];
-	int dispAllDataLen;
-	base::snprintf(dispAllData, sizeof(dispAllData), dataFormat, "dispAll", 0, 0, "", "", 0, "");
-	dispAllDataLen = strlen(dispAllData);
-	
-	WORK_DATA *pWorkData = CDataWorkManager::instance()->createWorkData(dispAllDataLen);
-	pWorkData->clientId = clientId;
-	memcpy(pWorkData->m_pContent, dispAllData, dispAllDataLen);
-	CDataWorkManager::instance()->pushWorkData(pWorkData);	
+	char *infs[INF_SIZE];	
+	infs[0] = (char *)"openFile";
+	infs[1] = (char *)"0";
+	infs[2] = (char *)"0";
+	infs[3] = (char *)"";
+	infs[4] = (char *)"";
+	infs[5] = (char *)"0";
+	infs[6] = (char *)fileName;
+
+	CDataWorkManager::instance()->dealitemData(fileKey, infs); 
 	return ;
 }
 
 
-
-int CNetServer::receive(SOCKET fd,char *szText,int len)
+void CNetServer::closeFile(int fileKey)
 {
-	int rc;
-	rc=recv(fd,szText,len,0);
-	if(rc <= 0)
+	char *infs[INF_SIZE];	
+	infs[0] = (char *)"closeFile";
+	infs[1] = (char *)"0";
+	infs[2] = (char *)"0";
+	infs[3] = (char *)"";
+	infs[4] = (char *)"";
+	infs[5] = (char *)"0";
+	infs[6] = (char *)"";
+
+	CDataWorkManager::instance()->dealitemData(fileKey, infs);	
+	return ;
+}
+
+
+void CNetServer::dealException(int clientId)
+{
+	char *infs[INF_SIZE];	
+	infs[0] = (char *)"dispAll";
+	infs[1] = (char *)"0";
+	infs[2] = (char *)"0";
+	infs[3] = (char *)"";
+	infs[4] = (char *)"";
+	infs[5] = (char *)"0";
+	infs[6] = (char *)"backtrace";
+	CDataWorkManager::instance()->dealitemData(clientId, infs);	
+
+	infs[0] = (char *)"cleanAll";
+	infs[1] = (char *)"0";
+	infs[2] = (char *)"0";
+	infs[3] = (char *)"";
+	infs[4] = (char *)"";
+	infs[5] = (char *)"0";
+	infs[6] = (char *)"backtrace";
+	CDataWorkManager::instance()->dealitemData(clientId, infs);	
+	return ;
+}
+
+node *CNetServer::dealDisconnect(ClientConn *pClientConnRead)
+{
+	node *pNode = &pClientConnRead->node;
+	
+	resetClientId(pClientConnRead->clientId);
+	base::close(pClientConnRead->socket);	
+	pNode = m_listClientRead->erase(pNode); 					
+	base::free(pClientConnRead);
+	return pNode;
+}
+
+ClientConn *CNetServer::dealConnect(int clientId)
+{
+	ClientConn *pClientConn = (ClientConn *)base::malloc(sizeof(ClientConn));
+	pClientConn->socket = clientId;
+	pClientConn->clientId = creatClientId();
+	
+	setClientId(pClientConn->clientId);
+	m_listClientRead->push_back(&pClientConn->node);
+	return pClientConn;
+}
+
+bool CNetServer::receiveInfData(int socket, char *infs[])
+{
+	const int ClenSize = 4;
+	char *CLen = m_recvBuf;
+	if (receive(socket, CLen, ClenSize) <= 0)
 	{
-		return -1;
+		return false;
 	}
-	return rc;
+	int iLen = 0;		
+	CLogDataInf dataInf;
+	dataInf.C2ILen(CLen,ClenSize,iLen);
+	if (receive(socket, m_recvBuf+ClenSize, iLen-ClenSize) <= 0)
+	{
+		return false;
+	}
+	
+	dataInf.unPacket(m_recvBuf,infs);
+	return true;
+}
+
+int CNetServer::receive(SOCKET fd,char *szText,int iLen)
+{
+	int recvBufLen = 0;
+	int totalRecvLen = 0;
+	while (1)
+	{
+		recvBufLen = recv(fd, szText+totalRecvLen, iLen-totalRecvLen, 0);
+		if (recvBufLen <= 0)
+
+		{
+			return -1;
+		}
+		totalRecvLen += recvBufLen;
+		if (totalRecvLen == iLen)
+		{
+			break;
+		}
+	}
+	return iLen;
 }
 
 int CNetServer::send(SOCKET fd,char *szText,int len)

@@ -23,12 +23,12 @@ public:
 public:
 	WORK_DATA *createWorkData(int contentLen);
 	void destroyWorkData(WORK_DATA *pWorkData);
-	void pushWorkData(WORK_DATA *pWorkData);
+	void pushWorkData(WORK_DATA *pWorkData);	
+	void dealitemData(int clientId, char *infs[]);	
 private:
 	CDataWorkManager();	
 	void threadProc();
 	static void* threadFunc(void *pArg);
-	void dealitemData(int clientId, const char *itemData);	
 	void dealWorkData(WORK_DATA *pWorkData);
 	TimeCalcInf::TimeCalcOpr switchOpr(const char *opr);
 private:
