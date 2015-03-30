@@ -4,6 +4,7 @@
 #include "mem_base.h"
 #include "Global.h"
 
+using namespace base;
 const char *dataFormat = "{\"opr\" : \"%s\", \"threadId\" : %d, \"line\" : %d, \"fileName\" : \"%s\", \"funcName\" : \"%s\", \"displayLevel\" : %d, \"content\" : \"%s\"}";
 
 extern CPthreadMutex g_insMutexCalc;

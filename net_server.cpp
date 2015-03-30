@@ -9,6 +9,7 @@
 #include <fcntl.h>
 #include "Global.h"
 
+using namespace base;
 
 
 extern CPthreadMutex g_insMutexCalc;

@@ -34,8 +34,8 @@ private:
 private:
 	static CDataWorkManager *_instance;
 private:
-	CList *m_workList;
-	CPthreadMutex m_workListMutex;
+	base::CList *m_workList;
+	base::CPthreadMutex m_workListMutex;
 	base::pthread_t m_threadId;
 };
 

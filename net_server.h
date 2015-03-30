@@ -46,7 +46,7 @@ private:
 	static  CNetServer* _instance;
 	SOCKET m_sockLister;
 
-	CList *m_listClientRead;	
+	base::CList *m_listClientRead;	
 	char *m_recvBuf;
 	int m_recvBufLen;
 	std::bitset<MAX_CLIENT_SIZE> m_cientIds;
