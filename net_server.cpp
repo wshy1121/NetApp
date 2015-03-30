@@ -7,7 +7,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <fcntl.h>
-#include "open_src.h"
 #include "Global.h"
 
 

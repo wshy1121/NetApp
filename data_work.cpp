@@ -2,7 +2,6 @@
 #include <string.h>
 #include "data_work.h"
 #include "mem_base.h"
-#include "open_src.h"
 #include "Global.h"
 
 const char *dataFormat = "{\"opr\" : \"%s\", \"threadId\" : %d, \"line\" : %d, \"fileName\" : \"%s\", \"funcName\" : \"%s\", \"displayLevel\" : %d, \"content\" : \"%s\"}";
