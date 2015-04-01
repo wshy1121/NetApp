@@ -24,7 +24,7 @@ public:
 	WORK_DATA *createWorkData(int contentLen);
 	void destroyWorkData(WORK_DATA *pWorkData);
 	void pushWorkData(WORK_DATA *pWorkData);	
-	void dealitemData(int clientId, char *infs[]);	
+	void dealitemData(int clientId, char *infs[], int infLens[]);	
 private:
 	CDataWorkManager();	
 	void threadProc();

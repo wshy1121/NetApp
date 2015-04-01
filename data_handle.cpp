@@ -23,15 +23,15 @@ void IDealDataHandle::initDataHandle()
 	CTimeCalcInfManager *_instance = CTimeCalcInfManager::instance();
 	_instance->registerHandle("createCandy", new CCreateCandy);
 	_instance->registerHandle("destroyCandy", new CDestroyCandy);
-	_instance->registerHandle("insertTrace", new CDestroyCandy);
-	_instance->registerHandle("dispAll", new CDestroyCandy);
-	_instance->registerHandle("cleanAll", new CDestroyCandy);
-	_instance->registerHandle("insertTag", new CDestroyCandy);
-	_instance->registerHandle("insertStrOnly", new CDestroyCandy);
-	_instance->registerHandle("printfMemInfMap", new CDestroyCandy);
-	_instance->registerHandle("insertHex", new CDestroyCandy);
-	_instance->registerHandle("openFile", new CDestroyCandy);
-	_instance->registerHandle("closeFile", new CDestroyCandy);
+	_instance->registerHandle("insertTrace", new CInsertTrace);
+	_instance->registerHandle("dispAll", new CDispAll);
+	_instance->registerHandle("cleanAll", new CCleanAll);
+	_instance->registerHandle("insertTag", new CInsertTag);
+	_instance->registerHandle("insertStrOnly", new CInsertStrOnly);
+	_instance->registerHandle("printfMemInfMap", new CPrintfMemInfMap);
+	_instance->registerHandle("insertHex", new CInsertHex);
+	_instance->registerHandle("openFile", new COpenFile);
+	_instance->registerHandle("closeFile", new CCloseFile);
 }
 
 

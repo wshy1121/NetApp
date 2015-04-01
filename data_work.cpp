@@ -80,7 +80,7 @@ void CDataWorkManager::threadProc()
 	}
 }
 
-void CDataWorkManager::dealitemData(int clientId, char *infs[])
+void CDataWorkManager::dealitemData(int clientId, char *infs[], int infLens[])
 {
 	TimeCalcInf::TimeCalcOpr opr = switchOpr(infs[0]);
 	base::pthread_t threadId = atoi(infs[1]);

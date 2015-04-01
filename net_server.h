@@ -32,7 +32,7 @@ private:
 	ClientConn *dealConnect(int clientId);
 	void openFile(int fileKey, char *fileName);
 	void closeFile(int fileKey);
-	bool receiveInfData(int socket, char *infs[]);
+	bool receiveInfData(int socket, char *infs[], int infLens[]);
 	int receive(SOCKET fd,char *szText,int len);
 	int send(SOCKET fd,char *szText,int len);
 	int creatClientId();

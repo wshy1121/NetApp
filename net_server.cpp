@@ -129,10 +129,11 @@ void *CNetServer::_listenThread(void *arg)
 				if(FD_ISSET(pClientConnRead->socket, &fd_read))
 				{
 					char *infs[INF_SIZE];
-					bool bRet = receiveInfData(pClientConnRead->socket, infs);
+					int infLens[INF_SIZE];
+					bool bRet = receiveInfData(pClientConnRead->socket, infs, infLens);
 					if(bRet)
 					{
-						CDataWorkManager::instance()->dealitemData(pClientConnRead->clientId, infs);
+						CDataWorkManager::instance()->dealitemData(pClientConnRead->clientId, infs, infLens);
 					}
 					//Òì³£´¦Àí
 					else
@@ -172,7 +173,10 @@ void CNetServer::openFile(int fileKey, char *fileName)
 	infs[5] = (char *)"0";
 	infs[6] = (char *)fileName;
 
-	CDataWorkManager::instance()->dealitemData(fileKey, infs); 
+	int infLens[INF_SIZE];
+	CLogDataInf::calcLens(infs, 7, infLens);
+	
+	CDataWorkManager::instance()->dealitemData(fileKey, infs, infLens); 
 	return ;
 }
 
@@ -188,7 +192,10 @@ void CNetServer::closeFile(int fileKey)
 	infs[5] = (char *)"0";
 	infs[6] = (char *)"";
 
-	CDataWorkManager::instance()->dealitemData(fileKey, infs);	
+	int infLens[INF_SIZE];
+	CLogDataInf::calcLens(infs, 7, infLens);
+
+	CDataWorkManager::instance()->dealitemData(fileKey, infs, infLens);	
 	return ;
 }
 
@@ -203,7 +210,10 @@ void CNetServer::dealException(int clientId)
 	infs[4] = (char *)"";
 	infs[5] = (char *)"0";
 	infs[6] = (char *)"backtrace";
-	CDataWorkManager::instance()->dealitemData(clientId, infs);	
+	
+	int infLens[INF_SIZE];
+	CLogDataInf::calcLens(infs, 7, infLens);
+	CDataWorkManager::instance()->dealitemData(clientId, infs, infLens);	
 
 	infs[0] = (char *)"cleanAll";
 	infs[1] = (char *)"0";
@@ -212,7 +222,8 @@ void CNetServer::dealException(int clientId)
 	infs[4] = (char *)"";
 	infs[5] = (char *)"0";
 	infs[6] = (char *)"backtrace";
-	CDataWorkManager::instance()->dealitemData(clientId, infs);	
+	CLogDataInf::calcLens(infs, 7, infLens);
+	CDataWorkManager::instance()->dealitemData(clientId, infs, infLens);	
 	return ;
 }
 
@@ -238,7 +249,7 @@ ClientConn *CNetServer::dealConnect(int clientId)
 	return pClientConn;
 }
 
-bool CNetServer::receiveInfData(int socket, char *infs[])
+bool CNetServer::receiveInfData(int socket, char *infs[], int infLens[])
 {
 	const int ClenSize = 4;
 	char *CLen = m_recvBuf;
@@ -254,7 +265,7 @@ bool CNetServer::receiveInfData(int socket, char *infs[])
 		return false;
 	}
 	
-	dataInf.unPacket(m_recvBuf,infs);
+	dataInf.unPacket(m_recvBuf,infs, infLens);
 	return true;
 }
 
