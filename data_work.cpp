@@ -86,13 +86,14 @@ void CDataWorkManager::dealitemData(int clientId, char *infs[], int infLens[])
 	base::pthread_t threadId = atoi(infs[1]);
 	int line = atoi(infs[2]);
 	char *file_name = infs[3];
+	int fileLen = infLens[3] + 1;
 	char *funcName = infs[4];
+	int funcLen = infLens[4] + 1;
 	int display_level = atoi(infs[5]);
 	const char *traceContent = infs[6];
-
-	int contentLen = strlen(traceContent) + 1;
-	int fileLen = strlen(file_name) + 1;
-	int funcLen = strlen(funcName) + 1;
+	int contentLen = infLens[6] + 1;
+	
+	
 	int dataLen = contentLen + fileLen + funcLen;
 	RECV_DATA *pRecvData = CTimeCalcInfManager::instance()->createRecvData(dataLen);
 	TimeCalcInf *pCalcInf = &pRecvData->calcInf;
