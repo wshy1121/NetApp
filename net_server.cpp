@@ -129,11 +129,12 @@ void *CNetServer::_listenThread(void *arg)
 				if(FD_ISSET(pClientConnRead->socket, &fd_read))
 				{
 					char *infs[INF_SIZE];
+					int totalLen = 0;
 					int infLens[INF_SIZE];
-					bool bRet = receiveInfData(pClientConnRead->socket, infs, infLens);
+					bool bRet = receiveInfData(pClientConnRead->socket, infs, totalLen, infLens);
 					if(bRet)
 					{
-						CDataWorkManager::instance()->dealitemData(pClientConnRead->clientId, infs, infLens);
+						CDataWorkManager::instance()->dealitemData(pClientConnRead->clientId, infs, totalLen, infLens);
 					}
 					//Òì³£´¦Àí
 					else
@@ -172,11 +173,11 @@ void CNetServer::openFile(int fileKey, char *fileName)
 	infs[4] = (char *)"";
 	infs[5] = (char *)"0";
 	infs[6] = (char *)fileName;
-
-	int infLens[INF_SIZE];
-	CLogDataInf::calcLens(infs, 7, infLens);
+	infs[7] = NULL;
 	
-	CDataWorkManager::instance()->dealitemData(fileKey, infs, infLens); 
+	int infLens[INF_SIZE];
+	int totalLen = CLogDataInf::calcLens(infs, 7, infLens);
+	CDataWorkManager::instance()->dealitemData(fileKey, infs, totalLen, infLens); 
 	return ;
 }
 
@@ -191,11 +192,11 @@ void CNetServer::closeFile(int fileKey)
 	infs[4] = (char *)"";
 	infs[5] = (char *)"0";
 	infs[6] = (char *)"";
-
+	infs[7] = NULL;
+	
 	int infLens[INF_SIZE];
-	CLogDataInf::calcLens(infs, 7, infLens);
-
-	CDataWorkManager::instance()->dealitemData(fileKey, infs, infLens);	
+	int totalLen = CLogDataInf::calcLens(infs, 7, infLens);
+	CDataWorkManager::instance()->dealitemData(fileKey, infs, totalLen, infLens); 
 	return ;
 }
 
@@ -210,10 +211,11 @@ void CNetServer::dealException(int clientId)
 	infs[4] = (char *)"";
 	infs[5] = (char *)"0";
 	infs[6] = (char *)"backtrace";
+	infs[7] = NULL;
 	
 	int infLens[INF_SIZE];
-	CLogDataInf::calcLens(infs, 7, infLens);
-	CDataWorkManager::instance()->dealitemData(clientId, infs, infLens);	
+	int totalLen = CLogDataInf::calcLens(infs, 7, infLens);
+	CDataWorkManager::instance()->dealitemData(clientId, infs, totalLen, infLens); 
 
 	infs[0] = (char *)"cleanAll";
 	infs[1] = (char *)"0";
@@ -222,8 +224,10 @@ void CNetServer::dealException(int clientId)
 	infs[4] = (char *)"";
 	infs[5] = (char *)"0";
 	infs[6] = (char *)"backtrace";
-	CLogDataInf::calcLens(infs, 7, infLens);
-	CDataWorkManager::instance()->dealitemData(clientId, infs, infLens);	
+	infs[7] = NULL;
+	
+	totalLen = CLogDataInf::calcLens(infs, 7, infLens);
+	CDataWorkManager::instance()->dealitemData(clientId, infs, totalLen, infLens); 
 	return ;
 }
 
@@ -249,7 +253,7 @@ ClientConn *CNetServer::dealConnect(int clientId)
 	return pClientConn;
 }
 
-bool CNetServer::receiveInfData(int socket, char *infs[], int infLens[])
+bool CNetServer::receiveInfData(int socket, char *infs[], int &totalLen, int infLens[])
 {
 	const int ClenSize = 4;
 	char *CLen = m_recvBuf;
@@ -265,7 +269,7 @@ bool CNetServer::receiveInfData(int socket, char *infs[], int infLens[])
 		return false;
 	}
 	
-	dataInf.unPacket(m_recvBuf,infs, infLens);
+	totalLen = dataInf.unPacket(m_recvBuf,infs, infLens);
 	return true;
 }
 

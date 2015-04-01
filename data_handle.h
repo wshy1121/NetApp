@@ -13,6 +13,10 @@ typedef struct TimeCalcInf
 	int m_displayLevel;
 	char *m_pContent;
 	int m_contentLen;
+
+	char *m_memBuffer;
+	char *infs[INF_SIZE];
+	int infLens[INF_SIZE];
 }TimeCalcInf;
 
 typedef struct RECV_DATA

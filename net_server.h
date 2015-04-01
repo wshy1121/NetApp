@@ -32,7 +32,7 @@ private:
 	ClientConn *dealConnect(int clientId);
 	void openFile(int fileKey, char *fileName);
 	void closeFile(int fileKey);
-	bool receiveInfData(int socket, char *infs[], int infLens[]);
+	bool receiveInfData(int socket, char *infs[], int &totalLen, int infLens[]);
 	int receive(SOCKET fd,char *szText,int len);
 	int send(SOCKET fd,char *szText,int len);
 	int creatClientId();
@@ -51,7 +51,7 @@ private:
 	int m_recvBufLen;
 	std::bitset<MAX_CLIENT_SIZE> m_cientIds;
 	int m_newId;
-	int m_nfds;
+	SOCKET m_nfds;
 };
 
 #endif //_CHAT_ROOT_SERVER_
