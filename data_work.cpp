@@ -2,6 +2,7 @@
 #include <string.h>
 #include "data_work.h"
 #include "mem_base.h"
+#include "data_handle.h"
 #include "Global.h"
 
 using namespace base;
@@ -14,7 +15,7 @@ CDataWorkManager *CDataWorkManager::_instance = NULL;
 CDataWorkManager::CDataWorkManager()
 {
 	m_workList = CList::createCList();
-	initDataHandle();
+	IDealDataHandle::initDataHandle();
 }
 
 CDataWorkManager *CDataWorkManager::instance()
@@ -181,24 +182,8 @@ TimeCalcInf::TimeCalcOpr CDataWorkManager::switchOpr(const char *opr)
 }
 
 
-class CCreateCandy : public IDealDataHandle
-{
-public:
-	virtual void dealDataHandle (TimeCalcInf *pCalcInf);
-};
 
-void CCreateCandy::dealDataHandle (TimeCalcInf *pCalcInf)
-{
-	parseData(pCalcInf);
-	CTimeCalc *pTimeCalc = CTimeCalc::createCTimeCalc(m_line, m_fileName, m_funcName, m_displayLevel, *m_pTraceInfoId);
-	return ;
-}
 
-void CDataWorkManager::initDataHandle()
-{
-	CTimeCalcInfManager *_instance = CTimeCalcInfManager::instance();
-	_instance->registerHandle("createCandy", new CCreateCandy);
-}
 
 
 

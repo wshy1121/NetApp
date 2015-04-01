@@ -31,7 +31,6 @@ private:
 	static void* threadFunc(void *pArg);
 	void dealWorkData(WORK_DATA *pWorkData);
 	TimeCalcInf::TimeCalcOpr switchOpr(const char *opr);
-	void initDataHandle();
 private:
 	static CDataWorkManager *_instance;
 private:
