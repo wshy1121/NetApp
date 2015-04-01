@@ -82,7 +82,8 @@ void CDataWorkManager::threadProc()
 
 void CDataWorkManager::dealitemData(int clientId, char *infs[], int infLens[])
 {
-	TimeCalcInf::TimeCalcOpr opr = switchOpr(infs[0]);
+	char *oper = infs[0];
+	int operLen = infLens[0];
 	base::pthread_t threadId = atoi(infs[1]);
 	int line = atoi(infs[2]);
 	char *file_name = infs[3];
@@ -94,18 +95,19 @@ void CDataWorkManager::dealitemData(int clientId, char *infs[], int infLens[])
 	int contentLen = infLens[6] + 1;
 	
 	
-	int dataLen = contentLen + fileLen + funcLen;
+	int dataLen = contentLen + operLen + fileLen + funcLen;
 	RECV_DATA *pRecvData = CTimeCalcInfManager::instance()->createRecvData(dataLen);
 	TimeCalcInf *pCalcInf = &pRecvData->calcInf;
-	pCalcInf->m_fileName = pCalcInf->m_pContent + contentLen;
-	pCalcInf->m_funcName = pCalcInf->m_pContent + contentLen + fileLen;
+	pCalcInf->m_oper = pCalcInf->m_pContent + contentLen;
+	pCalcInf->m_fileName = pCalcInf->m_pContent + operLen + contentLen;
+	pCalcInf->m_funcName = pCalcInf->m_pContent + operLen + contentLen + fileLen;
 
-	pCalcInf->m_opr = opr;
 	pCalcInf->m_traceInfoId.threadId = threadId;
 	pCalcInf->m_traceInfoId.clientId = clientId;
 	pCalcInf->m_line = line;
 	pCalcInf->m_displayLevel = display_level;
-	
+
+	base::strcpy(pCalcInf->m_oper, oper);
 	base::strcpy(pCalcInf->m_fileName, file_name);
 	base::strcpy(pCalcInf->m_funcName, funcName);
 	base::strcpy(pCalcInf->m_pContent, traceContent);
@@ -135,52 +137,7 @@ void CDataWorkManager::pushWorkData(WORK_DATA *pWorkData)
 
 }
 
-TimeCalcInf::TimeCalcOpr CDataWorkManager::switchOpr(const char *opr)
-{
-	TimeCalcInf::TimeCalcOpr oprInt = TimeCalcInf::e_none;
-	if (strcmp(opr, "createCandy") == 0)
-	{
-		oprInt = TimeCalcInf::e_createCandy;
-	}
-	else if (strcmp(opr, "destroyCandy") == 0)
-	{
-		oprInt = TimeCalcInf::e_destroyCandy;
-	}
-	else if (strcmp(opr, "insertTrace") == 0)
-	{
-		oprInt = TimeCalcInf::e_insertTrace;
-	}
-	else if (strcmp(opr, "dispAll") == 0)
-	{
-		oprInt = TimeCalcInf::e_dispAll;
-	}
-	else if (strcmp(opr, "cleanAll") == 0)
-	{
-		oprInt = TimeCalcInf::e_cleanAll;
-	}
-	else if (strcmp(opr, "insertTag") == 0)
-	{
-		oprInt = TimeCalcInf::e_insertTag;
-	}
-	else if (strcmp(opr, "printfMemInfMap") == 0)
-	{
-		oprInt = TimeCalcInf::e_printfMemInfMap;
-	}
-	else if (strcmp(opr, "openFile") == 0)
-	{
-		oprInt = TimeCalcInf::e_openFile;
-	}
-	else if (strcmp(opr, "closeFile") == 0)
-	{
-		oprInt = TimeCalcInf::e_closeFile;
-	}
-	else
-	{
-		printf("un ligical opr  %s\n", opr);
-	}
 
-	return oprInt;
-}
 
 
 

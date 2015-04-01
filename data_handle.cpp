@@ -8,7 +8,7 @@ IDealDataHandle::~IDealDataHandle()
 
 void IDealDataHandle::parseData(TimeCalcInf *pCalcInf)
 {
-	m_opr = pCalcInf->m_opr;
+	m_oper = pCalcInf->m_oper;
 	m_pTraceInfoId = &(pCalcInf->m_traceInfoId);
 	m_line = pCalcInf->m_line;
 	m_fileName = pCalcInf->m_fileName;
