@@ -82,18 +82,6 @@ void CDataWorkManager::threadProc()
 
 void CDataWorkManager::dealitemData(int clientId, char *infs[], int totalLen, int infLens[])
 {
-	char *oper = infs[0];
-	int operLen = infLens[0];
-	base::pthread_t threadId = atoi(infs[1]);
-	int line = atoi(infs[2]);
-	char *file_name = infs[3];
-	int fileLen = infLens[3] + 1;
-	char *funcName = infs[4];
-	int funcLen = infLens[4] + 1;
-	int display_level = atoi(infs[5]);
-	const char *traceContent = infs[6];
-	int contentLen = infLens[6] + 1;
-
 	RECV_DATA *pRecvData = CTimeCalcInfManager::instance()->createRecvData(totalLen);	
 	TimeCalcInf *pCalcInf = &pRecvData->calcInf;
 	
@@ -102,19 +90,11 @@ void CDataWorkManager::dealitemData(int clientId, char *infs[], int totalLen, in
 	{
 		pCalcInf->infs[i] = pCalcInf->m_memBuffer + memBufPos;
 		memcpy(pCalcInf->infs[i], infs[i], infLens[i]);
-		pCalcInf->infLens[i] = infLens[i];
 		memBufPos += infLens[i];
 	}
 
-	pCalcInf->m_oper = pCalcInf->infs[0];
-	pCalcInf->m_fileName = pCalcInf->infs[3];
-	pCalcInf->m_funcName = pCalcInf->infs[4];
-	pCalcInf->m_pContent = pCalcInf->infs[6];
-		
-	pCalcInf->m_traceInfoId.threadId = threadId;
+	pCalcInf->m_traceInfoId.threadId =  atoi(infs[1]);
 	pCalcInf->m_traceInfoId.clientId = clientId;
-	pCalcInf->m_line = line;
-	pCalcInf->m_displayLevel = display_level;
 
 	CTimeCalcInfManager::instance()->pushRecvData(pRecvData);
 }
