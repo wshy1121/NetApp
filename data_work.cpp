@@ -14,7 +14,7 @@ CDataWorkManager *CDataWorkManager::_instance = NULL;
 CDataWorkManager::CDataWorkManager()
 {
 	m_workList = CList::createCList();
-	//base::pthread_create(&m_threadId, NULL,threadFunc,NULL);
+	initDataHandle();
 }
 
 CDataWorkManager *CDataWorkManager::instance()
@@ -179,4 +179,26 @@ TimeCalcInf::TimeCalcOpr CDataWorkManager::switchOpr(const char *opr)
 
 	return oprInt;
 }
+
+
+class CCreateCandy : public IDealDataHandle
+{
+public:
+	virtual void dealDataHandle (TimeCalcInf *pCalcInf);
+};
+
+void CCreateCandy::dealDataHandle (TimeCalcInf *pCalcInf)
+{
+	parseData(pCalcInf);
+	CTimeCalc *pTimeCalc = CTimeCalc::createCTimeCalc(m_line, m_fileName, m_funcName, m_displayLevel, *m_pTraceInfoId);
+	return ;
+}
+
+void CDataWorkManager::initDataHandle()
+{
+	CTimeCalcInfManager *_instance = CTimeCalcInfManager::instance();
+	_instance->registerHandle("createCandy", new CCreateCandy);
+}
+
+
 
