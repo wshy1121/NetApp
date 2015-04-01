@@ -5,18 +5,18 @@
 
 typedef struct TimeCalcInf
 {
-	char *m_oper;
 	TraceInfoId m_traceInfoId;
+	char *infs[INF_SIZE];
+	int infLens[INF_SIZE];
+
+	char *m_oper;
 	int m_line;
 	char * m_fileName;
 	char * m_funcName;
 	int m_displayLevel;
 	char *m_pContent;
 	int m_contentLen;
-
 	char *m_memBuffer;
-	char *infs[INF_SIZE];
-	int infLens[INF_SIZE];
 }TimeCalcInf;
 
 typedef struct RECV_DATA
