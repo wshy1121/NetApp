@@ -144,6 +144,7 @@ void *CNetServer::_listenThread(void *arg)
 						dealException(pClientConnRead->clientId);
 						closeFile(pClientConnRead->clientId);
 						pNode = dealDisconnect(pClientConnRead);
+						break;
 					}
 				}
 				(pNode)=(pNode)->next;
@@ -186,7 +187,6 @@ void CNetServer::openFile(int fileKey, char *fileName)
 
 void CNetServer::closeFile(int fileKey)
 {
-	printf("closeFile  %d\n", fileKey);
 	RECV_DATA *pRecvData = IDealDataHandle::createRecvData();
 	
 	CLogDataInf &dataInf = pRecvData->calcInf.m_dataInf;
@@ -379,6 +379,5 @@ void CNetServer::sendThreadProc()
 void CNetServer::dealRecvData(TimeCalcInf *pCalcInf)
 {
 	CLogDataInf &dataInf = pCalcInf->m_dataInf;
-	printf("dataInf.m_infs[0]  %s\n", dataInf.m_infs[0]);
 }
 
