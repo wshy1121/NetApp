@@ -33,7 +33,7 @@ private:
 	ClientConn *dealConnect(int clientId);
 	void openFile(int fileKey, char *fileName);
 	void closeFile(int fileKey);
-	base::CLogDataInf *receiveInfData(int socket);
+	bool receiveInfData(int socket, base::CLogDataInf *pDataInf);
 	int receive(SOCKET fd,char *szText,int len);
 	int send(SOCKET fd,char *szText,int len);
 	int creatClientId();

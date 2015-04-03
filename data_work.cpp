@@ -80,20 +80,12 @@ void CDataWorkManager::threadProc()
 	}
 }
 
-void CDataWorkManager::dealitemData(int clientId, char *infs[], int totalLen, int infLens[])
+void CDataWorkManager::dealitemData(int clientId, RECV_DATA *pRecvData)
 {
-	RECV_DATA *pRecvData = CTimeCalcInfManager::instance()->createRecvData(totalLen);	
 	TimeCalcInf *pCalcInf = &pRecvData->calcInf;
-	
-	int memBufPos = 0;
-	for(int i=0; infs[i] != NULL; ++i)
-	{
-		pCalcInf->infs[i] = pCalcInf->m_memBuffer + memBufPos;
-		memcpy(pCalcInf->infs[i], infs[i], infLens[i]);
-		memBufPos += infLens[i];
-	}
 
-	pCalcInf->m_traceInfoId.threadId =  atoi(infs[1]);
+	char *tid = pCalcInf->m_dataInf.m_infs[1];
+	pCalcInf->m_traceInfoId.threadId =  atoi(tid);
 	pCalcInf->m_traceInfoId.clientId = clientId;
 
 	CTimeCalcInfManager::instance()->pushRecvData(pRecvData);

@@ -8,8 +8,6 @@ typedef struct TimeCalcInf
 {
 	TraceInfoId m_traceInfoId;
 	base::CLogDataInf m_dataInf;
-	char *infs[INF_SIZE];
-	int infLens[INF_SIZE];
 
 	char *m_oper;
 	int m_line;
@@ -18,7 +16,6 @@ typedef struct TimeCalcInf
 	int m_displayLevel;
 	char *m_pContent;
 	int m_contentLen;
-	char *m_memBuffer;
 }TimeCalcInf;
 
 typedef struct RECV_DATA

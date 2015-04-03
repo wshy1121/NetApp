@@ -8,14 +8,15 @@ IDealDataHandle::~IDealDataHandle()
 
 void IDealDataHandle::parseData(TimeCalcInf *pCalcInf)
 {
-	m_oper = pCalcInf->infs[0];	
+	base::CLogDataInf &dataInf = pCalcInf->m_dataInf;
+	m_oper = dataInf.m_infs[0];
 	m_pTraceInfoId = &(pCalcInf->m_traceInfoId);
-	m_line = atoi(pCalcInf->infs[2]);
-	m_fileName = pCalcInf->infs[3];
-	m_funcName = pCalcInf->infs[4];
-	m_displayLevel = atoi(pCalcInf->infs[5]);
-	m_content = pCalcInf->infs[6];
-	m_contentLen = pCalcInf->infLens[6] + 1;
+	m_line = atoi(dataInf.m_infs[2]);
+	m_fileName = dataInf.m_infs[3];;
+	m_funcName = dataInf.m_infs[4];
+	m_displayLevel = atoi(dataInf.m_infs[5]);
+	m_content = dataInf.m_infs[6];
+	m_contentLen = dataInf.m_infLens[6] + 1;
 }
 
 void IDealDataHandle::initDataHandle()
