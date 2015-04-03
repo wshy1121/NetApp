@@ -4,6 +4,7 @@
 #include "link_tool.h"
 #include "defs.h"
 #include <bitset>
+#include "link_tool.h"
 
 #define MAX_CLIENT_SIZE  1024*1024
 
@@ -32,7 +33,7 @@ private:
 	ClientConn *dealConnect(int clientId);
 	void openFile(int fileKey, char *fileName);
 	void closeFile(int fileKey);
-	bool receiveInfData(int socket, char *infs[], int &totalLen, int infLens[]);
+	base::CLogDataInf *receiveInfData(int socket);
 	int receive(SOCKET fd,char *szText,int len);
 	int send(SOCKET fd,char *szText,int len);
 	int creatClientId();

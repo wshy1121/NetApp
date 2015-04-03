@@ -1,11 +1,13 @@
 #ifndef _DATA_HANDLE_H_
 #define _DATA_HANDLE_H_
 #include "mem_calc.h"
+#include "link_tool.h"
 
 
 typedef struct TimeCalcInf
 {
 	TraceInfoId m_traceInfoId;
+	base::CLogDataInf m_dataInf;
 	char *infs[INF_SIZE];
 	int infLens[INF_SIZE];
 

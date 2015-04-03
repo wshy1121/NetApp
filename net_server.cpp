@@ -129,12 +129,22 @@ void *CNetServer::_listenThread(void *arg)
 				if(FD_ISSET(pClientConnRead->socket, &fd_read))
 				{
 					char *infs[INF_SIZE];
-					int totalLen = 0;
+					int packetLen = 0;
 					int infLens[INF_SIZE];
-					bool bRet = receiveInfData(pClientConnRead->socket, infs, totalLen, infLens);
-					if(bRet)
+					CLogDataInf *pDataInf = receiveInfData(pClientConnRead->socket);
+					
+					if(pDataInf)
 					{
-						CDataWorkManager::instance()->dealitemData(pClientConnRead->clientId, infs, totalLen, infLens);
+						packetLen = pDataInf->m_packetLen;
+						int i=0;
+						for (; i<pDataInf->m_infsNum; ++i)
+						{
+							infs[i] = pDataInf->m_infs[i];
+							infLens[i] = pDataInf->m_infLens[i];
+						}
+						infs[i] = NULL;
+						CDataWorkManager::instance()->dealitemData(pClientConnRead->clientId, infs, packetLen, infLens);
+						delete pDataInf;
 					}
 					//“Ï≥£¥¶¿Ì
 					else
@@ -253,24 +263,27 @@ ClientConn *CNetServer::dealConnect(int clientId)
 	return pClientConn;
 }
 
-bool CNetServer::receiveInfData(int socket, char *infs[], int &totalLen, int infLens[])
+CLogDataInf *CNetServer::receiveInfData(int socket)
 {
 	const int ClenSize = 4;
-	char *CLen = m_recvBuf;
+	char CLen[ClenSize];
 	if (receive(socket, CLen, ClenSize) <= 0)
 	{
-		return false;
+		return NULL;
 	}
 	int iLen = 0;		
-	CLogDataInf dataInf;
-	dataInf.C2ILen(CLen,ClenSize,iLen);
-	if (receive(socket, m_recvBuf+ClenSize, iLen-ClenSize) <= 0)
+	CLogDataInf *pDataInf = new CLogDataInf;
+	pDataInf->C2ILen(CLen,ClenSize,iLen);
+
+	char *packet = new char[iLen];
+	memcpy(packet, CLen, ClenSize);
+	if (receive(socket, packet+ClenSize, iLen-ClenSize) <= 0)
 	{
-		return false;
+		return NULL;
 	}
-	
-	totalLen = dataInf.unPacket(m_recvBuf,infs, infLens);
-	return true;
+	pDataInf->unPacket(packet);
+
+	return pDataInf;
 }
 
 int CNetServer::receive(SOCKET fd,char *szText,int iLen)
