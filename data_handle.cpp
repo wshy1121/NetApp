@@ -35,8 +35,29 @@ void IDealDataHandle::initDataHandle()
 	_instance->registerHandle("closeFile", new CCloseFile);
 }
 
+RECV_DATA *IDealDataHandle::createRecvData(int contentLen)
+{
+	RECV_DATA *pRecvData = new RECV_DATA;
+	TimeCalcInf *pCalcInf = &pRecvData->calcInf;
+	pCalcInf->m_contentLen = contentLen;
+	
+	pCalcInf->m_oper = NULL;
+	pCalcInf->m_traceInfoId.threadId = -1;
+	pCalcInf->m_traceInfoId.clientId= -1;
+	pCalcInf->m_line = -1;
+	pCalcInf->m_fileName = NULL;
+	pCalcInf->m_funcName = NULL;
+	pCalcInf->m_displayLevel = -1;
+	return pRecvData;
+}
 
-void CCreateCandy::dealDataHandle (TimeCalcInf *pCalcInf)
+void IDealDataHandle::destroyRecvData(RECV_DATA *pRecvData)
+{
+	delete pRecvData;
+}
+
+
+void CCreateCandy::dealDataHandle(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf)
 {
 	parseData(pCalcInf);
 	CTimeCalc *pTimeCalc = CTimeCalc::createCTimeCalc(m_line, m_fileName, m_funcName, m_displayLevel, *m_pTraceInfoId);
@@ -45,7 +66,7 @@ void CCreateCandy::dealDataHandle (TimeCalcInf *pCalcInf)
 
 
 
-void CDestroyCandy::dealDataHandle (TimeCalcInf *pCalcInf)
+void CDestroyCandy::dealDataHandle(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf)
 {
 	parseData(pCalcInf);
 	FuncTraceInfo_t *TraceInfo = CTimeCalcManager::instance()->GetTraceInf(*m_pTraceInfoId);
@@ -59,56 +80,56 @@ void CDestroyCandy::dealDataHandle (TimeCalcInf *pCalcInf)
 	return ;
 }
 
-void CInsertTrace::dealDataHandle (TimeCalcInf *pCalcInf)
+void CInsertTrace::dealDataHandle(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf)
 {
 	parseData(pCalcInf);
 	CTimeCalcManager::instance()->InsertTrace(m_line, m_fileName, *m_pTraceInfoId, m_content);
 }
 
 
-void CDispAll::dealDataHandle (TimeCalcInf *pCalcInf)
+void CDispAll::dealDataHandle(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf)
 {
 	parseData(pCalcInf);
 	CTimeCalcManager::instance()->DispAll(m_pTraceInfoId->clientId, m_content);
 }
 
-void CCleanAll::dealDataHandle (TimeCalcInf *pCalcInf)
+void CCleanAll::dealDataHandle(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf)
 {
 	parseData(pCalcInf);
 	CTimeCalcManager::instance()->cleanAll(m_pTraceInfoId->clientId);
 }
-void CInsertTag::dealDataHandle (TimeCalcInf *pCalcInf)
+void CInsertTag::dealDataHandle(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf)
 {
 	parseData(pCalcInf);
 	CTimeCalcManager::instance()->InsertTag(*m_pTraceInfoId, m_line, m_fileName, m_content);
 }
 
-void CInsertStrOnly::dealDataHandle (TimeCalcInf *pCalcInf)
+void CInsertStrOnly::dealDataHandle(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf)
 {
 	parseData(pCalcInf);
 	CTimeCalcManager::instance()->InsertStrOnly(*m_pTraceInfoId, m_content);
 }
 
 
-void CPrintfMemInfMap::dealDataHandle (TimeCalcInf *pCalcInf)
+void CPrintfMemInfMap::dealDataHandle(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf)
 {
 	parseData(pCalcInf);
 	CTimeCalcManager::instance()->printfMemInfMap(*m_pTraceInfoId);
 }
 
-void CInsertHex::dealDataHandle (TimeCalcInf *pCalcInf)
+void CInsertHex::dealDataHandle(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf)
 {
 	parseData(pCalcInf);
 	CTimeCalcManager::instance()->InsertHex(*m_pTraceInfoId, m_line, m_fileName, (char *)m_content, m_contentLen);
 }
 
 
-void COpenFile::dealDataHandle (TimeCalcInf *pCalcInf)
+void COpenFile::dealDataHandle(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf)
 {
 	parseData(pCalcInf);
 	CTimeCalcManager::instance()->openFile(*m_pTraceInfoId, (char *)m_content);
 }
-void CCloseFile::dealDataHandle (TimeCalcInf *pCalcInf)
+void CCloseFile::dealDataHandle(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf)
 {
 	parseData(pCalcInf);
 	CTimeCalcManager::instance()->closeFile(*m_pTraceInfoId);

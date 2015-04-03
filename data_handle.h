@@ -32,8 +32,10 @@ public:
 	virtual ~IDealDataHandle() = 0;
 	virtual void parseData(TimeCalcInf *pCalcInf);
 	static void initDataHandle();
+	static RECV_DATA *createRecvData(int contentLen = 0);
+	static void destroyRecvData(RECV_DATA *pRecvData);
 public: 
-	virtual void dealDataHandle (TimeCalcInf *pCalcInf) = 0;
+	virtual void dealDataHandle (TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf) = 0;
 protected:	
 	char *m_oper;
 	TraceInfoId *m_pTraceInfoId;
@@ -50,19 +52,19 @@ protected:
 class CCreateCandy : public IDealDataHandle
 {
 public:
-	virtual void dealDataHandle (TimeCalcInf *pCalcInf);
+	virtual void dealDataHandle(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf);
 };
 
 class CDestroyCandy : public IDealDataHandle
 {
 public:
-	virtual void dealDataHandle (TimeCalcInf *pCalcInf);
+	virtual void dealDataHandle(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf);
 };
 
 class CInsertTrace : public IDealDataHandle
 {
 public:
-	virtual void dealDataHandle (TimeCalcInf *pCalcInf);
+	virtual void dealDataHandle(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf);
 };
 
 
@@ -70,47 +72,47 @@ public:
 class CDispAll : public IDealDataHandle
 {
 public:
-	virtual void dealDataHandle (TimeCalcInf *pCalcInf);
+	virtual void dealDataHandle(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf);
 };
 class CCleanAll : public IDealDataHandle
 {
 public:
-	virtual void dealDataHandle (TimeCalcInf *pCalcInf);
+	virtual void dealDataHandle(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf);
 };
 class CInsertTag : public IDealDataHandle
 {
 public:
-	virtual void dealDataHandle (TimeCalcInf *pCalcInf);
+	virtual void dealDataHandle(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf);
 };
 class CInsertStrOnly : public IDealDataHandle
 {
 public:
-	virtual void dealDataHandle (TimeCalcInf *pCalcInf);
+	virtual void dealDataHandle(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf);
 };
 
 class CPrintfMemInfMap : public IDealDataHandle
 {
 public:
-	virtual void dealDataHandle (TimeCalcInf *pCalcInf);
+	virtual void dealDataHandle(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf);
 };
 
 class CInsertHex : public IDealDataHandle
 {
 public:
-	virtual void dealDataHandle (TimeCalcInf *pCalcInf);
+	virtual void dealDataHandle(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf);
 };
 
 
 class COpenFile : public IDealDataHandle
 {
 public:
-	virtual void dealDataHandle (TimeCalcInf *pCalcInf);
+	virtual void dealDataHandle(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf);
 };
 
 class CCloseFile : public IDealDataHandle
 {
 public:
-	virtual void dealDataHandle (TimeCalcInf *pCalcInf);
+	virtual void dealDataHandle(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf);
 };
 
 #endif

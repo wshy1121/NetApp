@@ -93,7 +93,7 @@ void *CNetServer::listenThread(void *arg)
 
 void *CNetServer::_listenThread(void *arg)
 {
-	int backlog = 5;
+	int backlog = 50;
 	int ret = listen(m_sockLister, backlog);
 	if (ret == SOCKET_ERROR)
 	{
@@ -127,8 +127,8 @@ void *CNetServer::_listenThread(void *arg)
 			{
 				pClientConnRead = clientConnContain(pNode);
 				if(FD_ISSET(pClientConnRead->socket, &fd_read))
-				{					
-					RECV_DATA *pRecvData = CTimeCalcInfManager::instance()->createRecvData();
+				{
+					RECV_DATA *pRecvData = IDealDataHandle::createRecvData();
 					CLogDataInf &dataInf = pRecvData->calcInf.m_dataInf;
 					bool bRet = receiveInfData(pClientConnRead->socket, &dataInf);
 					
@@ -165,11 +165,9 @@ void *CNetServer::_listenThread(void *arg)
 }
 void CNetServer::openFile(int fileKey, char *fileName)
 {
-	RECV_DATA *pRecvData = CTimeCalcInfManager::instance()->createRecvData();
+	RECV_DATA *pRecvData =IDealDataHandle::createRecvData();
 	
 	CLogDataInf &dataInf = pRecvData->calcInf.m_dataInf;
-	
-	printf("m_infsNum  %d\n", dataInf.m_infsNum);
 	
 	dataInf.putInf("openFile");
 	dataInf.putInf("0");
@@ -186,7 +184,7 @@ void CNetServer::openFile(int fileKey, char *fileName)
 
 void CNetServer::closeFile(int fileKey)
 {
-	RECV_DATA *pRecvData = CTimeCalcInfManager::instance()->createRecvData();
+	RECV_DATA *pRecvData = IDealDataHandle::createRecvData();
 	
 	CLogDataInf &dataInf = pRecvData->calcInf.m_dataInf;
 	dataInf.putInf("closeFile");
@@ -205,7 +203,7 @@ void CNetServer::closeFile(int fileKey)
 void CNetServer::dealException(int clientId)
 {
 	{
-		RECV_DATA *pRecvData = CTimeCalcInfManager::instance()->createRecvData();
+		RECV_DATA *pRecvData = IDealDataHandle::createRecvData();
 
 		CLogDataInf &dataInf = pRecvData->calcInf.m_dataInf;
 		dataInf.putInf("dispAll");
@@ -219,7 +217,7 @@ void CNetServer::dealException(int clientId)
 		CDataWorkManager::instance()->dealitemData(clientId, pRecvData); 
 	}
 	{
-		RECV_DATA *pRecvData = CTimeCalcInfManager::instance()->createRecvData();
+		RECV_DATA *pRecvData = IDealDataHandle::createRecvData();
 
 		CLogDataInf &dataInf = pRecvData->calcInf.m_dataInf;
 		dataInf.putInf("cleanAll");
