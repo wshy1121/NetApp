@@ -20,6 +20,7 @@ CNetServer::CNetServer():SERVER_PORT(8889), m_sockLister(INVALID_SOCKET), m_recv
 {
 	m_recvBuf = (char *)base::malloc(m_recvBufLen);
 	m_listClientRead = CList::createCList();
+	m_recvList = CList::createCList();
 	m_cientIds.reset();
 	m_newId = 0;
 	return ;
@@ -126,7 +127,7 @@ void *CNetServer::_listenThread(void *arg)
 			for ((pNode)=(pHead)->next; (pHead) != (pNode);)
 			{
 				pClientConnRead = clientConnContain(pNode);
-				if(FD_ISSET(pClientConnRead->socket, &fd_read))
+				while(FD_ISSET(pClientConnRead->socket, &fd_read))
 				{
 					RECV_DATA *pRecvData = IDealDataHandle::createRecvData();
 					CLogDataInf &dataInf = pRecvData->calcInf.m_dataInf;
@@ -138,11 +139,11 @@ void *CNetServer::_listenThread(void *arg)
 					}
 					//Òì³£´¦Àí
 					else
-					{	
+					{
+						IDealDataHandle::destroyRecvData(pRecvData);
 						dealException(pClientConnRead->clientId);
 						closeFile(pClientConnRead->clientId);
 						pNode = dealDisconnect(pClientConnRead);
-						continue;
 					}
 				}
 				(pNode)=(pNode)->next;
@@ -160,6 +161,7 @@ void *CNetServer::_listenThread(void *arg)
 				openFile(pClientConn->clientId, (char *)"Debug.cpp");
 			}
 		}
+		sendThreadProc();
 	}
 	return NULL;
 }
@@ -184,6 +186,7 @@ void CNetServer::openFile(int fileKey, char *fileName)
 
 void CNetServer::closeFile(int fileKey)
 {
+	printf("closeFile  %d\n", fileKey);
 	RECV_DATA *pRecvData = IDealDataHandle::createRecvData();
 	
 	CLogDataInf &dataInf = pRecvData->calcInf.m_dataInf;
@@ -343,5 +346,39 @@ void CNetServer::resetClientId(int clientId)
 {
 	m_cientIds.reset(clientId);
 	return ;
+}
+
+void CNetServer::pushRecvData(RECV_DATA *pRecvData)
+{
+	if (pRecvData == NULL)
+	{
+		return ;
+	}
+	
+	m_recvListMutex.Enter();
+	m_recvList->push_back(&pRecvData->node);
+	m_recvListMutex.Leave();
+	return ;
+}
+
+void CNetServer::sendThreadProc()
+{
+	while (!m_recvList->empty())
+	{
+		m_recvListMutex.Enter();
+		struct node *pNode =  m_recvList->begin();
+		RECV_DATA *pRecvData = recvDataContain(pNode);
+		m_recvList->pop_front();	
+		m_recvListMutex.Leave();
+		
+		dealRecvData(&pRecvData->calcInf);
+		IDealDataHandle::destroyRecvData(pRecvData);
+	}
+}
+
+void CNetServer::dealRecvData(TimeCalcInf *pCalcInf)
+{
+	CLogDataInf &dataInf = pCalcInf->m_dataInf;
+	printf("dataInf.m_infs[0]  %s\n", dataInf.m_infs[0]);
 }
 

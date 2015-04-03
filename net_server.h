@@ -5,6 +5,7 @@
 #include "defs.h"
 #include <bitset>
 #include "link_tool.h"
+#include "data_handle.h"
 
 #define MAX_CLIENT_SIZE  1024*1024
 
@@ -23,6 +24,7 @@ public:
 	static CNetServer* instance();
 public:
 	bool startServer();
+	void pushRecvData(RECV_DATA *pRecvData);
 private:
 	static void *listenThread(void *arg);
 private:
@@ -39,6 +41,8 @@ private:
 	int creatClientId();
 	void setClientId(int clientId);
 	void resetClientId(int clientId);
+	void sendThreadProc();
+	void dealRecvData(TimeCalcInf *pCalcInf);
 private:
 	const int SERVER_PORT;
 	
@@ -47,7 +51,9 @@ private:
 	static  CNetServer* _instance;
 	SOCKET m_sockLister;
 
-	base::CList *m_listClientRead;	
+	base::CList *m_listClientRead;
+	base::CList *m_recvList;
+	base::CPthreadMutex m_recvListMutex;
 	char *m_recvBuf;
 	int m_recvBufLen;
 	std::bitset<MAX_CLIENT_SIZE> m_cientIds;
