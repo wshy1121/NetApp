@@ -80,14 +80,14 @@ void CDataWorkManager::threadProc()
 	}
 }
 
-void CDataWorkManager::dealitemData(int clientId, RECV_DATA *pRecvData)
+void CDataWorkManager::dealitemData(ClientConn *pClientConn, RECV_DATA *pRecvData)
 {
 	TimeCalcInf *pCalcInf = &pRecvData->calcInf;
 
 	char *tid = pCalcInf->m_dataInf.m_infs[1];
 	pCalcInf->m_traceInfoId.threadId =  atoi(tid);
-	pCalcInf->m_traceInfoId.clientId = clientId;
-
+	pCalcInf->m_traceInfoId.clientId = pClientConn->clientId;
+	pCalcInf->m_traceInfoId.socket = pClientConn->socket;
 	CTimeCalcInfManager::instance()->pushRecvData(pRecvData);
 }
 

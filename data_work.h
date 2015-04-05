@@ -4,6 +4,7 @@
 #include "link_tool.h"
 #include "thread_base.h"
 #include "time_calc.h"
+#include "net_server.h"
 
 typedef struct WORK_DATA
 {
@@ -24,7 +25,7 @@ public:
 	WORK_DATA *createWorkData(int contentLen);
 	void destroyWorkData(WORK_DATA *pWorkData);
 	void pushWorkData(WORK_DATA *pWorkData);	
-	void dealitemData(int clientId, RECV_DATA *pRecvData);	
+	void dealitemData(ClientConn *pClientConn, RECV_DATA *pRecvData);	
 private:
 	CDataWorkManager();	
 	void threadProc();

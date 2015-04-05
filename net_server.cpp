@@ -119,48 +119,51 @@ void *CNetServer::_listenThread(void *arg)
 			FD_SET(pClientConnTmp->socket, &fd_read);
 		}
 		
-		int count = select(m_nfds+1, &fd_read, &fd_write, NULL, &cctv);
-		for (int i=0; i< count; ++i)
-		{
-			ClientConn *pClientConnRead = NULL;
-			node *pHead = &m_listClientRead->head_node;
-			for ((pNode)=(pHead)->next; (pHead) != (pNode);)
-			{
-				pClientConnRead = clientConnContain(pNode);
-				while(FD_ISSET(pClientConnRead->socket, &fd_read))
-				{
-					RECV_DATA *pRecvData = IDealDataHandle::createRecvData();
-					CLogDataInf &dataInf = pRecvData->calcInf.m_dataInf;
-					bool bRet = receiveInfData(pClientConnRead->socket, &dataInf);
-					
-					if(bRet)
-					{
-						CDataWorkManager::instance()->dealitemData(pClientConnRead->clientId, pRecvData);
-					}
-					//异常处理
-					else
-					{
-						IDealDataHandle::destroyRecvData(pRecvData);
-						pNode = dealErrNo(pClientConnRead, pNode);
-						break;
-					}
-				}
-				(pNode)=(pNode)->next;
-			}
-			
-			//处理连接消息
-			if(FD_ISSET(m_sockLister, &fd_read))
-			{
-				SOCKET socket = accept(m_sockLister,(sockaddr*)&clientAddr,&nLen);		
-				if (m_nfds < socket)
-				{
-					m_nfds = socket;
-				}
-				ClientConn *pClientConn = dealConnect(socket);
-				openFile(pClientConn->clientId, (char *)"Debug.cpp");
-			}
-		}
+		int count = select(m_nfds+1, &fd_read, &fd_write, NULL, &cctv);		
 		sendThreadProc();
+		if (count <= 0)
+		{
+			continue;
+		}
+
+		ClientConn *pClientConnRead = NULL;
+		node *pHead = &m_listClientRead->head_node;
+		for ((pNode)=(pHead)->next; (pHead) != (pNode);)
+		{
+			pClientConnRead = clientConnContain(pNode);
+			while(FD_ISSET(pClientConnRead->socket, &fd_read))
+			{
+				RECV_DATA *pRecvData = IDealDataHandle::createRecvData();
+				CLogDataInf &dataInf = pRecvData->calcInf.m_dataInf;
+				bool bRet = receiveInfData(pClientConnRead->socket, &dataInf);
+				
+				if(bRet)
+				{
+					CDataWorkManager::instance()->dealitemData(pClientConnRead, pRecvData);
+				}
+				//异常处理
+				else
+				{
+					IDealDataHandle::destroyRecvData(pRecvData);
+					pNode = dealErrNo(pClientConnRead, pNode);
+					break;
+				}
+			}
+			(pNode)=(pNode)->next;
+		}
+		
+		//处理连接消息
+		if(FD_ISSET(m_sockLister, &fd_read))
+		{
+			SOCKET socket = accept(m_sockLister,(sockaddr*)&clientAddr,&nLen);		
+			if (m_nfds < socket)
+			{
+				m_nfds = socket;
+			}
+			ClientConn *pClientConn = dealConnect(socket);
+			openFile(pClientConn->clientId, (char *)"Debug.cpp");
+		}
+
 	}
 	return NULL;
 }
@@ -177,8 +180,11 @@ void CNetServer::openFile(int fileKey, char *fileName)
 	dataInf.putInf("");
 	dataInf.putInf("0");
 	dataInf.putInf(fileName);
-		
-	CDataWorkManager::instance()->dealitemData(fileKey, pRecvData); 
+
+	ClientConn clientConn;
+	clientConn.clientId = fileKey;
+	clientConn.socket = INVALID_SOCKET;
+	CDataWorkManager::instance()->dealitemData(&clientConn, pRecvData); 
 	return ;
 }
 
@@ -196,13 +202,19 @@ void CNetServer::closeFile(int fileKey)
 	dataInf.putInf("0");
 	dataInf.putInf("");
 
-	CDataWorkManager::instance()->dealitemData(fileKey, pRecvData); 
+	ClientConn clientConn;
+	clientConn.clientId = fileKey;
+	clientConn.socket = INVALID_SOCKET;
+	CDataWorkManager::instance()->dealitemData(&clientConn, pRecvData); 
 	return ;
 }
 
 
 void CNetServer::dealException(int clientId)
 {
+	ClientConn clientConn;
+	clientConn.clientId = clientId;
+	clientConn.socket = INVALID_SOCKET;
 	{
 		RECV_DATA *pRecvData = IDealDataHandle::createRecvData();
 
@@ -215,7 +227,7 @@ void CNetServer::dealException(int clientId)
 		dataInf.putInf("0");
 		dataInf.putInf("backtrace");
 
-		CDataWorkManager::instance()->dealitemData(clientId, pRecvData); 
+		CDataWorkManager::instance()->dealitemData(&clientConn, pRecvData); 
 	}
 	{
 		RECV_DATA *pRecvData = IDealDataHandle::createRecvData();
@@ -229,7 +241,7 @@ void CNetServer::dealException(int clientId)
 		dataInf.putInf("0");
 		dataInf.putInf("backtrace");
 
-		CDataWorkManager::instance()->dealitemData(clientId, pRecvData); 
+		CDataWorkManager::instance()->dealitemData(&clientConn, pRecvData); 
 	}
 	return ;
 }
@@ -379,8 +391,8 @@ void CNetServer::dealRecvData(TimeCalcInf *pCalcInf)
 {
 	CLogDataInf &dataInf = pCalcInf->m_dataInf;
 	int &clientId = pCalcInf->m_traceInfoId.clientId;
-	printf("dealRecvData  m_cientIds %d  %d\n", m_cientIds.test(clientId), clientId);
-	if (!m_cientIds.test(clientId))
+	SOCKET &socket = pCalcInf->m_traceInfoId.socket;	
+	if (socket == INVALID_SOCKET || !m_cientIds.test(clientId))
 	{
 		return ;
 	}
@@ -389,8 +401,7 @@ void CNetServer::dealRecvData(TimeCalcInf *pCalcInf)
 	int packetLen = dataInf.packet(packet);
 	dataInf.packet(packet);
 
-	send(clientId, packet, packetLen);
-	printf("packetLen  %d  %s\n", packetLen, packet);
+	send(socket, packet, packetLen);
 	return ;
 }
 
@@ -428,7 +439,6 @@ void CNetServer::setErrNo(int recvNum)
 	int errNo = 0;
 #ifdef WIN32
 	errNo = WSAGetLastError();
-	printf("setErrNo errNo	%d\n", errNo);
 	switch (errNo)
 	{
 		case WSAEWOULDBLOCK:
