@@ -16,7 +16,7 @@ extern CPthreadMutex g_insMutexCalc;
 extern char *dataFormat;
 CNetServer* CNetServer::_instance = NULL;
 
-CNetServer::CNetServer():SERVER_PORT(8889), m_sockLister(INVALID_SOCKET), m_recvBufLen(1024*1024), m_nfds(0)
+CNetServer::CNetServer():SERVER_PORT(8889), m_errNo(e_noErr), m_sockLister(INVALID_SOCKET), m_recvBufLen(1024*1024), m_nfds(0)
 {
 	m_recvBuf = (char *)base::malloc(m_recvBufLen);
 	m_listClientRead = CList::createCList();
@@ -141,9 +141,7 @@ void *CNetServer::_listenThread(void *arg)
 					else
 					{
 						IDealDataHandle::destroyRecvData(pRecvData);
-						dealException(pClientConnRead->clientId);
-						closeFile(pClientConnRead->clientId);
-						pNode = dealDisconnect(pClientConnRead);
+						pNode = dealErrNo(pClientConnRead, pNode);
 						break;
 					}
 				}
@@ -255,6 +253,7 @@ ClientConn *CNetServer::dealConnect(int clientId)
 	
 	setClientId(pClientConn->clientId);
 	m_listClientRead->push_back(&pClientConn->node);
+	setNoBlock(pClientConn->socket);
 	return pClientConn;
 }
 
@@ -288,8 +287,8 @@ int CNetServer::receive(SOCKET fd,char *szText,int iLen)
 	{
 		recvBufLen = recv(fd, szText+totalRecvLen, iLen-totalRecvLen, 0);
 		if (recvBufLen <= 0)
-
 		{
+			setErrNo(recvBufLen);
 			return -1;
 		}
 		totalRecvLen += recvBufLen;
@@ -379,5 +378,107 @@ void CNetServer::sendThreadProc()
 void CNetServer::dealRecvData(TimeCalcInf *pCalcInf)
 {
 	CLogDataInf &dataInf = pCalcInf->m_dataInf;
+	int &clientId = pCalcInf->m_traceInfoId.clientId;
+	printf("dealRecvData  m_cientIds %d  %d\n", m_cientIds.test(clientId), clientId);
+	if (!m_cientIds.test(clientId))
+	{
+		return ;
+	}
+	
+	char *packet = NULL;
+	int packetLen = dataInf.packet(packet);
+	dataInf.packet(packet);
+
+	send(clientId, packet, packetLen);
+	printf("packetLen  %d  %s\n", packetLen, packet);
+	return ;
+}
+
+
+void CNetServer::setNoBlock(int socket)
+{
+#ifdef WIN32
+	unsigned long ul = 1;
+	int ret = ioctlsocket(socket, FIONBIO, (unsigned long*)&ul);
+	if (ret == SOCKET_ERROR)
+	{
+		printf("setNoBlock failed  %d\n", socket);
+		return;
+	}
+#else
+	int opts;
+	opts=fcntl(socket,F_GETFL);
+	if(opts<0)
+	{
+		perror("fcntl(sock,GETFL)");
+		return;
+	}
+	opts = opts|O_NONBLOCK;
+	if(fcntl(socket,F_SETFL,opts)<0)
+	{
+		perror("setNoBlock failed  %d\m", socket);
+		return;
+	}
+#endif
+}
+
+
+void CNetServer::setErrNo(int recvNum)
+{
+	int errNo = 0;
+#ifdef WIN32
+	errNo = WSAGetLastError();
+	printf("setErrNo errNo	%d\n", errNo);
+	switch (errNo)
+	{
+		case WSAEWOULDBLOCK:
+			m_errNo = e_readOk;
+			break;
+		case WSAECONNRESET:
+			m_errNo = e_disConnect;
+			break;
+		default:
+			m_errNo = e_noErr;
+			break;
+	}
+#else
+	errNo = errno;
+	switch (errNo)
+	{
+		case EAGAIN:
+			m_errNo = e_readOk;
+			break;
+		default:
+			m_errNo = e_noErr;
+			break;
+	}
+#endif
+	if (recvNum == 0)
+	{
+		m_errNo = e_disConnect;
+		return ;
+	}
+	return ;
+}
+
+
+
+node *CNetServer::dealErrNo(ClientConn *pClientConnRead, node *pNode)
+{
+	int errNo = errno;
+	switch (m_errNo)
+	{
+		case e_readOk:
+			break;
+		case e_disConnect:
+			dealException(pClientConnRead->clientId);
+			closeFile(pClientConnRead->clientId);
+			pNode = dealDisconnect(pClientConnRead);			
+			break;
+		default:
+			break;
+
+	}
+	return pNode;
 }
 
