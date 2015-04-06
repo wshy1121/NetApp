@@ -21,42 +21,25 @@ typedef struct ClientConn
 class CNetServer
 {
 public:
-	typedef enum
-	{
-		e_noErr,
-		e_disConnect,	//socket已正常关闭
-		e_readOk,		//当前缓冲区已无数据可读
-		e_rst,			// 对方发送了RST
-		e_intr,			// 被信号中断
-	}ErrNo;
 	static CNetServer* instance();
 public:
 	bool startServer();
-	void pushRecvData(RECV_DATA *pRecvData);
+	void pushRecvData(RECV_DATA *pRecvData);	
+	node *dealDisconnect(ClientConn *pClientConnRead);
 private:
 	static void *listenThread(void *arg);
 private:
 	CNetServer();
 	void *_listenThread(void *arg);
-	void dealException(int clientId);
-	node *dealDisconnect(ClientConn *pClientConnRead);
 	ClientConn *dealConnect(int clientId);
-	void openFile(int fileKey, char *fileName);
-	void closeFile(int fileKey);
-	bool receiveInfData(int socket, base::CLogDataInf *pDataInf);
-	int receive(SOCKET fd,char *szText,int len);
-	int send(SOCKET fd,char *szText,int len);
 	int creatClientId();
 	void setClientId(int clientId);
 	void resetClientId(int clientId);
 	void sendThreadProc();
 	void dealRecvData(TimeCalcInf *pCalcInf);
 	void setNoBlock(int socket);
-	void setErrNo(int recvNum);	
-	node *dealErrNo(ClientConn *pClientConnRead, node *pNode);
 private:
 	const int SERVER_PORT;
-	ErrNo m_errNo;
 	base::pthread_t m_hListenThread;
 	
 	static  CNetServer* _instance;

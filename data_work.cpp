@@ -3,6 +3,7 @@
 #include "data_work.h"
 #include "mem_base.h"
 #include "data_handle.h"
+#include "socket_base.h"
 #include "Global.h"
 
 using namespace base;
@@ -12,7 +13,7 @@ extern CPthreadMutex g_insMutexCalc;
 
 CDataWorkManager *CDataWorkManager::_instance = NULL;
 
-CDataWorkManager::CDataWorkManager()
+CDataWorkManager::CDataWorkManager():m_errNo(e_noErr)
 {
 	m_workList = CList::createCList();
 	IDealDataHandle::initDataHandle();
@@ -115,10 +116,207 @@ void CDataWorkManager::pushWorkData(WORK_DATA *pWorkData)
 }
 
 
+bool CDataWorkManager::receiveInfData(int socket, base::CLogDataInf *pDataInf)
+{
+	const int ClenSize = 4;
+	char CLen[ClenSize];
+	if (receive(socket, CLen, ClenSize) <= 0)
+	{
+		return false;
+	}
+	int iLen = 0;		
+	pDataInf->C2ILen(CLen,ClenSize,iLen);
+
+	char *packet = new char[iLen];
+	memcpy(packet, CLen, ClenSize);
+	if (receive(socket, packet+ClenSize, iLen-ClenSize) <= 0)
+	{
+		return false;
+	}
+	pDataInf->unPacket(packet);
+
+	return true;
+}
+
+
+int CDataWorkManager::receive(SOCKET fd,char *szText,int iLen)
+{
+	int recvBufLen = 0;
+	int totalRecvLen = 0;
+	while (1)
+	{
+		recvBufLen = recv(fd, szText+totalRecvLen, iLen-totalRecvLen, 0);
+		if (recvBufLen <= 0)
+		{
+			setErrNo(recvBufLen);
+			return -1;
+		}
+		totalRecvLen += recvBufLen;
+		if (totalRecvLen == iLen)
+		{
+			break;
+		}
+	}
+	return iLen;
+}
+
+int CDataWorkManager::send(SOCKET fd,char *szText,int len)
+{
+	int cnt;
+	int rc;
+	cnt=len;
+	while(cnt>0)
+	{
+		rc=::send(fd,szText,cnt,0);
+		if(rc==SOCKET_ERROR)
+		{
+			return -1;
+		}
+		if(rc==0)
+		{
+			return len-cnt;
+		}
+		szText+=rc;
+		cnt-=rc;
+	}
+	return len;
+}
+
+
+void CDataWorkManager::setErrNo(int recvNum)
+{
+	int errNo = 0;
+#ifdef WIN32
+	errNo = WSAGetLastError();
+	switch (errNo)
+	{
+		case WSAEWOULDBLOCK:
+			m_errNo = e_readOk;
+			break;
+		case WSAECONNRESET:
+			m_errNo = e_disConnect;
+			break;
+		default:
+			m_errNo = e_noErr;
+			break;
+	}
+#else
+	errNo = errno;
+	switch (errNo)
+	{
+		case EAGAIN:
+			m_errNo = e_readOk;
+			break;
+		default:
+			m_errNo = e_noErr;
+			break;
+	}
+#endif
+	if (recvNum == 0)
+	{
+		m_errNo = e_disConnect;
+		return ;
+	}
+	return ;
+}
 
 
 
+node *CDataWorkManager::dealErrNo(ClientConn *pClientConnRead, node *pNode)
+{
+	switch (m_errNo)
+	{
+		case e_readOk:
+			break;
+		case e_disConnect:
+			dealException(pClientConnRead->clientId);
+			closeFile(pClientConnRead->clientId);
+			pNode = CNetServer::instance()->dealDisconnect(pClientConnRead);			
+			break;
+		default:
+			break;
+
+	}
+	return pNode;
+}
 
 
+void CDataWorkManager::openFile(int fileKey, char *fileName)
+{
+	RECV_DATA *pRecvData =IDealDataHandle::createRecvData();
+	
+	CLogDataInf &dataInf = pRecvData->calcInf.m_dataInf;
+	
+	dataInf.putInf("openFile");
+	dataInf.putInf("0");
+	dataInf.putInf("0");
+	dataInf.putInf("");
+	dataInf.putInf("");
+	dataInf.putInf("0");
+	dataInf.putInf(fileName);
 
+	ClientConn clientConn;
+	clientConn.clientId = fileKey;
+	clientConn.socket = INVALID_SOCKET;
+	CDataWorkManager::instance()->dealitemData(&clientConn, pRecvData); 
+	return ;
+}
+
+
+void CDataWorkManager::closeFile(int fileKey)
+{
+	RECV_DATA *pRecvData = IDealDataHandle::createRecvData();
+	
+	CLogDataInf &dataInf = pRecvData->calcInf.m_dataInf;
+	dataInf.putInf("closeFile");
+	dataInf.putInf("0");
+	dataInf.putInf("0");
+	dataInf.putInf("");
+	dataInf.putInf("");
+	dataInf.putInf("0");
+	dataInf.putInf("");
+
+	ClientConn clientConn;
+	clientConn.clientId = fileKey;
+	clientConn.socket = INVALID_SOCKET;
+	CDataWorkManager::instance()->dealitemData(&clientConn, pRecvData); 
+	return ;
+}
+
+
+void CDataWorkManager::dealException(int clientId)
+{
+	ClientConn clientConn;
+	clientConn.clientId = clientId;
+	clientConn.socket = INVALID_SOCKET;
+	{
+		RECV_DATA *pRecvData = IDealDataHandle::createRecvData();
+
+		CLogDataInf &dataInf = pRecvData->calcInf.m_dataInf;
+		dataInf.putInf("dispAll");
+		dataInf.putInf("0");
+		dataInf.putInf("0");
+		dataInf.putInf("");
+		dataInf.putInf("");
+		dataInf.putInf("0");
+		dataInf.putInf("backtrace");
+
+		CDataWorkManager::instance()->dealitemData(&clientConn, pRecvData); 
+	}
+	{
+		RECV_DATA *pRecvData = IDealDataHandle::createRecvData();
+
+		CLogDataInf &dataInf = pRecvData->calcInf.m_dataInf;
+		dataInf.putInf("cleanAll");
+		dataInf.putInf("0");
+		dataInf.putInf("0");
+		dataInf.putInf("");
+		dataInf.putInf("");
+		dataInf.putInf("0");
+		dataInf.putInf("backtrace");
+
+		CDataWorkManager::instance()->dealitemData(&clientConn, pRecvData); 
+	}
+	return ;
+}
 

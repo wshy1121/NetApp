@@ -16,7 +16,7 @@ extern CPthreadMutex g_insMutexCalc;
 extern char *dataFormat;
 CNetServer* CNetServer::_instance = NULL;
 
-CNetServer::CNetServer():SERVER_PORT(8889), m_errNo(e_noErr), m_sockLister(INVALID_SOCKET), m_recvBufLen(1024*1024), m_nfds(0)
+CNetServer::CNetServer():SERVER_PORT(8889), m_sockLister(INVALID_SOCKET), m_recvBufLen(1024*1024), m_nfds(0)
 {
 	m_recvBuf = (char *)base::malloc(m_recvBufLen);
 	m_listClientRead = CList::createCList();
@@ -135,7 +135,7 @@ void *CNetServer::_listenThread(void *arg)
 			{
 				RECV_DATA *pRecvData = IDealDataHandle::createRecvData();
 				CLogDataInf &dataInf = pRecvData->calcInf.m_dataInf;
-				bool bRet = receiveInfData(pClientConnRead->socket, &dataInf);
+				bool bRet = CDataWorkManager::instance()->receiveInfData(pClientConnRead->socket, &dataInf);
 				
 				if(bRet)
 				{
@@ -145,7 +145,7 @@ void *CNetServer::_listenThread(void *arg)
 				else
 				{
 					IDealDataHandle::destroyRecvData(pRecvData);
-					pNode = dealErrNo(pClientConnRead, pNode);
+					pNode = CDataWorkManager::instance()->dealErrNo(pClientConnRead, pNode);
 					break;
 				}
 			}
@@ -161,90 +161,16 @@ void *CNetServer::_listenThread(void *arg)
 				m_nfds = socket;
 			}
 			ClientConn *pClientConn = dealConnect(socket);
-			openFile(pClientConn->clientId, (char *)"Debug.cpp");
+			CDataWorkManager::instance()->openFile(pClientConn->clientId, (char *)"Debug.cpp");
 		}
 
 	}
 	return NULL;
 }
-void CNetServer::openFile(int fileKey, char *fileName)
-{
-	RECV_DATA *pRecvData =IDealDataHandle::createRecvData();
-	
-	CLogDataInf &dataInf = pRecvData->calcInf.m_dataInf;
-	
-	dataInf.putInf("openFile");
-	dataInf.putInf("0");
-	dataInf.putInf("0");
-	dataInf.putInf("");
-	dataInf.putInf("");
-	dataInf.putInf("0");
-	dataInf.putInf(fileName);
-
-	ClientConn clientConn;
-	clientConn.clientId = fileKey;
-	clientConn.socket = INVALID_SOCKET;
-	CDataWorkManager::instance()->dealitemData(&clientConn, pRecvData); 
-	return ;
-}
 
 
-void CNetServer::closeFile(int fileKey)
-{
-	RECV_DATA *pRecvData = IDealDataHandle::createRecvData();
-	
-	CLogDataInf &dataInf = pRecvData->calcInf.m_dataInf;
-	dataInf.putInf("closeFile");
-	dataInf.putInf("0");
-	dataInf.putInf("0");
-	dataInf.putInf("");
-	dataInf.putInf("");
-	dataInf.putInf("0");
-	dataInf.putInf("");
-
-	ClientConn clientConn;
-	clientConn.clientId = fileKey;
-	clientConn.socket = INVALID_SOCKET;
-	CDataWorkManager::instance()->dealitemData(&clientConn, pRecvData); 
-	return ;
-}
 
 
-void CNetServer::dealException(int clientId)
-{
-	ClientConn clientConn;
-	clientConn.clientId = clientId;
-	clientConn.socket = INVALID_SOCKET;
-	{
-		RECV_DATA *pRecvData = IDealDataHandle::createRecvData();
-
-		CLogDataInf &dataInf = pRecvData->calcInf.m_dataInf;
-		dataInf.putInf("dispAll");
-		dataInf.putInf("0");
-		dataInf.putInf("0");
-		dataInf.putInf("");
-		dataInf.putInf("");
-		dataInf.putInf("0");
-		dataInf.putInf("backtrace");
-
-		CDataWorkManager::instance()->dealitemData(&clientConn, pRecvData); 
-	}
-	{
-		RECV_DATA *pRecvData = IDealDataHandle::createRecvData();
-
-		CLogDataInf &dataInf = pRecvData->calcInf.m_dataInf;
-		dataInf.putInf("cleanAll");
-		dataInf.putInf("0");
-		dataInf.putInf("0");
-		dataInf.putInf("");
-		dataInf.putInf("");
-		dataInf.putInf("0");
-		dataInf.putInf("backtrace");
-
-		CDataWorkManager::instance()->dealitemData(&clientConn, pRecvData); 
-	}
-	return ;
-}
 
 node *CNetServer::dealDisconnect(ClientConn *pClientConnRead)
 {
@@ -267,71 +193,6 @@ ClientConn *CNetServer::dealConnect(int clientId)
 	m_listClientRead->push_back(&pClientConn->node);
 	setNoBlock(pClientConn->socket);
 	return pClientConn;
-}
-
-bool CNetServer::receiveInfData(int socket, CLogDataInf *pDataInf)
-{
-	const int ClenSize = 4;
-	char CLen[ClenSize];
-	if (receive(socket, CLen, ClenSize) <= 0)
-	{
-		return false;
-	}
-	int iLen = 0;		
-	pDataInf->C2ILen(CLen,ClenSize,iLen);
-
-	char *packet = new char[iLen];
-	memcpy(packet, CLen, ClenSize);
-	if (receive(socket, packet+ClenSize, iLen-ClenSize) <= 0)
-	{
-		return false;
-	}
-	pDataInf->unPacket(packet);
-
-	return true;
-}
-
-int CNetServer::receive(SOCKET fd,char *szText,int iLen)
-{
-	int recvBufLen = 0;
-	int totalRecvLen = 0;
-	while (1)
-	{
-		recvBufLen = recv(fd, szText+totalRecvLen, iLen-totalRecvLen, 0);
-		if (recvBufLen <= 0)
-		{
-			setErrNo(recvBufLen);
-			return -1;
-		}
-		totalRecvLen += recvBufLen;
-		if (totalRecvLen == iLen)
-		{
-			break;
-		}
-	}
-	return iLen;
-}
-
-int CNetServer::send(SOCKET fd,char *szText,int len)
-{
-	int cnt;
-	int rc;
-	cnt=len;
-	while(cnt>0)
-	{
-		rc=::send(fd,szText,cnt,0);
-		if(rc==SOCKET_ERROR)
-		{
-			return -1;
-		}
-		if(rc==0)
-		{
-			return len-cnt;
-		}
-		szText+=rc;
-		cnt-=rc;
-	}
-	return len;
 }
 
 int CNetServer::creatClientId()
@@ -401,7 +262,7 @@ void CNetServer::dealRecvData(TimeCalcInf *pCalcInf)
 	int packetLen = dataInf.packet(packet);
 	dataInf.packet(packet);
 
-	send(socket, packet, packetLen);
+	CDataWorkManager::instance()->send(socket, packet, packetLen);
 	return ;
 }
 
@@ -433,62 +294,4 @@ void CNetServer::setNoBlock(int socket)
 #endif
 }
 
-
-void CNetServer::setErrNo(int recvNum)
-{
-	int errNo = 0;
-#ifdef WIN32
-	errNo = WSAGetLastError();
-	switch (errNo)
-	{
-		case WSAEWOULDBLOCK:
-			m_errNo = e_readOk;
-			break;
-		case WSAECONNRESET:
-			m_errNo = e_disConnect;
-			break;
-		default:
-			m_errNo = e_noErr;
-			break;
-	}
-#else
-	errNo = errno;
-	switch (errNo)
-	{
-		case EAGAIN:
-			m_errNo = e_readOk;
-			break;
-		default:
-			m_errNo = e_noErr;
-			break;
-	}
-#endif
-	if (recvNum == 0)
-	{
-		m_errNo = e_disConnect;
-		return ;
-	}
-	return ;
-}
-
-
-
-node *CNetServer::dealErrNo(ClientConn *pClientConnRead, node *pNode)
-{
-	int errNo = errno;
-	switch (m_errNo)
-	{
-		case e_readOk:
-			break;
-		case e_disConnect:
-			dealException(pClientConnRead->clientId);
-			closeFile(pClientConnRead->clientId);
-			pNode = dealDisconnect(pClientConnRead);			
-			break;
-		default:
-			break;
-
-	}
-	return pNode;
-}
 

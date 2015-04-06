@@ -2,16 +2,35 @@
 #include "socket_base.h"
 #include "defs.h"
 #include "net_client.h"
+#include "link_tool.h"
+#include "data_work.h"
 #include <sys/types.h>
 
+using namespace base;
+extern CPthreadMutex g_insMutexCalc;
+CNetClient* CNetClient::_instance = NULL;
 
-CNetClient::CNetClient(std::string sip) : m_sip(sip)
+CNetClient* CNetClient::instance() 
+{	
+	if (NULL == _instance)
+	{
+		CGuardMutex guardMutex(g_insMutexCalc);
+		if (NULL == _instance)
+		{
+			_instance = new CNetClient;
+		}
+	}
+	return _instance;
+}
+
+
+CNetClient::CNetClient() : m_socketClient(INVALID_SOCKET)
 {
 	return ;
 }
 
 
-bool CNetClient::connect()
+bool CNetClient::connect(std::string &sip)
 {
 	m_socketClient = socket(AF_INET, SOCK_STREAM, 0);
 	if(INVALID_SOCKET == m_socketClient)
@@ -29,6 +48,8 @@ bool CNetClient::connect()
 	{
 		return false;
 	}
+
+	m_sip = sip;
 	return true;
 }
 
@@ -71,6 +92,24 @@ int CNetClient::send(char *szText,int len)
 		cnt-=rc;
 	}
 	return len;
+}
+
+bool CNetClient::verify(char *userName, char *passWord)
+{
+	CLogDataInf dataInf;
+	dataInf.putInf((char *)"insertTrace");
+	dataInf.putInf("sTid");
+	dataInf.putInf("sLine");
+	dataInf.putInf("file_name");
+	dataInf.putInf("");
+	dataInf.putInf("0");
+	dataInf.putInf("content");
+
+	char *packet = NULL;
+	int packetLen = dataInf.packet(packet);
+	send(packet, packetLen);
+	CDataWorkManager::instance()->receiveInfData(m_socketClient, &dataInf);	
+	return true;
 }
 
 

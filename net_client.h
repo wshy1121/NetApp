@@ -6,13 +6,17 @@
 class CNetClient
 {
 public:
-	CNetClient(std::string sip);
-	bool disConnect();
+	static CNetClient* instance();
+	bool disConnect();	
+	bool connect(std::string &sip);
 public:
-	bool connect();
+	bool verify(char *userName, char *passWord);
+private:	
+	CNetClient();
 	int receive(char *szText,int len);
-	int send(char *szText,int len);
-private:
+	int send(char *szText,int len);	
+private:	
+	static  CNetClient* _instance;
 	SOCKET m_socketClient;
 	std::string m_sip;
 };

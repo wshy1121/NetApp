@@ -19,21 +19,38 @@ typedef struct WORK_DATA
 
 class CDataWorkManager
 {
-public:
+public:	
+	typedef enum
+	{
+		e_noErr,
+		e_disConnect,	//socket已正常关闭
+		e_readOk,		//当前缓冲区已无数据可读
+		e_rst,			// 对方发送了RST
+		e_intr,			// 被信号中断
+	}ErrNo;
 	static CDataWorkManager *instance();
 public:
 	WORK_DATA *createWorkData(int contentLen);
 	void destroyWorkData(WORK_DATA *pWorkData);
 	void pushWorkData(WORK_DATA *pWorkData);	
 	void dealitemData(ClientConn *pClientConn, RECV_DATA *pRecvData);	
+	node *dealErrNo(ClientConn *pClientConnRead, node *pNode);
+	bool receiveInfData(int socket, base::CLogDataInf *pDataInf);	
+	int receive(SOCKET fd,char *szText,int len);
+	int send(SOCKET fd,char *szText,int len);	
+	void openFile(int fileKey, char *fileName);
+	void closeFile(int fileKey);
 private:
 	CDataWorkManager();	
 	void threadProc();
 	static void* threadFunc(void *pArg);
-	void dealWorkData(WORK_DATA *pWorkData);
+	void dealWorkData(WORK_DATA *pWorkData);	
+	void setErrNo(int recvNum);	
+	void dealException(int clientId);
 private:
 	static CDataWorkManager *_instance;
 private:
+	ErrNo m_errNo;	
 	base::CList *m_workList;
 	base::CPthreadMutex m_workListMutex;
 	base::pthread_t m_threadId;
