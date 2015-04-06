@@ -8,13 +8,11 @@ class CNetClient
 public:
 	static CNetClient* instance();
 	bool disConnect();	
-	bool connect(std::string &sip);
+	bool connect(char *sip);
 public:
 	bool verify(char *userName, char *passWord);
 private:	
-	CNetClient();
-	int receive(char *szText,int len);
-	int send(char *szText,int len);	
+	CNetClient();	
 private:	
 	static  CNetClient* _instance;
 	SOCKET m_socketClient;

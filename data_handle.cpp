@@ -33,6 +33,7 @@ void IDealDataHandle::initDataHandle()
 	_instance->registerHandle("insertHex", new CInsertHex);
 	_instance->registerHandle("openFile", new COpenFile);
 	_instance->registerHandle("closeFile", new CCloseFile);
+	_instance->registerHandle("verify", new CVerify);
 }
 
 RECV_DATA *IDealDataHandle::createRecvData(int contentLen)
@@ -136,6 +137,10 @@ void CCloseFile::dealDataHandle(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf)
 }
 
 
+void CVerify::dealDataHandle(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf)
+{
+	printf("CVerify::dealDataHandle \n");
+}
 
 
 

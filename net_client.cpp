@@ -3,6 +3,7 @@
 #include "defs.h"
 #include "net_client.h"
 #include "link_tool.h"
+#include "safe_server.h"
 #include "data_work.h"
 #include <sys/types.h>
 
@@ -30,7 +31,7 @@ CNetClient::CNetClient() : m_socketClient(INVALID_SOCKET)
 }
 
 
-bool CNetClient::connect(std::string &sip)
+bool CNetClient::connect(char *sip)
 {
 	m_socketClient = socket(AF_INET, SOCK_STREAM, 0);
 	if(INVALID_SOCKET == m_socketClient)
@@ -40,7 +41,7 @@ bool CNetClient::connect(std::string &sip)
 
 	struct sockaddr_in addr;
 	addr.sin_family 		= AF_INET;
-	addr.sin_addr.s_addr	= inet_addr(m_sip.c_str());
+	addr.sin_addr.s_addr	= inet_addr(sip);
 	addr.sin_port			= htons(8889);
 	
 	int ret = ::connect(m_socketClient, (struct sockaddr *) & addr, sizeof(sockaddr_in));
@@ -59,56 +60,26 @@ bool CNetClient::disConnect()
 	return true;
 }
 
-int CNetClient::receive(char *szText,int len)
-{
-	int rc;
-	rc=recv(m_socketClient,szText,len,0);
-	if(rc <= 0)
-	{
-		return -1;
-	}
-	return rc;
-}
-
-
-
-int CNetClient::send(char *szText,int len)
-{
-	int cnt;
-	int rc;
-	cnt=len;
-	while(cnt>0)
-	{
-		rc=::send(m_socketClient,szText,cnt,0);
-		if(rc==SOCKET_ERROR)
-		{
-			return -1;
-		}
-		if(rc==0)
-		{
-			return len-cnt;
-		}
-		szText+=rc;
-		cnt-=rc;
-	}
-	return len;
-}
-
 bool CNetClient::verify(char *userName, char *passWord)
 {
 	CLogDataInf dataInf;
-	dataInf.putInf((char *)"insertTrace");
-	dataInf.putInf("sTid");
-	dataInf.putInf("sLine");
-	dataInf.putInf("file_name");
+	dataInf.putInf((char *)"verify");
+	dataInf.putInf("1");//session id(必须大于0)
+	dataInf.putInf("0");//主密钥索引(16字节)
+	dataInf.putInf("0");//实际密钥索引(16字节)
+	dataInf.putInf(""); //密钥索引映射表(256字节)
 	dataInf.putInf("");
 	dataInf.putInf("0");
-	dataInf.putInf("content");
+	dataInf.putInf("");
 
 	char *packet = NULL;
 	int packetLen = dataInf.packet(packet);
-	send(packet, packetLen);
+	CDataWorkManager::instance()->send(m_socketClient, packet, packetLen);
 	CDataWorkManager::instance()->receiveInfData(m_socketClient, &dataInf);	
+
+	CSafeServer::uchar keyInf[KEY_INF_LEN];
+	CSafeServer::instance()->createKeyInf(keyInf, sizeof(keyInf));
+	CSafeServer::instance()->encode(keyInf, sizeof(keyInf), NULL, 0, NULL);
 	return true;
 }
 

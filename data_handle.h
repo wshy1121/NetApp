@@ -115,5 +115,11 @@ public:
 	virtual void dealDataHandle(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf);
 };
 
+class CVerify : public IDealDataHandle
+{
+public:
+	virtual void dealDataHandle(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf);
+};
+
 #endif
 
