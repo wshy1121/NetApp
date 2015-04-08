@@ -25,7 +25,7 @@ CNetClient* CNetClient::instance()
 }
 
 
-CNetClient::CNetClient() : m_socketClient(INVALID_SOCKET)
+CNetClient::CNetClient() : m_socketClient(INVALID_SOCKET), m_sessionId(1), m_maxSessionId(1024*1024)
 {
 	return ;
 }
@@ -60,26 +60,43 @@ bool CNetClient::disConnect()
 	return true;
 }
 
+int CNetClient::getSessionId()
+{
+	if (m_sessionId > m_maxSessionId)
+	{
+		m_sessionId = 0;
+		
+	}
+	return ++m_sessionId;
+}
 bool CNetClient::verify(char *userName, char *passWord)
 {
+	char sessionId[8];
+	snprintf(sessionId, sizeof(sessionId), "%d", getSessionId());
+	
+	char keyInf[KEY_INF_LEN];
+	CSafeServer::instance()->createKeyInf(keyInf, sizeof(keyInf));
+
+	char _userName[32];
+	int _userNameLen = sizeof(_userName);
+	CSafeServer::instance()->encode(keyInf, sizeof(keyInf), userName, strlen(userName)+1, _userName, _userNameLen);
+
+	char _passWord[32];
+	int _passWordLen = sizeof(_passWord);
+	CSafeServer::instance()->encode(keyInf, sizeof(keyInf), passWord, strlen(passWord)+1, _passWord, _passWordLen);
+
 	CLogDataInf dataInf;
+
 	dataInf.putInf((char *)"verify");
-	dataInf.putInf("1");//session id(必须大于0)
-	dataInf.putInf("0");//主密钥索引(16字节)
-	dataInf.putInf("0");//实际密钥索引(16字节)
-	dataInf.putInf(""); //密钥索引映射表(256字节)
-	dataInf.putInf("");
-	dataInf.putInf("0");
-	dataInf.putInf("");
+	dataInf.putInf(sessionId);//session id(大于0)
+	dataInf.putInf(keyInf, sizeof(keyInf));//密钥
+	dataInf.putInf(_userName, _userNameLen);//用户名
+	dataInf.putInf(_passWord, _passWordLen); //密码
 
 	char *packet = NULL;
 	int packetLen = dataInf.packet(packet);
 	CDataWorkManager::instance()->send(m_socketClient, packet, packetLen);
-	CDataWorkManager::instance()->receiveInfData(m_socketClient, &dataInf);	
-
-	CSafeServer::uchar keyInf[KEY_INF_LEN];
-	CSafeServer::instance()->createKeyInf(keyInf, sizeof(keyInf));
-	CSafeServer::instance()->encode(keyInf, sizeof(keyInf), NULL, 0, NULL);
+	CDataWorkManager::instance()->receiveInfData(m_socketClient, &dataInf);		
 	return true;
 }
 

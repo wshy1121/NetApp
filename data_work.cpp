@@ -145,7 +145,7 @@ int CDataWorkManager::receive(SOCKET fd,char *szText,int iLen)
 	int totalRecvLen = 0;
 	while (1)
 	{
-		recvBufLen = recv(fd, szText+totalRecvLen, iLen-totalRecvLen, 0);
+		recvBufLen = ::recv(fd, szText+totalRecvLen, iLen-totalRecvLen, 0);
 		if (recvBufLen <= 0)
 		{
 			setErrNo(recvBufLen);

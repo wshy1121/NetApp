@@ -13,8 +13,11 @@ public:
 	bool verify(char *userName, char *passWord);
 private:	
 	CNetClient();	
+	int getSessionId();
 private:	
 	static  CNetClient* _instance;
+	const int m_maxSessionId;
+	int m_sessionId;
 	SOCKET m_socketClient;
 	std::string m_sip;
 };

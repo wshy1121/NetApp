@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "data_handle.h"
 #include "time_calc.h"
+#include "safe_server.h"
 
 IDealDataHandle::~IDealDataHandle()
 {
@@ -139,7 +140,25 @@ void CCloseFile::dealDataHandle(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf)
 
 void CVerify::dealDataHandle(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf)
 {
-	printf("CVerify::dealDataHandle \n");
+	base::CLogDataInf &dataInf = pCalcInf->m_dataInf;
+
+	char *oper = dataInf.m_infs[0];
+	char *sessionId = dataInf.m_infs[1];
+	
+	char *keyInf = dataInf.m_infs[2];
+	int keyInfLen = dataInf.m_infLens[2];
+	
+	char *userName = dataInf.m_infs[3];	
+	int userNameLen = dataInf.m_infLens[3];
+	
+	char *passWord = dataInf.m_infs[4];
+	int passWordLen = dataInf.m_infLens[4];
+
+
+	CSafeServer::instance()->decode(keyInf, keyInfLen, userName, userNameLen,userName);
+	CSafeServer::instance()->decode(keyInf, keyInfLen, passWord, passWordLen,passWord);
+	printf("CVerify::dealDataHandle %s  %s  %s\n", oper, userName, passWord);
+
 }
 
 
