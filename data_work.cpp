@@ -5,6 +5,7 @@
 #include "data_handle.h"
 #include "socket_base.h"
 #include "trace_handel.h"
+#include "verify_handel.h"
 #include "Global.h"
 
 using namespace base;
@@ -36,6 +37,7 @@ CDataWorkManager *CDataWorkManager::instance()
 void CDataWorkManager::initDataHandle()
 {
 	new CTraceHandle;
+	new CVerifyHandle;
 }
 
 WORK_DATA *CDataWorkManager::createWorkData(int contentLen)
