@@ -92,7 +92,7 @@ void CDataWorkManager::dealitemData(ClientConn *pClientConn, RECV_DATA *pRecvDat
 {
 	TimeCalcInf *pCalcInf = &pRecvData->calcInf;
 
-	char *tid = pCalcInf->m_dataInf.m_infs[1];
+	char *tid = pCalcInf->m_dataInf.m_infs[2];
 	pCalcInf->m_traceInfoId.threadId =  atoi(tid);
 	pCalcInf->m_traceInfoId.clientId = pClientConn->clientId;
 	pCalcInf->m_traceInfoId.socket = pClientConn->socket;
@@ -255,6 +255,7 @@ void CDataWorkManager::openFile(int fileKey, char *fileName)
 	CLogDataInf &dataInf = pRecvData->calcInf.m_dataInf;
 	
 	dataInf.putInf("openFile");
+	dataInf.putInf("1");//session id
 	dataInf.putInf("0");
 	dataInf.putInf("0");
 	dataInf.putInf("");
@@ -275,7 +276,8 @@ void CDataWorkManager::closeFile(int fileKey)
 	RECV_DATA *pRecvData = IDealDataHandle::createRecvData();
 	
 	CLogDataInf &dataInf = pRecvData->calcInf.m_dataInf;
-	dataInf.putInf("closeFile");
+	dataInf.putInf("closeFile");	
+	dataInf.putInf("1");//session id
 	dataInf.putInf("0");
 	dataInf.putInf("0");
 	dataInf.putInf("");
@@ -300,7 +302,8 @@ void CDataWorkManager::dealException(int clientId)
 		RECV_DATA *pRecvData = IDealDataHandle::createRecvData();
 
 		CLogDataInf &dataInf = pRecvData->calcInf.m_dataInf;
-		dataInf.putInf("dispAll");
+		dataInf.putInf("dispAll");		
+		dataInf.putInf("1");//session id
 		dataInf.putInf("0");
 		dataInf.putInf("0");
 		dataInf.putInf("");
@@ -314,7 +317,8 @@ void CDataWorkManager::dealException(int clientId)
 		RECV_DATA *pRecvData = IDealDataHandle::createRecvData();
 
 		CLogDataInf &dataInf = pRecvData->calcInf.m_dataInf;
-		dataInf.putInf("cleanAll");
+		dataInf.putInf("cleanAll");		
+		dataInf.putInf("1");//session id
 		dataInf.putInf("0");
 		dataInf.putInf("0");
 		dataInf.putInf("");

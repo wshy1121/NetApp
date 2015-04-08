@@ -22,12 +22,12 @@ void CTraceHandle::parseData(TimeCalcInf *pCalcInf)
 	base::CLogDataInf &dataInf = pCalcInf->m_dataInf;
 	m_oper = dataInf.m_infs[0];
 	m_pTraceInfoId = &(pCalcInf->m_traceInfoId);
-	m_line = atoi(dataInf.m_infs[2]);
-	m_fileName = dataInf.m_infs[3];;
-	m_funcName = dataInf.m_infs[4];
-	m_displayLevel = atoi(dataInf.m_infs[5]);
-	m_content = dataInf.m_infs[6];
-	m_contentLen = dataInf.m_infLens[6] + 1;
+	m_line = atoi(dataInf.m_infs[3]);
+	m_fileName = dataInf.m_infs[4];;
+	m_funcName = dataInf.m_infs[5];
+	m_displayLevel = atoi(dataInf.m_infs[6]);
+	m_content = dataInf.m_infs[7];
+	m_contentLen = dataInf.m_infLens[7] + 1;
 }
 
 

@@ -71,7 +71,7 @@ int CNetClient::getSessionId()
 }
 bool CNetClient::verify(char *userName, char *passWord)
 {
-	char sessionId[8];
+	char sessionId[16];
 	snprintf(sessionId, sizeof(sessionId), "%d", getSessionId());
 	
 	char keyInf[KEY_INF_LEN];
