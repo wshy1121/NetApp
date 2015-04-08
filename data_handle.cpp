@@ -34,7 +34,7 @@ void IDealDataHandle::execute(TimeCalcInf *pCalcInf)
 
 		char *&packet = calcInf.m_pContent;
 		int &packetLen = calcInf.m_contentLen;
-		packetLen = dataInf.packet(packet);
+		packetLen = dataInf.getPacket(packet);
 		CNetServer::instance()->pushRecvData(pRecvData);
 	}
 	else

@@ -49,6 +49,7 @@ void CVerifyHandle::verify(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf)
 		dataInf.putInf(keyInf, sizeof(keyInf));//√‹‘ø
 		dataInf.putInf(_userName, _userNameLen);//”√ªß√˚
 		dataInf.putInf(_passWord, _passWordLen); //√‹¬Î
+		dataInf.packet();
 
 	}
 }

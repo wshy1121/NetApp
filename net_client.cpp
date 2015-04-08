@@ -96,7 +96,27 @@ bool CNetClient::verify(char *userName, char *passWord)
 	char *packet = NULL;
 	int packetLen = dataInf.packet(packet);
 	CDataWorkManager::instance()->send(m_socketClient, packet, packetLen);
-	CDataWorkManager::instance()->receiveInfData(m_socketClient, &dataInf);		
+	CDataWorkManager::instance()->receiveInfData(m_socketClient, &dataInf);
+
+	{
+		char *oper = dataInf.m_infs[0];
+		char *sessionId = dataInf.m_infs[1];
+		
+		char *keyInf = dataInf.m_infs[2];
+		int keyInfLen = dataInf.m_infLens[2];
+		
+		char *userName = dataInf.m_infs[3]; 
+		int userNameLen = dataInf.m_infLens[3];
+		
+		char *passWord = dataInf.m_infs[4];
+		int passWordLen = dataInf.m_infLens[4];
+		
+		
+		CSafeServer::instance()->decode(keyInf, keyInfLen, userName, userNameLen,userName);
+		CSafeServer::instance()->decode(keyInf, keyInfLen, passWord, passWordLen,passWord);
+		printf("CNetClient::verify %s	%s	%s\n", oper, userName, passWord);
+
+	}
 	return true;
 }
 
