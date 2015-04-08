@@ -29,14 +29,24 @@ typedef struct RECV_DATA
 class IDealDataHandle
 {
 public: 
+	typedef int (IDealDataHandle::*Method)(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf);
+	typedef struct 
+	{
+		Method method;
+		IDealDataHandle *object;
+	}MethodInf;
+	
 	virtual ~IDealDataHandle() = 0;
 	virtual void parseData(TimeCalcInf *pCalcInf);
 	static void initDataHandle();
 	static RECV_DATA *createRecvData(int contentLen = 0);
 	static void destroyRecvData(RECV_DATA *pRecvData);
+	static int addMethod(const char*name, Method method, IDealDataHandle *object);
+	static void execute(TimeCalcInf *pCalcInf);	
 public: 
 	virtual void dealDataHandle (TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf) = 0;
 protected:	
+	static std::map<std::string, MethodInf> m_dealHandleMap;
 	char *m_oper;
 	TraceInfoId *m_pTraceInfoId;
 	int m_line;

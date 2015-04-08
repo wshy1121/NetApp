@@ -257,10 +257,9 @@ void CNetServer::dealRecvData(TimeCalcInf *pCalcInf)
 	{
 		return ;
 	}
-	
-	char *packet = NULL;
-	int packetLen = dataInf.packet(packet);
-	dataInf.packet(packet);
+
+	char *packet = pCalcInf->m_pContent;
+	int &packetLen = pCalcInf->m_contentLen;
 
 	CDataWorkManager::instance()->send(socket, packet, packetLen);
 	return ;
