@@ -29,6 +29,7 @@ public:
 		e_intr,			// ±ª–≈∫≈÷–∂œ
 	}ErrNo;
 	static CDataWorkManager *instance();
+	static void initDataHandle();
 public:
 	WORK_DATA *createWorkData(int contentLen);
 	void destroyWorkData(WORK_DATA *pWorkData);

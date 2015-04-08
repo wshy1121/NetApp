@@ -37,92 +37,12 @@ public:
 	}MethodInf;
 	
 	virtual ~IDealDataHandle() = 0;
-	virtual void parseData(TimeCalcInf *pCalcInf);
-	static void initDataHandle();
 	static RECV_DATA *createRecvData(int contentLen = 0);
 	static void destroyRecvData(RECV_DATA *pRecvData);
-	static int addMethod(const char*name, Method method, IDealDataHandle *object);
+	int addMethod(const char*name, Method method, IDealDataHandle *object);
 	static void execute(TimeCalcInf *pCalcInf);	
-public: 
-	virtual void dealDataHandle (TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf) = 0;
 protected:	
-	static std::map<std::string, MethodInf> m_dealHandleMap;
-	char *m_oper;
-	TraceInfoId *m_pTraceInfoId;
-	int m_line;
-	char *m_fileName;
-	char *m_funcName;
-	int m_displayLevel;
-	const char *m_content;
-	int m_contentLen;
-	
-};
-
-
-class CCreateCandy : public IDealDataHandle
-{
-public:
-	virtual void dealDataHandle(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf);
-};
-
-class CDestroyCandy : public IDealDataHandle
-{
-public:
-	virtual void dealDataHandle(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf);
-};
-
-class CInsertTrace : public IDealDataHandle
-{
-public:
-	virtual void dealDataHandle(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf);
-};
-
-
-//---------------------------------
-class CDispAll : public IDealDataHandle
-{
-public:
-	virtual void dealDataHandle(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf);
-};
-class CCleanAll : public IDealDataHandle
-{
-public:
-	virtual void dealDataHandle(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf);
-};
-class CInsertTag : public IDealDataHandle
-{
-public:
-	virtual void dealDataHandle(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf);
-};
-class CInsertStrOnly : public IDealDataHandle
-{
-public:
-	virtual void dealDataHandle(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf);
-};
-
-class CPrintfMemInfMap : public IDealDataHandle
-{
-public:
-	virtual void dealDataHandle(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf);
-};
-
-class CInsertHex : public IDealDataHandle
-{
-public:
-	virtual void dealDataHandle(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf);
-};
-
-
-class COpenFile : public IDealDataHandle
-{
-public:
-	virtual void dealDataHandle(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf);
-};
-
-class CCloseFile : public IDealDataHandle
-{
-public:
-	virtual void dealDataHandle(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf);
+	static std::map<std::string, MethodInf> m_dealHandleMap;	
 };
 
 class CVerify : public IDealDataHandle
@@ -130,6 +50,7 @@ class CVerify : public IDealDataHandle
 public:
 	virtual void dealDataHandle(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf);
 };
+
 
 #endif
 

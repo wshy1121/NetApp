@@ -79,6 +79,7 @@
     <ClInclude Include="..\data_work.h" />
     <ClInclude Include="..\net_client.h" />
     <ClInclude Include="..\net_server.h" />
+    <ClInclude Include="..\trace_handel.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
@@ -86,6 +87,7 @@
     <ClCompile Include="..\data_work.cpp" />
     <ClCompile Include="..\net_client.cpp" />
     <ClCompile Include="..\net_server.cpp" />
+    <ClCompile Include="..\trace_handel.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>

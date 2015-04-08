@@ -4,6 +4,7 @@
 #include "mem_base.h"
 #include "data_handle.h"
 #include "socket_base.h"
+#include "trace_handel.h"
 #include "Global.h"
 
 using namespace base;
@@ -16,7 +17,7 @@ CDataWorkManager *CDataWorkManager::_instance = NULL;
 CDataWorkManager::CDataWorkManager():m_errNo(e_noErr)
 {
 	m_workList = CList::createCList();
-	IDealDataHandle::initDataHandle();
+	initDataHandle();
 }
 
 CDataWorkManager *CDataWorkManager::instance()
@@ -32,6 +33,10 @@ CDataWorkManager *CDataWorkManager::instance()
 	return _instance;
 }
 
+void CDataWorkManager::initDataHandle()
+{
+	new CTraceHandle;
+}
 
 WORK_DATA *CDataWorkManager::createWorkData(int contentLen)
 {

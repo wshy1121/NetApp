@@ -33,6 +33,9 @@
     <ClInclude Include="..\data_handle.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="..\trace_handel.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -48,6 +51,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="..\data_handle.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\trace_handel.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
