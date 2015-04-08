@@ -9,11 +9,11 @@ IDealDataHandle::~IDealDataHandle()
 {
 }
 
-int IDealDataHandle::addMethod(const char*name, Method method, IDealDataHandle *object)
+int IDealDataHandle::addMethod(const char*name, Method method)
 {
 	MethodInf methodInf;
 	methodInf.method = method;
-	methodInf.object = object;
+	methodInf.object = this;
 	
 	m_dealHandleMap[name] = methodInf;
 	return 0;
@@ -27,13 +27,6 @@ void IDealDataHandle::execute(TimeCalcInf *pCalcInf)
 		TimeCalcInf &calcInf = pRecvData->calcInf;
 		CLogDataInf &dataInf = calcInf.m_dataInf;
 
-		dataInf.putInf("OK");
-		dataInf.putInf("0");
-		dataInf.putInf("0");
-		dataInf.putInf("");
-		dataInf.putInf("");
-		dataInf.putInf("0");
-		
 		calcInf.m_traceInfoId = pCalcInf->m_traceInfoId;
 
 		MethodInf methodInf = m_dealHandleMap[oper];

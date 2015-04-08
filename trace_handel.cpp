@@ -5,17 +5,17 @@
 
 CTraceHandle::CTraceHandle()
 {
-	addMethod("createCandy", (IDealDataHandle::Method)&CTraceHandle::createCandy, this);
-	addMethod("destroyCandy", (IDealDataHandle::Method)&CTraceHandle::destroyCandy, this);
-	addMethod("insertTrace", (IDealDataHandle::Method)&CTraceHandle::insertTrace, this);
-	addMethod("dispAll", (IDealDataHandle::Method)&CTraceHandle::dispAll, this);
-	addMethod("cleanAll", (IDealDataHandle::Method)&CTraceHandle::cleanAll, this);
-	addMethod("insertTag", (IDealDataHandle::Method)&CTraceHandle::insertTag, this);
-	addMethod("insertStrOnly", (IDealDataHandle::Method)&CTraceHandle::insertStrOnly, this);
-	addMethod("printfMemInfMap", (IDealDataHandle::Method)&CTraceHandle::printfMemInfMap, this);
-	addMethod("insertHex", (IDealDataHandle::Method)&CTraceHandle::insertHex, this);
-	addMethod("openFile", (IDealDataHandle::Method)&CTraceHandle::openFile, this);
-	addMethod("closeFile", (IDealDataHandle::Method)&CTraceHandle::closeFile, this);
+	addMethod("createCandy", (IDealDataHandle::Method)&CTraceHandle::createCandy);
+	addMethod("destroyCandy", (IDealDataHandle::Method)&CTraceHandle::destroyCandy);
+	addMethod("insertTrace", (IDealDataHandle::Method)&CTraceHandle::insertTrace);
+	addMethod("dispAll", (IDealDataHandle::Method)&CTraceHandle::dispAll);
+	addMethod("cleanAll", (IDealDataHandle::Method)&CTraceHandle::cleanAll);
+	addMethod("insertTag", (IDealDataHandle::Method)&CTraceHandle::insertTag);
+	addMethod("insertStrOnly", (IDealDataHandle::Method)&CTraceHandle::insertStrOnly);
+	addMethod("printfMemInfMap", (IDealDataHandle::Method)&CTraceHandle::printfMemInfMap);
+	addMethod("insertHex", (IDealDataHandle::Method)&CTraceHandle::insertHex);
+	addMethod("openFile", (IDealDataHandle::Method)&CTraceHandle::openFile);
+	addMethod("closeFile", (IDealDataHandle::Method)&CTraceHandle::closeFile);
 }
 void CTraceHandle::parseData(TimeCalcInf *pCalcInf)
 {

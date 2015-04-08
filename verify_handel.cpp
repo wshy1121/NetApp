@@ -4,7 +4,7 @@
 
 CVerifyHandle::CVerifyHandle()
 {
-	addMethod("verify", (IDealDataHandle::Method)&CVerifyHandle::verify, this);
+	addMethod("verify", (IDealDataHandle::Method)&CVerifyHandle::verify);
 }
 
 
