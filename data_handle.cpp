@@ -32,6 +32,12 @@ void IDealDataHandle::execute(TimeCalcInf *pCalcInf)
 		MethodInf methodInf = m_dealHandleMap[oper];
 		(methodInf.object->*methodInf.method)(pCalcInf, &calcInf);
 
+		int sessionId = atoi(pCalcInf->m_dataInf.m_infs[1]);
+		if (sessionId <= 0)
+		{
+			IDealDataHandle::destroyRecvData(pRecvData);
+			return ;
+		}
 		char *&packet = calcInf.m_pContent;
 		int &packetLen = calcInf.m_contentLen;
 		packetLen = dataInf.getPacket(packet);
