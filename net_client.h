@@ -13,7 +13,7 @@ public:
 	int send(char *szText,int len);
 	bool receiveInfData(base::CLogDataInf *pDataInf);
 public:
-	bool verify(char *userName, char *passWord);	
+	bool login(char *userName, char *passWord);	
 	int getSessionId();
 private:	
 	CNetClient();	

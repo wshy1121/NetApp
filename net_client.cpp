@@ -80,9 +80,9 @@ int CNetClient::getSessionId()
 	}
 	return ++m_sessionId;
 }
-bool CNetClient::verify(char *userName, char *passWord)
+bool CNetClient::login(char *userName, char *passWord)
 {
-	return CVerifyClient::instance()->verify(userName, passWord);
+	return CVerifyClient::instance()->login(userName, passWord);
 }
 
 
