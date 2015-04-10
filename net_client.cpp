@@ -105,16 +105,25 @@ bool CNetClient::verify(char *userName, char *passWord)
 		char *keyInf = dataInf.m_infs[2];
 		int keyInfLen = dataInf.m_infLens[2];
 		
-		char *userName = dataInf.m_infs[3]; 
+		char *decUserName = dataInf.m_infs[3]; 
 		int userNameLen = dataInf.m_infLens[3];
 		
-		char *passWord = dataInf.m_infs[4];
+		char *decPassWord = dataInf.m_infs[4];
 		int passWordLen = dataInf.m_infLens[4];
 		
 		
-		CSafeServer::instance()->decode(keyInf, keyInfLen, userName, userNameLen,userName);
-		CSafeServer::instance()->decode(keyInf, keyInfLen, passWord, passWordLen,passWord);
-		printf("CNetClient::verify %s	%s	%s\n", oper, userName, passWord);
+		CSafeServer::instance()->decode(keyInf, keyInfLen, decUserName, userNameLen,decUserName);
+		CSafeServer::instance()->decode(keyInf, keyInfLen, decPassWord, passWordLen,decPassWord);
+		printf("CNetClient::verify %s	%s	%s\n", oper, decUserName, decPassWord);
+
+		if (!strcmp(userName, decUserName) && !strcmp(passWord, decPassWord))
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
 
 	}
 	return true;
