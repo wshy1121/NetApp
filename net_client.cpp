@@ -5,6 +5,7 @@
 #include "link_tool.h"
 #include "safe_server.h"
 #include "data_work.h"
+#include "verify_handel.h"
 #include <sys/types.h>
 
 using namespace base;
@@ -60,6 +61,16 @@ bool CNetClient::disConnect()
 	return true;
 }
 
+int CNetClient::send(char *szText,int len)
+{
+	return CDataWorkManager::instance()->send(m_socketClient, szText, len);
+}
+
+bool CNetClient::receiveInfData(base::CLogDataInf *pDataInf)
+{
+	return CDataWorkManager::instance()->receiveInfData(m_socketClient, pDataInf);
+}
+
 int CNetClient::getSessionId()
 {
 	if (m_sessionId > m_maxSessionId)
@@ -71,62 +82,7 @@ int CNetClient::getSessionId()
 }
 bool CNetClient::verify(char *userName, char *passWord)
 {
-	char sessionId[16];
-	snprintf(sessionId, sizeof(sessionId), "%d", getSessionId());
-	
-	char keyInf[KEY_INF_LEN];
-	CSafeServer::instance()->createKeyInf(keyInf, sizeof(keyInf));
-
-	char _userName[32];
-	int _userNameLen = sizeof(_userName);
-	CSafeServer::instance()->encode(keyInf, sizeof(keyInf), userName, strlen(userName)+1, _userName, _userNameLen);
-
-	char _passWord[32];
-	int _passWordLen = sizeof(_passWord);
-	CSafeServer::instance()->encode(keyInf, sizeof(keyInf), passWord, strlen(passWord)+1, _passWord, _passWordLen);
-
-	CLogDataInf dataInf;
-
-	dataInf.putInf((char *)"verify");
-	dataInf.putInf(sessionId);//session id(大于0)
-	dataInf.putInf(keyInf, sizeof(keyInf));//密钥
-	dataInf.putInf(_userName, _userNameLen);//用户名
-	dataInf.putInf(_passWord, _passWordLen); //密码
-
-	char *packet = NULL;
-	int packetLen = dataInf.packet(packet);
-	CDataWorkManager::instance()->send(m_socketClient, packet, packetLen);
-	CDataWorkManager::instance()->receiveInfData(m_socketClient, &dataInf);
-
-	{
-		char *oper = dataInf.m_infs[0];
-		char *sessionId = dataInf.m_infs[1];
-		
-		char *keyInf = dataInf.m_infs[2];
-		int keyInfLen = dataInf.m_infLens[2];
-		
-		char *decUserName = dataInf.m_infs[3]; 
-		int userNameLen = dataInf.m_infLens[3];
-		
-		char *decPassWord = dataInf.m_infs[4];
-		int passWordLen = dataInf.m_infLens[4];
-		
-		
-		CSafeServer::instance()->decode(keyInf, keyInfLen, decUserName, userNameLen,decUserName);
-		CSafeServer::instance()->decode(keyInf, keyInfLen, decPassWord, passWordLen,decPassWord);
-		printf("CNetClient::verify %s	%s	%s\n", oper, decUserName, decPassWord);
-
-		if (!strcmp(userName, decUserName) && !strcmp(passWord, decPassWord))
-		{
-			return true;
-		}
-		else
-		{
-			return false;
-		}
-
-	}
-	return true;
+	return CVerifyClient::instance()->verify(userName, passWord);
 }
 
 

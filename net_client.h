@@ -1,6 +1,7 @@
 #ifndef __NET_CLIENT_H
 #define __NET_CLIENT_H
 #include "defs.h"
+#include "link_tool.h"
 #include <string>
 
 class CNetClient
@@ -8,12 +9,14 @@ class CNetClient
 public:
 	static CNetClient* instance();
 	bool disConnect();	
-	bool connect(char *sip);
+	bool connect(char *sip);	
+	int send(char *szText,int len);
+	bool receiveInfData(base::CLogDataInf *pDataInf);
 public:
-	bool verify(char *userName, char *passWord);
+	bool verify(char *userName, char *passWord);	
+	int getSessionId();
 private:	
 	CNetClient();	
-	int getSessionId();
 private:	
 	static  CNetClient* _instance;
 	const int m_maxSessionId;
