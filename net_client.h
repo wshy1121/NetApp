@@ -13,8 +13,9 @@ public:
 	int send(char *szText,int len);
 	bool receiveInfData(base::CLogDataInf *pDataInf);
 public:
+	int getSessionId();	
 	bool login(char *userName, char *passWord);	
-	int getSessionId();
+	bool getAccess(char *access, int &accessLen);
 private:	
 	CNetClient();	
 private:	
