@@ -86,11 +86,15 @@ bool CNetClient::login(char *userName, char *passWord)
 }
 
 
-bool CNetClient::getAccess(char *access, int &accessLen)
+bool CNetClient::createAccess(char *access, int &accessLen)
 {	
-	return CVerifyClient::instance()->getAccess(access, accessLen);
+	return CVerifyClient::instance()->createAccess(access, accessLen);
 }
 
+bool CNetClient::getAccessRep(char *access, int accessLen, char *accessRep)
+{
+	return CVerifyClient::instance()->getAccessRep(access, accessLen, accessRep);
+}
 
 
 
