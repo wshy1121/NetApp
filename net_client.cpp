@@ -97,4 +97,7 @@ bool CNetClient::getAccessRep(char *access, int accessLen, char *accessRep)
 }
 
 
-
+bool CNetClient::verifyAccess(char *access, int accessLen, char *accessRep)
+{
+	return CVerifyClient::instance()->verifyAccess(access, accessLen, accessRep);
+}
