@@ -236,9 +236,7 @@ node *CDataWorkManager::dealErrNo(ClientConn *pClientConnRead, node *pNode)
 		case e_readOk:
 			break;
 		case e_disConnect:
-			dealException(pClientConnRead->clientId);
-			closeFile(pClientConnRead->clientId);
-			pNode = CNetServer::instance()->dealDisconnect(pClientConnRead);			
+			pNode = dealDisConnect(pClientConnRead, pNode);
 			break;
 		default:
 			break;
@@ -247,6 +245,14 @@ node *CDataWorkManager::dealErrNo(ClientConn *pClientConnRead, node *pNode)
 	return pNode;
 }
 
+node *CDataWorkManager::dealDisConnect(ClientConn *pClientConnRead, node *pNode)
+{
+	dealException(pClientConnRead->clientId);
+	closeFile(pClientConnRead->clientId);
+	pNode = CNetServer::instance()->dealDisconnect(pClientConnRead);
+
+	return pNode;
+}
 
 void CDataWorkManager::openFile(int fileKey, char *fileName)
 {

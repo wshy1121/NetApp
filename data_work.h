@@ -36,6 +36,7 @@ public:
 	void pushWorkData(WORK_DATA *pWorkData);	
 	void dealitemData(ClientConn *pClientConn, RECV_DATA *pRecvData);	
 	node *dealErrNo(ClientConn *pClientConnRead, node *pNode);
+	node *dealDisConnect(ClientConn *pClientConnRead, node *pNode);
 	bool receiveInfData(int socket, base::CLogDataInf *pDataInf);	
 	int receive(SOCKET fd,char *szText,int len);
 	int send(SOCKET fd,char *szText,int len);	
