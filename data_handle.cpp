@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "data_handle.h"
 #include "net_server.h"
+#include "user_manager.h"
 
 using namespace base;
 std::map<std::string, IDealDataHandle::MethodInf> IDealDataHandle::m_dealHandleMap;
@@ -21,6 +22,14 @@ int IDealDataHandle::addMethod(const char*name, Method method)
 void IDealDataHandle::execute(TimeCalcInf *pCalcInf)
 {
 	char *oper = pCalcInf->m_dataInf.m_infs[0];
+	TraceInfoId &traceInfoId = pCalcInf->m_traceInfoId;
+
+	std::string strLogin = "login";
+	if (!CUserManager::instance()->isLogined(traceInfoId) && strLogin != oper)
+	{
+		return ;
+	}
+		
 	if (m_dealHandleMap.find(oper) != m_dealHandleMap.end())
 	{
 		RECV_DATA *pRecvData = IDealDataHandle::createRecvData();

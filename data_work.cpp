@@ -6,7 +6,6 @@
 #include "socket_base.h"
 #include "trace_handel.h"
 #include "verify_handel.h"
-#include "Global.h"
 
 using namespace base;
 const char *dataFormat = "{\"opr\" : \"%s\", \"threadId\" : %d, \"line\" : %d, \"fileName\" : \"%s\", \"funcName\" : \"%s\", \"displayLevel\" : %d, \"content\" : \"%s\"}";
