@@ -21,6 +21,7 @@ public:
 	void verify(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf);
 private:	
 	void parseData(TimeCalcInf *pCalcInf);
+	bool isAvailable(TimeCalcInf *pCalcInf);
 private:
 	char *m_oper;
 	TraceInfoId *m_pTraceInfoId;

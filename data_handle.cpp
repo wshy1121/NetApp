@@ -21,7 +21,8 @@ int IDealDataHandle::addMethod(const char*name, Method method)
 }
 void IDealDataHandle::execute(TimeCalcInf *pCalcInf)
 {	trace_worker();
-	char *oper = pCalcInf->m_dataInf.m_infs[0];		
+	char *oper = pCalcInf->m_dataInf.m_infs[0];
+	trace_printf("oper  %s", oper);
 	if (m_dealHandleMap.find(oper) != m_dealHandleMap.end())
 	{
 		RECV_DATA *pRecvData = IDealDataHandle::createRecvData();

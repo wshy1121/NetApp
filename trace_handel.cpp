@@ -2,6 +2,7 @@
 #include "time_calc.h"
 #include "trace_handel.h"
 #include "safe_server.h"
+#include "user_manager.h"
 
 CTraceHandle::CTraceHandle()
 {
@@ -21,7 +22,11 @@ void CTraceHandle::parseData(TimeCalcInf *pCalcInf)
 {
 	base::CLogDataInf &dataInf = pCalcInf->m_dataInf;
 	m_oper = dataInf.m_infs[0];
+
+	char *tid = pCalcInf->m_dataInf.m_infs[2];
 	m_pTraceInfoId = &(pCalcInf->m_traceInfoId);
+	m_pTraceInfoId->threadId = atoi(tid);
+
 	m_line = atoi(dataInf.m_infs[3]);
 	m_fileName = dataInf.m_infs[4];;
 	m_funcName = dataInf.m_infs[5];
@@ -30,9 +35,18 @@ void CTraceHandle::parseData(TimeCalcInf *pCalcInf)
 	m_contentLen = dataInf.m_infLens[7] + 1;
 }
 
+bool CTraceHandle::isAvailable(TimeCalcInf *pCalcInf)
+{	trace_worker();
+	TraceInfoId &traceInfoId = pCalcInf->m_traceInfoId;
+	bool bRet = CUserManager::instance()->isVerified();
+	trace_printf("bRet  %d", bRet);
+	return bRet;
+}
 
 void CTraceHandle::createCandy(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf)
-{
+{	trace_worker();
+	if (!isAvailable(pCalcInf)){return;}
+	
 	parseData(pCalcInf);
 	CTimeCalc *pTimeCalc = CTimeCalc::createCTimeCalc(m_line, m_fileName, m_funcName, m_displayLevel, *m_pTraceInfoId);
 	return ;
@@ -41,7 +55,9 @@ void CTraceHandle::createCandy(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf)
 
 
 void CTraceHandle::destroyCandy(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf)
-{
+{	trace_worker();
+	if (!isAvailable(pCalcInf)){return;}
+
 	parseData(pCalcInf);
 	FuncTraceInfo_t *TraceInfo = CTimeCalcManager::instance()->GetTraceInf(*m_pTraceInfoId);
 	if (TraceInfo == NULL || TraceInfo->pCalcList->size() == 0)
@@ -55,56 +71,74 @@ void CTraceHandle::destroyCandy(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf)
 }
 
 void CTraceHandle::insertTrace(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf)
-{
+{	trace_worker();
+	if (!isAvailable(pCalcInf)){return;}
+
 	parseData(pCalcInf);
 	CTimeCalcManager::instance()->InsertTrace(m_line, m_fileName, *m_pTraceInfoId, m_content);
 }
 
 
 void CTraceHandle::dispAll(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf)
-{
+{	trace_worker();
+	if (!isAvailable(pCalcInf)){return;}
+
 	parseData(pCalcInf);
 	CTimeCalcManager::instance()->DispAll(m_pTraceInfoId->clientId, m_content);
 }
 
 void CTraceHandle::cleanAll(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf)
-{
+{	trace_worker();
+	if (!isAvailable(pCalcInf)){return;}
+
 	parseData(pCalcInf);
 	CTimeCalcManager::instance()->cleanAll(m_pTraceInfoId->clientId);
 }
 void CTraceHandle::insertTag(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf)
-{
+{	trace_worker();
+	if (!isAvailable(pCalcInf)){return;}
+
 	parseData(pCalcInf);
 	CTimeCalcManager::instance()->InsertTag(*m_pTraceInfoId, m_line, m_fileName, m_content);
 }
 
 void CTraceHandle::insertStrOnly(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf)
-{
+{	trace_worker();
+	if (!isAvailable(pCalcInf)){return;}
+
 	parseData(pCalcInf);
 	CTimeCalcManager::instance()->InsertStrOnly(*m_pTraceInfoId, m_content);
 }
 
 
 void CTraceHandle::printfMemInfMap(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf)
-{
+{	trace_worker();
+	if (!isAvailable(pCalcInf)){return;}
+
 	parseData(pCalcInf);
 	CTimeCalcManager::instance()->printfMemInfMap(*m_pTraceInfoId);
 }
 
 void CTraceHandle::insertHex(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf)
-{
+{	trace_worker();
+	if (!isAvailable(pCalcInf)){return;}
+
 	parseData(pCalcInf);
 	CTimeCalcManager::instance()->InsertHex(*m_pTraceInfoId, m_line, m_fileName, (char *)m_content, m_contentLen);
 }
 
 
 void CTraceHandle::openFile(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf)
-{
+{	trace_worker();
+	if (!isAvailable(pCalcInf)){return;}
+
 	parseData(pCalcInf);
 	CTimeCalcManager::instance()->openFile(*m_pTraceInfoId, (char *)m_content);
 }
 void CTraceHandle::closeFile(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf)
-{
+{	trace_worker();
+	if (!isAvailable(pCalcInf)){return;}
+
 	parseData(pCalcInf);
 	CTimeCalcManager::instance()->closeFile(*m_pTraceInfoId);
 }

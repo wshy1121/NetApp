@@ -6,6 +6,7 @@
 #include "socket_base.h"
 #include "trace_handel.h"
 #include "verify_handel.h"
+#include "user_manager.h"
 
 using namespace base;
 const char *dataFormat = "{\"opr\" : \"%s\", \"threadId\" : %d, \"line\" : %d, \"fileName\" : \"%s\", \"funcName\" : \"%s\", \"displayLevel\" : %d, \"content\" : \"%s\"}";
@@ -91,8 +92,6 @@ void CDataWorkManager::dealitemData(ClientConn *pClientConn, RECV_DATA *pRecvDat
 {
 	TimeCalcInf *pCalcInf = &pRecvData->calcInf;
 
-	char *tid = pCalcInf->m_dataInf.m_infs[2];
-	pCalcInf->m_traceInfoId.threadId =  atoi(tid);
 	pCalcInf->m_traceInfoId.clientId = pClientConn->clientId;
 	pCalcInf->m_traceInfoId.socket = pClientConn->socket;
 	CTimeCalcInfManager::instance()->pushRecvData(pRecvData);
@@ -245,7 +244,13 @@ node *CDataWorkManager::dealErrNo(ClientConn *pClientConnRead, node *pNode)
 }
 
 node *CDataWorkManager::dealDisConnect(ClientConn *pClientConnRead, node *pNode)
-{
+{	trace_worker();
+	TraceInfoId traceInfoId;
+	traceInfoId.clientId = pClientConnRead->clientId;
+	traceInfoId.socket = pClientConnRead->socket;
+	trace_printf("traceInfoId.clientId, traceInfoId.socket  %d  %d", traceInfoId.clientId, traceInfoId.socket);
+	CUserManager::instance()->logout(traceInfoId);
+
 	dealException(pClientConnRead->clientId);
 	closeFile(pClientConnRead->clientId);
 	pNode = CNetServer::instance()->dealDisconnect(pClientConnRead);
