@@ -39,11 +39,15 @@ bool CNetClient::connect(char *sip)
 	{
 		return false;
 	}
+	int serverPort = 880110;
+#if defined(_DEBUG)
+	serverPort = 8889;
+#endif
 
 	struct sockaddr_in addr;
 	addr.sin_family 		= AF_INET;
 	addr.sin_addr.s_addr	= inet_addr(sip);
-	addr.sin_port			= htons(8889);
+	addr.sin_port			= htons(serverPort);
 	
 	int ret = ::connect(m_socketClient, (struct sockaddr *) & addr, sizeof(sockaddr_in));
 	if(SOCKET_ERROR == ret)

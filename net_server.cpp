@@ -15,8 +15,11 @@ extern CPthreadMutex g_insMutexCalc;
 extern char *dataFormat;
 CNetServer* CNetServer::_instance = NULL;
 
-CNetServer::CNetServer():SERVER_PORT(8889), m_sockLister(INVALID_SOCKET), m_recvBufLen(1024*1024), m_nfds(0)
+CNetServer::CNetServer():SERVER_PORT(880110), m_sockLister(INVALID_SOCKET), m_recvBufLen(1024*1024), m_nfds(0)
 {
+#if defined(_DEBUG)
+	SERVER_PORT = 8889;
+#endif
 	m_recvBuf = (char *)base::malloc(m_recvBufLen);
 	m_listClientRead = CList::createCList();
 	m_recvList = CList::createCList();

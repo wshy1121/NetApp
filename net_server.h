@@ -39,7 +39,7 @@ private:
 	void dealRecvData(TimeCalcInf *pCalcInf);
 	void setNoBlock(int socket);
 private:
-	const int SERVER_PORT;
+	int SERVER_PORT;
 	base::pthread_t m_hListenThread;
 	
 	static  CNetServer* _instance;
