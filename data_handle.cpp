@@ -20,16 +20,8 @@ int IDealDataHandle::addMethod(const char*name, Method method)
 	return 0;
 }
 void IDealDataHandle::execute(TimeCalcInf *pCalcInf)
-{
-	char *oper = pCalcInf->m_dataInf.m_infs[0];
-	TraceInfoId &traceInfoId = pCalcInf->m_traceInfoId;
-
-	std::string strLogin = "login";
-	if (!CUserManager::instance()->isLogined(traceInfoId) && strLogin != oper)
-	{
-		return ;
-	}
-		
+{	trace_worker();
+	char *oper = pCalcInf->m_dataInf.m_infs[0];		
 	if (m_dealHandleMap.find(oper) != m_dealHandleMap.end())
 	{
 		RECV_DATA *pRecvData = IDealDataHandle::createRecvData();

@@ -85,26 +85,23 @@ int CNetClient::getSessionId()
 	return ++m_sessionId;
 }
 bool CNetClient::login(char *userName, char *passWord)
-{
+{	trace_worker();
 	return CVerifyClient::instance()->login(userName, passWord);
 }
 
 
 bool CNetClient::createAccess(char *access, int &accessLen)
-{	
+{	trace_worker();
 	return CVerifyClient::instance()->createAccess(access, accessLen);
 }
 
 bool CNetClient::getAccessRep(char *access, int accessLen, char *accessRep)
-{
+{	trace_worker();
 	return CVerifyClient::instance()->getAccessRep(access, accessLen, accessRep);
 }
 
 
 bool CNetClient::verifyAccess(char *access, int accessLen, char *accessRep)
-{
-#if defined(_DEBUG)
-	return true;
-#endif
+{	trace_worker();
 	return CVerifyClient::instance()->verifyAccess(access, accessLen, accessRep);
 }
