@@ -180,14 +180,18 @@ node *CNetServer::dealDisconnect(ClientConn *pClientConnRead)
 	
 	resetClientId(pClientConnRead->clientId);
 	base::close(pClientConnRead->socket);	
-	pNode = m_listClientRead->erase(pNode); 					
+	pNode = m_listClientRead->erase(pNode);
+
+	delete pClientConnRead->userInf;
 	base::free(pClientConnRead);
 	return pNode;
 }
 
 ClientConn *CNetServer::dealConnect(int clientId)
 {
-	ClientConn *pClientConn = (ClientConn *)base::malloc(sizeof(ClientConn));
+	ClientConn *pClientConn = (ClientConn *)base::malloc(sizeof(ClientConn));	
+	pClientConn->userInf = new CUserInf();
+	
 	pClientConn->socket = clientId;
 	pClientConn->clientId = creatClientId();
 	

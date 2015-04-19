@@ -94,6 +94,7 @@ void CDataWorkManager::dealitemData(ClientConn *pClientConn, RECV_DATA *pRecvDat
 
 	pCalcInf->m_traceInfoId.clientId = pClientConn->clientId;
 	pCalcInf->m_traceInfoId.socket = pClientConn->socket;
+	pCalcInf->m_userInf = pClientConn->userInf;
 	CTimeCalcInfManager::instance()->pushRecvData(pRecvData);
 }
 
@@ -245,11 +246,8 @@ node *CDataWorkManager::dealErrNo(ClientConn *pClientConnRead, node *pNode)
 
 node *CDataWorkManager::dealDisConnect(ClientConn *pClientConnRead, node *pNode)
 {	trace_worker();
-	TraceInfoId traceInfoId;
-	traceInfoId.clientId = pClientConnRead->clientId;
-	traceInfoId.socket = pClientConnRead->socket;
-	trace_printf("traceInfoId.clientId, traceInfoId.socket  %d  %d", traceInfoId.clientId, traceInfoId.socket);
-	CUserManager::instance()->logout(traceInfoId);
+	CUserInf *userInf = pClientConnRead->userInf;
+	CUserManager::instance()->logout(userInf);
 
 	dealException(pClientConnRead->clientId);
 	closeFile(pClientConnRead->clientId);
@@ -276,6 +274,7 @@ void CDataWorkManager::openFile(int fileKey, char *fileName)
 	ClientConn clientConn;
 	clientConn.clientId = fileKey;
 	clientConn.socket = INVALID_SOCKET;
+	clientConn.userInf = NULL;
 	CDataWorkManager::instance()->dealitemData(&clientConn, pRecvData); 
 	return ;
 }
@@ -298,6 +297,7 @@ void CDataWorkManager::closeFile(int fileKey)
 	ClientConn clientConn;
 	clientConn.clientId = fileKey;
 	clientConn.socket = INVALID_SOCKET;
+	clientConn.userInf = NULL;
 	CDataWorkManager::instance()->dealitemData(&clientConn, pRecvData); 
 	return ;
 }
@@ -308,6 +308,7 @@ void CDataWorkManager::dealException(int clientId)
 	ClientConn clientConn;
 	clientConn.clientId = clientId;
 	clientConn.socket = INVALID_SOCKET;
+	clientConn.userInf = NULL;
 	{
 		RECV_DATA *pRecvData = IDealDataHandle::createRecvData();
 

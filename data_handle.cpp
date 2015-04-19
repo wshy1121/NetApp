@@ -59,7 +59,8 @@ RECV_DATA *IDealDataHandle::createRecvData(int contentLen)
 	RECV_DATA *pRecvData = new RECV_DATA;
 	TimeCalcInf *pCalcInf = &pRecvData->calcInf;
 	pCalcInf->m_contentLen = contentLen;
-	
+
+	pCalcInf->m_userInf = NULL;
 	pCalcInf->m_oper = NULL;
 	pCalcInf->m_traceInfoId.threadId = -1;
 	pCalcInf->m_traceInfoId.clientId= -1;

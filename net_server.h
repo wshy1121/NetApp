@@ -6,6 +6,7 @@
 #include <bitset>
 #include "link_tool.h"
 #include "data_handle.h"
+#include "user_manager.h"
 
 #define MAX_CLIENT_SIZE  1024*1024
 
@@ -13,6 +14,7 @@ typedef struct ClientConn
 {
 	SOCKET socket;
 	int clientId;
+	CUserInf *userInf;
 	struct node node;
 }ClientConn;
 #define clientConnContain(ptr)  container_of(ptr, ClientConn, node)

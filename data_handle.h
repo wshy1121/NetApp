@@ -2,13 +2,14 @@
 #define _DATA_HANDLE_H_
 #include "mem_calc.h"
 #include "link_tool.h"
+#include "user_manager.h"
 
 
 typedef struct TimeCalcInf
 {
 	TraceInfoId m_traceInfoId;
 	base::CLogDataInf m_dataInf;
-
+	CUserInf *m_userInf;
 	char *m_oper;
 	int m_line;
 	char * m_fileName;
