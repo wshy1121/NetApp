@@ -2,6 +2,7 @@
 #define __NET_CLIENT_H
 #include "defs.h"
 #include "link_tool.h"
+#include "user_manager.h"
 #include <string>
 
 class CNetClient
@@ -18,6 +19,7 @@ public:
 	bool createAccess(char *access, int &accessLen);	
 	bool getAccessRep(char *access, int accessLen, char *accessRep);
 	bool verifyAccess(char *access, int accessLen, char *accessRep);
+	bool getUserInf(CUserInf *userInf);
 private:	
 	CNetClient();	
 private:	
