@@ -163,7 +163,7 @@ void *CNetServer::_listenThread(void *arg)
 				m_nfds = socket;
 			}
 			ClientConn *pClientConn = dealConnect(socket);
-			CDataWorkManager::instance()->openFile(pClientConn->clientId, (char *)"Debug.cpp");
+			CDataWorkManager::instance()->openFile(*pClientConn, (char *)"Debug.cpp");
 		}
 
 	}

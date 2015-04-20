@@ -40,15 +40,15 @@ public:
 	bool receiveInfData(int socket, base::CLogDataInf *pDataInf);	
 	int receive(SOCKET fd,char *szText,int len);
 	int send(SOCKET fd,char *szText,int len);	
-	void openFile(int fileKey, char *fileName);
-	void closeFile(int fileKey);
+	void openFile(ClientConn clientConn, char *fileName);
+	void closeFile(ClientConn clientConn);
 private:
 	CDataWorkManager();	
 	void threadProc();
 	static void* threadFunc(void *pArg);
 	void dealWorkData(WORK_DATA *pWorkData);	
 	void setErrNo(int recvNum);	
-	void dealException(int clientId);
+	void dealException(ClientConn clientConn);
 private:
 	static CDataWorkManager *_instance;
 private:

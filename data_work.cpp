@@ -249,14 +249,14 @@ node *CDataWorkManager::dealDisConnect(ClientConn *pClientConnRead, node *pNode)
 	CUserInf *userInf = pClientConnRead->userInf;
 	CUserManager::instance()->logout(userInf);
 
-	dealException(pClientConnRead->clientId);
-	closeFile(pClientConnRead->clientId);
+	dealException(*pClientConnRead);
+	closeFile(*pClientConnRead);
 	pNode = CNetServer::instance()->dealDisconnect(pClientConnRead);
 
 	return pNode;
 }
 
-void CDataWorkManager::openFile(int fileKey, char *fileName)
+void CDataWorkManager::openFile(ClientConn clientConn, char *fileName)
 {
 	RECV_DATA *pRecvData =IDealDataHandle::createRecvData();
 	
@@ -271,16 +271,13 @@ void CDataWorkManager::openFile(int fileKey, char *fileName)
 	dataInf.putInf("0");
 	dataInf.putInf(fileName);
 
-	ClientConn clientConn;
-	clientConn.clientId = fileKey;
 	clientConn.socket = INVALID_SOCKET;
-	clientConn.userInf = NULL;
 	CDataWorkManager::instance()->dealitemData(&clientConn, pRecvData); 
 	return ;
 }
 
 
-void CDataWorkManager::closeFile(int fileKey)
+void CDataWorkManager::closeFile(ClientConn clientConn)
 {
 	RECV_DATA *pRecvData = IDealDataHandle::createRecvData();
 	
@@ -294,21 +291,15 @@ void CDataWorkManager::closeFile(int fileKey)
 	dataInf.putInf("0");
 	dataInf.putInf("");
 
-	ClientConn clientConn;
-	clientConn.clientId = fileKey;
 	clientConn.socket = INVALID_SOCKET;
-	clientConn.userInf = NULL;
 	CDataWorkManager::instance()->dealitemData(&clientConn, pRecvData); 
 	return ;
 }
 
 
-void CDataWorkManager::dealException(int clientId)
+void CDataWorkManager::dealException(ClientConn clientConn)
 {
-	ClientConn clientConn;
-	clientConn.clientId = clientId;
 	clientConn.socket = INVALID_SOCKET;
-	clientConn.userInf = NULL;
 	{
 		RECV_DATA *pRecvData = IDealDataHandle::createRecvData();
 
