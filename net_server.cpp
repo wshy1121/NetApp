@@ -58,7 +58,7 @@ bool CNetServer::startServer()
 		printf("create sock error!\n");
 		return false;
 	}
-	int nRecvBuf = 1024*1024;
+	int nRecvBuf = 1024*1024*16;
 	setsockopt(m_sockLister, SOL_SOCKET,SO_RCVBUF, (const char*)&nRecvBuf, sizeof(int));
 
 	int opt = 0;
