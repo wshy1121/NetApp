@@ -50,8 +50,6 @@ private:
 	base::CList *m_listClientRead;
 	base::CList *m_recvList;
 	base::CPthreadMutex m_recvListMutex;
-	char *m_recvBuf;
-	int m_recvBufLen;
 	std::bitset<MAX_CLIENT_SIZE> m_cientIds;
 	int m_newId;
 	SOCKET m_nfds;
