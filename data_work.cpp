@@ -246,7 +246,7 @@ node *CDataWorkManager::dealErrNo(ClientConn *pClientConnRead, node *pNode)
 
 node *CDataWorkManager::dealDisConnect(ClientConn *pClientConnRead, node *pNode)
 {	trace_worker();
-	CUserInf *userInf = pClientConnRead->userInf;
+	CUserInf *userInf = pClientConnRead->userInf.get();
 	CUserManager::instance()->logout(userInf);
 
 	dealException(*pClientConnRead);

@@ -1,5 +1,6 @@
 #ifndef _DATA_HANDLE_H_
 #define _DATA_HANDLE_H_
+#include <memory>
 #include "mem_calc.h"
 #include "link_tool.h"
 #include "user_manager.h"
@@ -9,7 +10,7 @@ typedef struct TimeCalcInf
 {
 	TraceInfoId m_traceInfoId;
 	base::CLogDataInf m_dataInf;
-	CUserInf *m_userInf;
+	std::shared_ptr<CUserInf> m_userInf;
 	char *m_oper;
 	int m_line;
 	char * m_fileName;

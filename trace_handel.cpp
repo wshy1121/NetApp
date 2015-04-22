@@ -134,7 +134,7 @@ void CTraceHandle::openFile(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf)
 
 	parseData(pCalcInf);
 
-	CUserInf *userInf = pCalcInf->m_userInf;
+	CUserInf *userInf = pCalcInf->m_userInf.get();
 	userInf->m_fileName = m_content;
 	CTimeCalcManager::instance()->openFile(*m_pTraceInfoId, (char *)m_content);
 }
@@ -144,7 +144,7 @@ void CTraceHandle::closeFile(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf)
 
 	parseData(pCalcInf);
 
-	CUserInf *userInf = pCalcInf->m_userInf;
+	CUserInf *userInf = pCalcInf->m_userInf.get();
 	userInf->m_fileName = "";
 	CTimeCalcManager::instance()->closeFile(*m_pTraceInfoId);
 }

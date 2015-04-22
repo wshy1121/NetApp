@@ -4,6 +4,7 @@
 #include "link_tool.h"
 #include "defs.h"
 #include <bitset>
+#include <memory>
 #include "link_tool.h"
 #include "data_handle.h"
 #include "user_manager.h"
@@ -14,7 +15,7 @@ typedef struct ClientConn
 {
 	SOCKET socket;
 	int clientId;
-	CUserInf *userInf;
+	std::shared_ptr<CUserInf> userInf;
 	struct node node;
 }ClientConn;
 #define clientConnContain(ptr)  container_of(ptr, ClientConn, node)
