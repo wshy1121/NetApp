@@ -155,6 +155,10 @@ int CDataWorkManager::receive(SOCKET fd,char *szText,int iLen)
 		if (recvBufLen <= 0)
 		{
 			setErrNo(recvBufLen);
+			if (m_errNo == e_readOk && 0 < totalRecvLen && totalRecvLen < iLen)
+			{
+				continue;
+			}				
 			return -1;
 		}
 		totalRecvLen += recvBufLen;
