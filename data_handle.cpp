@@ -62,13 +62,8 @@ RECV_DATA *IDealDataHandle::createRecvData(int contentLen)
 	TimeCalcInf *pCalcInf = &pRecvData->calcInf;
 	pCalcInf->m_contentLen = contentLen;
 
-	pCalcInf->m_oper = NULL;
 	pCalcInf->m_traceInfoId.threadId = -1;
 	pCalcInf->m_traceInfoId.clientId= -1;
-	pCalcInf->m_line = -1;
-	pCalcInf->m_fileName = NULL;
-	pCalcInf->m_funcName = NULL;
-	pCalcInf->m_displayLevel = -1;
 	return pRecvData;
 }
 

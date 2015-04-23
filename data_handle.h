@@ -11,11 +11,6 @@ typedef struct TimeCalcInf
 	TraceInfoId m_traceInfoId;
 	base::CLogDataInf m_dataInf;
 	std::shared_ptr<CClientInf> m_clientInf;
-	char *m_oper;
-	int m_line;
-	char * m_fileName;
-	char * m_funcName;
-	int m_displayLevel;
 	char *m_pContent;
 	int m_contentLen;
 }TimeCalcInf;
