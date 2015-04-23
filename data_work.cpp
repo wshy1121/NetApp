@@ -94,7 +94,7 @@ void CDataWorkManager::dealitemData(ClientConn *pClientConn, RECV_DATA *pRecvDat
 
 	pCalcInf->m_traceInfoId.clientId = pClientConn->clientId;
 	pCalcInf->m_traceInfoId.socket = pClientConn->socket;
-	pCalcInf->m_userInf = pClientConn->userInf;
+	pCalcInf->m_clientInf = pClientConn->clientInf;
 	CTimeCalcInfManager::instance()->pushRecvData(pRecvData);
 }
 
@@ -250,8 +250,8 @@ node *CDataWorkManager::dealErrNo(ClientConn *pClientConnRead, node *pNode)
 
 node *CDataWorkManager::dealDisConnect(ClientConn *pClientConnRead, node *pNode)
 {	trace_worker();
-	CUserInf *userInf = pClientConnRead->userInf.get();
-	CUserManager::instance()->logout(userInf);
+	CClientInf *clientInf = pClientConnRead->clientInf.get();
+	CUserManager::instance()->logout(clientInf);
 
 	dealException(*pClientConnRead);
 	closeFile(*pClientConnRead);

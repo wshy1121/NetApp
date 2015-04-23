@@ -175,7 +175,7 @@ void *CNetServer::_listenThread(void *arg)
 
 node *CNetServer::dealDisconnect(ClientConn *pClientConnRead)
 {	trace_worker();
-	CUserManager::instance()->removeUser(pClientConnRead->clientId);
+	CUserManager::instance()->removeClient(pClientConnRead->clientId);
 	node *pNode = &pClientConnRead->node;
 	
 	resetClientId(pClientConnRead->clientId);
@@ -189,8 +189,8 @@ node *CNetServer::dealDisconnect(ClientConn *pClientConnRead)
 ClientConn *CNetServer::dealConnect(int clientId)
 {	trace_worker();
 	ClientConn *pClientConn = new ClientConn;
-	std::shared_ptr<CUserInf> ptr(new CUserInf());
-	pClientConn->userInf = ptr;
+	std::shared_ptr<CClientInf> ptr(new CClientInf());
+	pClientConn->clientInf = ptr;
 
 	pClientConn->socket = clientId;
 	pClientConn->clientId = creatClientId();
@@ -199,7 +199,7 @@ ClientConn *CNetServer::dealConnect(int clientId)
 	m_listClientRead->push_back(&pClientConn->node);
 	setNoBlock(pClientConn->socket);
 
-	CUserManager::instance()->addUser(clientId, pClientConn->userInf.get());
+	CUserManager::instance()->addClient(clientId, pClientConn->clientInf.get());
 	return pClientConn;
 }
 

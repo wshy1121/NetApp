@@ -106,9 +106,9 @@ bool CNetClient::verifyAccess(char *access, int accessLen, char *accessRep)
 	return CVerifyClient::instance()->verifyAccess(access, accessLen, accessRep);
 }
 
-bool CNetClient::getUserInf(CUserInf *userInf)
+bool CNetClient::getClientInf(CClientInf *clientInf)
 {	trace_worker();
-	return CVerifyClient::instance()->getUserInf(userInf);
+	return CVerifyClient::instance()->getClientInf(clientInf);
 }
 
 
