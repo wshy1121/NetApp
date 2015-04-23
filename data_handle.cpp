@@ -40,6 +40,8 @@ void IDealDataHandle::execute(TimeCalcInf *pCalcInf)
 			IDealDataHandle::destroyRecvData(pRecvData);
 			return ;
 		}
+
+		calcInf.m_clientInf = pCalcInf->m_clientInf;
 		char *&packet = calcInf.m_pContent;
 		int &packetLen = calcInf.m_contentLen;
 		packetLen = dataInf.getPacket(packet);

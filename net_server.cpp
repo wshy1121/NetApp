@@ -177,6 +177,9 @@ node *CNetServer::dealDisconnect(ClientConn *pClientConnRead)
 {	trace_worker();
 	CUserManager::instance()->removeClient(pClientConnRead->clientId);
 	node *pNode = &pClientConnRead->node;
+
+	CClientInf *clientInf = pClientConnRead->clientInf.get();
+	clientInf->m_socket = INVALID_SOCKET;
 	
 	resetClientId(pClientConnRead->clientId);
 	base::close(pClientConnRead->socket);	
@@ -262,7 +265,10 @@ void CNetServer::dealRecvData(TimeCalcInf *pCalcInf)
 {
 	CLogDataInf &dataInf = pCalcInf->m_dataInf;
 	int &clientId = pCalcInf->m_traceInfoId.clientId;
-	SOCKET &socket = pCalcInf->m_traceInfoId.socket;	
+	SOCKET &socket = pCalcInf->m_traceInfoId.socket;
+
+	CClientInf *clientInf = pCalcInf->m_clientInf.get();
+	
 	if (socket == INVALID_SOCKET || !m_cientIds.test(clientId))
 	{
 		return ;
