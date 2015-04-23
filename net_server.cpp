@@ -22,7 +22,6 @@ CNetServer::CNetServer():SERVER_PORT(880110), m_sockLister(INVALID_SOCKET), m_nf
 #endif
 	m_listClientRead = CList::createCList();
 	m_recvList = CList::createCList();
-	m_cientIds.reset();
 	m_newId = 0;
 	return ;
 }
@@ -181,7 +180,6 @@ node *CNetServer::dealDisconnect(ClientConn *pClientConnRead)
 	CClientInf *clientInf = pClientConnRead->clientInf.get();
 	clientInf->m_socket = INVALID_SOCKET;
 	
-	resetClientId(pClientConnRead->clientId);
 	base::close(pClientConnRead->socket);	
 	pNode = m_listClientRead->erase(pNode);
 
@@ -201,7 +199,6 @@ ClientConn *CNetServer::dealConnect(int socket)
 	clientInf->m_clientId = pClientConn->clientId = creatClientId();
 
 	setNoBlock(clientInf->m_socket);
-	setClientId(clientInf->m_clientId);
 	m_listClientRead->push_back(&pClientConn->node);
 
 	CUserManager::instance()->addClient(clientInf->m_clientId, clientInf);
@@ -210,7 +207,7 @@ ClientConn *CNetServer::dealConnect(int socket)
 
 int CNetServer::creatClientId()
 {
-	if (m_newId < MAX_CLIENT_SIZE)
+	if (m_newId < INT_MAX)
 	{
 		return m_newId++;
 	}
@@ -219,18 +216,6 @@ int CNetServer::creatClientId()
 		m_newId = 0;
 		return m_newId;
 	}
-}
-
-void CNetServer::setClientId(int clientId)
-{
-	m_cientIds.set(clientId);
-	return ;
-}
-
-void CNetServer::resetClientId(int clientId)
-{
-	m_cientIds.reset(clientId);
-	return ;
 }
 
 void CNetServer::pushRecvData(RECV_DATA *pRecvData)
@@ -263,13 +248,10 @@ void CNetServer::sendThreadProc()
 
 void CNetServer::dealRecvData(TimeCalcInf *pCalcInf)
 {
-	CLogDataInf &dataInf = pCalcInf->m_dataInf;
-	int &clientId = pCalcInf->m_traceInfoId.clientId;
 	SOCKET &socket = pCalcInf->m_traceInfoId.socket;
-
 	CClientInf *clientInf = pCalcInf->m_clientInf.get();
-	
-	if (socket == INVALID_SOCKET || !m_cientIds.test(clientId))
+
+	if (socket == INVALID_SOCKET || clientInf->m_socket == INVALID_SOCKET)
 	{
 		return ;
 	}

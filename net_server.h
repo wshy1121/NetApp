@@ -9,8 +9,6 @@
 #include "data_handle.h"
 #include "user_manager.h"
 
-#define MAX_CLIENT_SIZE  1024*1024
-
 typedef struct ClientConn
 {
 	SOCKET socket;
@@ -36,8 +34,6 @@ private:
 	void *_listenThread(void *arg);
 	ClientConn *dealConnect(int socket);
 	int creatClientId();
-	void setClientId(int clientId);
-	void resetClientId(int clientId);
 	void sendThreadProc();
 	void dealRecvData(TimeCalcInf *pCalcInf);
 	void setNoBlock(int socket);
@@ -51,7 +47,6 @@ private:
 	base::CList *m_listClientRead;
 	base::CList *m_recvList;
 	base::CPthreadMutex m_recvListMutex;
-	std::bitset<MAX_CLIENT_SIZE> m_cientIds;
 	int m_newId;
 	SOCKET m_nfds;
 };
