@@ -34,7 +34,7 @@ private:
 private:
 	CNetServer();
 	void *_listenThread(void *arg);
-	ClientConn *dealConnect(int clientId);
+	ClientConn *dealConnect(int socket);
 	int creatClientId();
 	void setClientId(int clientId);
 	void resetClientId(int clientId);
