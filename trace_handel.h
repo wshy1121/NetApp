@@ -1,5 +1,6 @@
 #ifndef _TRACE_HANDLE_H_
 #define _TRACE_HANDLE_H_
+#include <vector>
 #include "data_handle.h"
 
 class CTraceHandle : public IDealDataHandle
@@ -18,7 +19,7 @@ public:
 	void insertHex(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf);
 	void openFile(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf);
 	void closeFile(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf);
-	void getTraceFileInfs(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf);
+	void getTraceFileList(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf);
 private:	
 	void parseData(TimeCalcInf *pCalcInf);
 private:
@@ -37,7 +38,8 @@ class CTraceClient
 public:
 	static CTraceClient *instance();
 public:
-
+	typedef std::vector<std::string> StrVec;
+	bool getTraceFileList(StrVec &fileList);
 private:
 	CTraceClient();
 private:

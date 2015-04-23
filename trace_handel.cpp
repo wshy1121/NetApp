@@ -4,6 +4,7 @@
 #include "safe_server.h"
 #include "user_manager.h"
 #include "log_opr.h"
+#include "net_client.h"
 
 using namespace base;
 extern CPthreadMutex g_insMutexCalc;
@@ -21,7 +22,7 @@ CTraceHandle::CTraceHandle()
 	addMethod("insertHex", (IDealDataHandle::Method)&CTraceHandle::insertHex);
 	addMethod("openFile", (IDealDataHandle::Method)&CTraceHandle::openFile);
 	addMethod("closeFile", (IDealDataHandle::Method)&CTraceHandle::closeFile);
-	addMethod("getTraceFileInfs", (IDealDataHandle::Method)&CTraceHandle::getTraceFileInfs);
+	addMethod("getTraceFileList", (IDealDataHandle::Method)&CTraceHandle::getTraceFileList);
 }
 void CTraceHandle::parseData(TimeCalcInf *pCalcInf)
 {
@@ -135,8 +136,29 @@ void CTraceHandle::closeFile(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf)
 	CLogOprManager::instance()->closeFile(m_pTraceInfoId->clientId);
 }
 
-void CTraceHandle::getTraceFileInfs(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf)
-{
+void CTraceHandle::getTraceFileList(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf)
+{	trace_worker();
+
+	base::CLogDataInf &reqDataInf = pCalcInf->m_dataInf;
+	char *oper = reqDataInf.m_infs[0];
+	char *sessionId = reqDataInf.m_infs[1];
+
+	CClientInf *clientInf = pCalcInf->m_clientInf.get();
+	base::CLogDataInf &repDataInf = repCalcInf->m_dataInf;
+	repDataInf.putInf(oper);
+	repDataInf.putInf(sessionId);//session id(大于0)
+
+	TraceFileInf *traceFileInf = NULL;
+	CLogOprManager::TraceFileInfMap &traceFileMap = CLogOprManager::instance()->getTraceFileList();
+	CLogOprManager::TraceFileInfMap::iterator iter = traceFileMap.begin();
+	for (; iter != traceFileMap.end(); ++iter)
+	{
+		traceFileInf = iter->second;
+		repDataInf.putInf((char *)traceFileInf->m_fileName.c_str());
+	}
+
+	repDataInf.packet();
+	return ;
 }
 
 
@@ -158,4 +180,34 @@ CTraceClient *CTraceClient::instance()
 CTraceClient::CTraceClient()
 {
 }
+
+bool CTraceClient::getTraceFileList(StrVec &fileList)
+{	trace_worker();
+	char sessionId[16];
+	snprintf(sessionId, sizeof(sessionId), "%d", CNetClient::instance()->getSessionId());
+
+	CLogDataInf dataInf;
+	dataInf.putInf((char *)"getTraceFileList");
+	dataInf.putInf(sessionId);//session id(大于0)
+
+	char *packet = NULL;
+	int packetLen = dataInf.packet(packet);
+	CNetClient::instance()->send(packet, packetLen);
+	CNetClient::instance()->receiveInfData(&dataInf);
+
+	if (dataInf.m_infsNum == 0)
+	{	trace_printf("NULL");
+		return false;
+	}
+
+	for (int i=2; i<dataInf.m_infsNum; ++i)
+	{
+		fileList.push_back(dataInf.m_infs[i]);
+		trace_printf("dataInf.m_infs[i]  %s", dataInf.m_infs[i]);
+	}
+	return true;
+}
+
+
+
 

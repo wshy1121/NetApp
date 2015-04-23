@@ -3,6 +3,7 @@
 #include "defs.h"
 #include "link_tool.h"
 #include "user_manager.h"
+#include "trace_handel.h"
 #include <string>
 
 class CNetClient
@@ -20,6 +21,7 @@ public:
 	bool getAccessRep(char *access, int accessLen, char *accessRep);
 	bool verifyAccess(char *access, int accessLen, char *accessRep);
 	bool getClientInf(CClientInf *clientInf);
+	bool getTraceFileList(CTraceClient::StrVec &fileList);
 private:	
 	CNetClient();	
 private:	
