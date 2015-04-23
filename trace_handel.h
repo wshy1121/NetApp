@@ -31,5 +31,20 @@ private:
 	const char *m_content;
 	int m_contentLen;
 };
+
+class CTraceClient
+{
+public:
+	static CTraceClient *instance();
+public:
+
+private:
+	CTraceClient();
+private:
+	static CTraceClient *_instance;
+
+};
+
+
 #endif
 

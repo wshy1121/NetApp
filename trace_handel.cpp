@@ -5,6 +5,9 @@
 #include "user_manager.h"
 #include "log_opr.h"
 
+using namespace base;
+extern CPthreadMutex g_insMutexCalc;
+
 CTraceHandle::CTraceHandle()
 {
 	addMethod("createCandy", (IDealDataHandle::Method)&CTraceHandle::createCandy);
@@ -138,5 +141,21 @@ void CTraceHandle::getTraceFileInfs(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcI
 
 
 
+CTraceClient *CTraceClient::_instance;
 
+CTraceClient *CTraceClient::instance()
+{
+	if (NULL == _instance)
+	{
+		CGuardMutex guardMutex(g_insMutexCalc);
+		if (NULL == _instance)
+		{
+			_instance = new CTraceClient;
+		}
+	}
+	return _instance;
+}
+CTraceClient::CTraceClient()
+{
+}
 
