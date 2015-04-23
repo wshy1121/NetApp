@@ -18,7 +18,7 @@ public:
 	void insertHex(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf);
 	void openFile(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf);
 	void closeFile(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf);
-	void verify(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf);
+	void getTraceFileInfs(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf);
 private:	
 	void parseData(TimeCalcInf *pCalcInf);
 private:

@@ -3,6 +3,7 @@
 #include "trace_handel.h"
 #include "safe_server.h"
 #include "user_manager.h"
+#include "log_opr.h"
 
 CTraceHandle::CTraceHandle()
 {
@@ -17,6 +18,7 @@ CTraceHandle::CTraceHandle()
 	addMethod("insertHex", (IDealDataHandle::Method)&CTraceHandle::insertHex);
 	addMethod("openFile", (IDealDataHandle::Method)&CTraceHandle::openFile);
 	addMethod("closeFile", (IDealDataHandle::Method)&CTraceHandle::closeFile);
+	addMethod("getTraceFileInfs", (IDealDataHandle::Method)&CTraceHandle::getTraceFileInfs);
 }
 void CTraceHandle::parseData(TimeCalcInf *pCalcInf)
 {
@@ -130,6 +132,9 @@ void CTraceHandle::closeFile(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf)
 	CTimeCalcManager::instance()->closeFile(*m_pTraceInfoId);
 }
 
+void CTraceHandle::getTraceFileInfs(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf)
+{
+}
 
 
 
