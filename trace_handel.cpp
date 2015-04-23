@@ -123,7 +123,7 @@ void CTraceHandle::openFile(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf)
 
 	CClientInf *clientInf = pCalcInf->m_clientInf.get();
 	clientInf->m_fileName = m_content;
-	CLogOprManager::instance()->openFile(m_pTraceInfoId->clientId, (char *)m_content);
+	clientInf->m_traceFileInf = CLogOprManager::instance()->openFile(m_pTraceInfoId->clientId, (char *)m_content);
 }
 void CTraceHandle::closeFile(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf)
 {	trace_worker();
