@@ -5,6 +5,7 @@
 #include "user_manager.h"
 #include "log_opr.h"
 #include "net_client.h"
+#include "string_base.h"
 
 using namespace base;
 extern CPthreadMutex g_insMutexCalc;
@@ -148,14 +149,21 @@ void CTraceHandle::getTraceFileList(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcI
 	repDataInf.putInf(oper);
 	repDataInf.putInf(sessionId);//session id(´óÓÚ0)
 
+	char fileSizeMem[1024];
+	char *fileSize = fileSizeMem;
+	int strCount = 0;
 	TraceFileInf *traceFileInf = NULL;
 	CLogOprManager::TraceFileInfMap &traceFileMap = CLogOprManager::instance()->getTraceFileList();
 	CLogOprManager::TraceFileInfMap::iterator iter = traceFileMap.begin();
 	for (; iter != traceFileMap.end(); ++iter)
 	{
 		traceFileInf = iter->second;
+		strCount = base::snprintf(fileSize, sizeof(fileSize), "%d", traceFileInf->m_fileSize) + 1;
 		repDataInf.putInf((char *)traceFileInf->m_fileName.c_str());
-		trace_printf("traceFileInf->m_fileName.c_str(), traceFileInf->m_fileSize  %s  %d", traceFileInf->m_fileName.c_str(), traceFileInf->m_fileSize);
+		repDataInf.putInf(fileSize);
+		fileSize += strCount;
+		
+		trace_printf("traceFileInf->m_fileName.c_str(), traceFileInf->m_fileSize  %s  %s", traceFileInf->m_fileName.c_str(), fileSize);
 	}
 
 	repDataInf.packet();
@@ -182,7 +190,7 @@ CTraceClient::CTraceClient()
 {
 }
 
-bool CTraceClient::getTraceFileList(StrVec &fileList)
+bool CTraceClient::getTraceFileList(TraceFileVec &fileList)
 {	trace_worker();
 	char sessionId[16];
 	snprintf(sessionId, sizeof(sessionId), "%d", CNetClient::instance()->getSessionId());
@@ -201,10 +209,13 @@ bool CTraceClient::getTraceFileList(StrVec &fileList)
 		return false;
 	}
 
-	for (int i=2; i<dataInf.m_infsNum; ++i)
+	TraceFileInf traceFileInf;
+	for (int i=2; i<dataInf.m_infsNum; i+=2)
 	{
-		fileList.push_back(dataInf.m_infs[i]);
-		trace_printf("dataInf.m_infs[i]  %s", dataInf.m_infs[i]);
+		traceFileInf.m_fileName = dataInf.m_infs[i];
+		traceFileInf.m_fileSize= atoi(dataInf.m_infs[i+1]);
+		trace_printf("traceFileInf.m_fileName, traceFileInf.m_fileSize  %s  %d", traceFileInf.m_fileName.c_str(), traceFileInf.m_fileSize);
+		fileList.push_back(traceFileInf);
 	}
 	return true;
 }

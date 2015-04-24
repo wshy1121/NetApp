@@ -38,8 +38,8 @@ class CTraceClient
 public:
 	static CTraceClient *instance();
 public:
-	typedef std::vector<std::string> StrVec;
-	bool getTraceFileList(StrVec &fileList);
+	typedef std::vector<TraceFileInf> TraceFileVec;
+	bool getTraceFileList(TraceFileVec &fileList);
 private:
 	CTraceClient();
 private:

@@ -21,7 +21,7 @@ public:
 	bool getAccessRep(char *access, int accessLen, char *accessRep);
 	bool verifyAccess(char *access, int accessLen, char *accessRep);
 	bool getClientInf(CClientInf *clientInf);
-	bool getTraceFileList(CTraceClient::StrVec &fileList);
+	bool getTraceFileList(CTraceClient::TraceFileVec &fileList);
 private:	
 	CNetClient();	
 private:	

@@ -111,7 +111,7 @@ bool CNetClient::getClientInf(CClientInf *clientInf)
 	return CVerifyClient::instance()->getClientInf(clientInf);
 }
 
-bool CNetClient::getTraceFileList(CTraceClient::StrVec &fileList)
+bool CNetClient::getTraceFileList(CTraceClient::TraceFileVec &fileList)
 {
 	return CTraceClient::instance()->getTraceFileList(fileList);
 }
