@@ -158,7 +158,7 @@ void CTraceHandle::getTraceFileList(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcI
 	for (; iter != traceFileMap.end(); ++iter)
 	{
 		traceFileInf = iter->second;
-		strCount = base::snprintf(fileSize, sizeof(fileSize), "%d", traceFileInf->m_fileSize) + 1;
+		strCount = base::snprintf(fileSize, sizeof(fileSizeMem)-strCount, "%d", traceFileInf->m_fileSize) + 1;
 		repDataInf.putInf((char *)traceFileInf->m_fileName.c_str());
 		repDataInf.putInf(fileSize);
 		fileSize += strCount;
