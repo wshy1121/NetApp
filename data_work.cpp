@@ -94,6 +94,7 @@ void CDataWorkManager::dealitemData(ClientConn *pClientConn, RECV_DATA *pRecvDat
 
 	pCalcInf->m_traceInfoId.clientId = pClientConn->clientId;
 	pCalcInf->m_traceInfoId.socket = pClientConn->socket;
+	pCalcInf->m_traceInfoId.clientInf = pClientConn->clientInf.get();
 	pCalcInf->m_clientInf = pClientConn->clientInf;
 	CTimeCalcInfManager::instance()->pushRecvData(pRecvData);
 }

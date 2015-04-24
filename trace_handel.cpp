@@ -155,6 +155,7 @@ void CTraceHandle::getTraceFileList(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcI
 	{
 		traceFileInf = iter->second;
 		repDataInf.putInf((char *)traceFileInf->m_fileName.c_str());
+		trace_printf("traceFileInf->m_fileName.c_str(), traceFileInf->m_fileSize  %s  %d", traceFileInf->m_fileName.c_str(), traceFileInf->m_fileSize);
 	}
 
 	repDataInf.packet();
