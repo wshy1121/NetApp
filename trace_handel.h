@@ -40,6 +40,7 @@ public:
 public:
 	typedef std::vector<TraceFileInf> TraceFileVec;
 	bool getTraceFileList(TraceFileVec &fileList);
+	bool getTraceFileInf(TraceFileInf *traceFileInf);
 private:
 	CTraceClient();
 private:

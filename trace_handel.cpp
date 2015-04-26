@@ -221,5 +221,9 @@ bool CTraceClient::getTraceFileList(TraceFileVec &fileList)
 }
 
 
+bool CTraceClient::getTraceFileInf(TraceFileInf *traceFileInf)
+{
+	return true;
+}
 
 
