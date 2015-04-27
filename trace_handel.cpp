@@ -47,8 +47,8 @@ void CTraceHandle::createCandy(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf)
 {	trace_worker();
 	
 	parseData(pCalcInf);
-	CClientInf *clientInf = pCalcInf->m_clientInf.get();
-	TraceFileInf *traceFileInf = clientInf->m_traceFileInf;
+	TraceFileInf *traceFileInf = pCalcInf->m_clientInf.get()->m_traceFileInf;
+	traceFileInf->m_candyCount++;
 	traceFileInf->m_lastCandy = m_funcName;
 	CTimeCalc *pTimeCalc = CTimeCalc::createCTimeCalc(m_line, m_fileName, m_funcName, m_displayLevel, *m_pTraceInfoId);
 	return ;
@@ -75,6 +75,8 @@ void CTraceHandle::insertTrace(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf)
 {	trace_worker();
 
 	parseData(pCalcInf);
+	TraceFileInf *traceFileInf = pCalcInf->m_clientInf.get()->m_traceFileInf;
+	traceFileInf->m_traceCount++;
 	CTimeCalcManager::instance()->InsertTrace(m_line, m_fileName, *m_pTraceInfoId, m_content);
 }
 
@@ -196,11 +198,18 @@ void CTraceHandle::getTraceFileInf(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcIn
 	TraceFileInf *traceFileInf = iter->second;
 	char fileSize[32];
 	char fileCount[32];
+	char candyCount[32];
+	char traceCount[32];
+	
 	base::snprintf(fileSize, sizeof(fileSize), "%d", traceFileInf->m_fileSize);
 	base::snprintf(fileCount, sizeof(fileCount), "%d", traceFileInf->m_count);
+	base::snprintf(candyCount, sizeof(fileCount), "%d", traceFileInf->m_candyCount);
+	base::snprintf(traceCount, sizeof(fileCount), "%d", traceFileInf->m_traceCount);
 	repDataInf.putInf((char *)traceFileInf->m_fileName.c_str());
 	repDataInf.putInf(fileSize);
 	repDataInf.putInf(fileCount);
+	repDataInf.putInf(candyCount);
+	repDataInf.putInf(traceCount);
 	repDataInf.putInf((char *)traceFileInf->m_lastCandy.c_str());
 	
 	repDataInf.packet();
@@ -281,7 +290,9 @@ bool CTraceClient::getTraceFileInf(const char *fileName, TraceFileInf &traceFile
 	traceFileInf.m_fileName = dataInf.m_infs[2];
 	traceFileInf.m_fileSize = atoi(dataInf.m_infs[3]);
 	traceFileInf.m_count = atoi(dataInf.m_infs[4]);
-	traceFileInf.m_lastCandy = dataInf.m_infs[5];
+	traceFileInf.m_candyCount = atoi(dataInf.m_infs[5]);
+	traceFileInf.m_traceCount = atoi(dataInf.m_infs[6]);
+	traceFileInf.m_lastCandy = dataInf.m_infs[7];
 	return true;
 }
 
