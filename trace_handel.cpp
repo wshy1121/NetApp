@@ -23,6 +23,7 @@ CTraceHandle::CTraceHandle()
 	addMethod("insertHex", (IDealDataHandle::Method)&CTraceHandle::insertHex);
 	addMethod("openFile", (IDealDataHandle::Method)&CTraceHandle::openFile);
 	addMethod("closeFile", (IDealDataHandle::Method)&CTraceHandle::closeFile);
+	addMethod("cleanFile", (IDealDataHandle::Method)&CTraceHandle::cleanFile);
 	addMethod("getTraceFileList", (IDealDataHandle::Method)&CTraceHandle::getTraceFileList);
 	addMethod("getTraceFileInf", (IDealDataHandle::Method)&CTraceHandle::getTraceFileInf);
 }
@@ -143,6 +144,17 @@ void CTraceHandle::closeFile(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf)
 	CLogOprManager::instance()->closeFile(m_pTraceInfoId->clientId);
 }
 
+void CTraceHandle::cleanFile(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf)
+{	trace_worker();
+	base::CLogDataInf &dataInf = pCalcInf->m_dataInf;
+	trace_printf("NULL");
+	char *fileName = dataInf.m_infs[2];
+	trace_printf("fileName  %s", fileName);
+	CLogOprManager::instance()->cleanFile(fileName);
+	trace_printf("NULL");	
+	return ;
+}
+
 void CTraceHandle::getTraceFileList(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf)
 {	trace_worker();
 
@@ -234,6 +246,29 @@ CTraceClient *CTraceClient::instance()
 }
 CTraceClient::CTraceClient()
 {
+}
+
+bool CTraceClient::cleanFile(const char *fileName)
+{	trace_worker();
+	trace_printf("fileName  %s", fileName);
+	char sessionId[16];
+	snprintf(sessionId, sizeof(sessionId), "%d", CNetClient::instance()->getSessionId());
+
+	CLogDataInf dataInf;
+	dataInf.putInf((char *)"cleanFile");
+	dataInf.putInf(sessionId);//session id(´óÓÚ0)
+	dataInf.putInf((char *)fileName);
+
+	char *packet = NULL;
+	int packetLen = dataInf.packet(packet);
+	CNetClient::instance()->send(packet, packetLen);
+	CNetClient::instance()->receiveInfData(&dataInf);
+
+	if (dataInf.m_infsNum == 0)
+	{	trace_printf("NULL");
+		return false;
+	}	
+	return true;
 }
 
 bool CTraceClient::getTraceFileList(TraceFileVec &fileList)

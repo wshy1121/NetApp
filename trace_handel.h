@@ -19,6 +19,7 @@ public:
 	void insertHex(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf);
 	void openFile(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf);
 	void closeFile(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf);
+	void cleanFile(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf);
 	void getTraceFileList(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf);
 	void getTraceFileInf(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf);
 private:	
@@ -40,6 +41,7 @@ public:
 	static CTraceClient *instance();
 public:
 	typedef std::vector<TraceFileInf> TraceFileVec;
+	bool cleanFile(const char *fileName);
 	bool getTraceFileList(TraceFileVec &fileList);
 	bool getTraceFileInf(const char *fileName, TraceFileInf &traceFileInf);
 private:

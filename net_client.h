@@ -21,6 +21,7 @@ public:
 	bool getAccessRep(char *access, int accessLen, char *accessRep);
 	bool verifyAccess(char *access, int accessLen, char *accessRep);
 	bool getClientInf(CClientInf *clientInf);
+	bool cleanFile(const char *fileName);
 	bool getTraceFileList(CTraceClient::TraceFileVec &fileList);
 	bool getTraceFileInf(const char *fileName, TraceFileInf &traceFileInf);
 private:	
