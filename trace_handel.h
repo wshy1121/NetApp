@@ -20,6 +20,7 @@ public:
 	void openFile(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf);
 	void closeFile(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf);
 	void getTraceFileList(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf);
+	void getTraceFileInf(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf);
 private:	
 	void parseData(TimeCalcInf *pCalcInf);
 private:
@@ -40,7 +41,7 @@ public:
 public:
 	typedef std::vector<TraceFileInf> TraceFileVec;
 	bool getTraceFileList(TraceFileVec &fileList);
-	bool getTraceFileInf(TraceFileInf *traceFileInf);
+	bool getTraceFileInf(const char *fileName, TraceFileInf &traceFileInf);
 private:
 	CTraceClient();
 private:

@@ -116,3 +116,9 @@ bool CNetClient::getTraceFileList(CTraceClient::TraceFileVec &fileList)
 	return CTraceClient::instance()->getTraceFileList(fileList);
 }
 
+
+bool CNetClient::getTraceFileInf(const char *fileName, TraceFileInf &traceFileInf)
+{
+	return CTraceClient::instance()->getTraceFileInf(fileName, traceFileInf);
+}
+

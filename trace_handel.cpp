@@ -24,6 +24,7 @@ CTraceHandle::CTraceHandle()
 	addMethod("openFile", (IDealDataHandle::Method)&CTraceHandle::openFile);
 	addMethod("closeFile", (IDealDataHandle::Method)&CTraceHandle::closeFile);
 	addMethod("getTraceFileList", (IDealDataHandle::Method)&CTraceHandle::getTraceFileList);
+	addMethod("getTraceFileInf", (IDealDataHandle::Method)&CTraceHandle::getTraceFileInf);
 }
 void CTraceHandle::parseData(TimeCalcInf *pCalcInf)
 {
@@ -170,6 +171,37 @@ void CTraceHandle::getTraceFileList(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcI
 	return ;
 }
 
+void CTraceHandle::getTraceFileInf(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf)
+{	trace_worker();
+
+	base::CLogDataInf &reqDataInf = pCalcInf->m_dataInf;
+	char *oper = reqDataInf.m_infs[0];
+	char *sessionId = reqDataInf.m_infs[1];
+	char *fileName = reqDataInf.m_infs[2];
+	
+	base::CLogDataInf &repDataInf = repCalcInf->m_dataInf;
+	repDataInf.putInf(oper);
+	repDataInf.putInf(sessionId);//session id(大于0)
+
+	CLogOprManager::TraceFileInfMap &traceFileMap = CLogOprManager::instance()->getTraceFileList();
+	CLogOprManager::TraceFileInfMap::iterator iter = traceFileMap.find(fileName);
+	if (iter == traceFileMap.end())
+	{	trace_printf("NULL");
+		return ;
+	}
+
+	TraceFileInf *traceFileInf = iter->second;
+	char fileSize[32];
+	char fileCount[32];
+	base::snprintf(fileSize, sizeof(fileSize), "%d", traceFileInf->m_fileSize);
+	base::snprintf(fileCount, sizeof(fileCount), "%d", traceFileInf->m_count);
+	repDataInf.putInf((char *)traceFileInf->m_fileName.c_str());
+	repDataInf.putInf(fileSize);
+	repDataInf.putInf(fileCount);
+	repDataInf.packet();
+	trace_printf("getTraceFileInf  %s  %d  %d", traceFileInf->m_fileName.c_str(), traceFileInf->m_fileSize, traceFileInf->m_count);
+	return ;
+}
 
 
 CTraceClient *CTraceClient::_instance;
@@ -221,8 +253,29 @@ bool CTraceClient::getTraceFileList(TraceFileVec &fileList)
 }
 
 
-bool CTraceClient::getTraceFileInf(TraceFileInf *traceFileInf)
-{
+bool CTraceClient::getTraceFileInf(const char *fileName, TraceFileInf &traceFileInf)
+{	trace_worker();
+	trace_printf("fileName  %s", fileName);
+	char sessionId[16];
+	snprintf(sessionId, sizeof(sessionId), "%d", CNetClient::instance()->getSessionId());
+	CLogDataInf dataInf;
+	dataInf.putInf((char *)"getTraceFileInf");
+	dataInf.putInf(sessionId);//session id(大于0)
+	dataInf.putInf((char *)fileName);
+
+	char *packet = NULL;
+	int packetLen = dataInf.packet(packet);
+	CNetClient::instance()->send(packet, packetLen);
+	CNetClient::instance()->receiveInfData(&dataInf);
+
+	if (dataInf.m_infsNum == 0)
+	{	trace_printf("NULL");
+		return false;
+	}
+
+	traceFileInf.m_fileName = dataInf.m_infs[2];
+	traceFileInf.m_fileSize = atoi(dataInf.m_infs[3]);
+	traceFileInf.m_count = atoi(dataInf.m_infs[4]);
 	return true;
 }
 
