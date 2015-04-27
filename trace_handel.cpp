@@ -47,6 +47,9 @@ void CTraceHandle::createCandy(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf)
 {	trace_worker();
 	
 	parseData(pCalcInf);
+	CClientInf *clientInf = pCalcInf->m_clientInf.get();
+	TraceFileInf *traceFileInf = clientInf->m_traceFileInf;
+	traceFileInf->m_lastCandy = m_funcName;
 	CTimeCalc *pTimeCalc = CTimeCalc::createCTimeCalc(m_line, m_fileName, m_funcName, m_displayLevel, *m_pTraceInfoId);
 	return ;
 }
@@ -178,10 +181,6 @@ void CTraceHandle::getTraceFileInf(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcIn
 	char *oper = reqDataInf.m_infs[0];
 	char *sessionId = reqDataInf.m_infs[1];
 	char *fileName = reqDataInf.m_infs[2];
-	
-	base::CLogDataInf &repDataInf = repCalcInf->m_dataInf;
-	repDataInf.putInf(oper);
-	repDataInf.putInf(sessionId);//session id(大于0)
 
 	CLogOprManager::TraceFileInfMap &traceFileMap = CLogOprManager::instance()->getTraceFileList();
 	CLogOprManager::TraceFileInfMap::iterator iter = traceFileMap.find(fileName);
@@ -189,6 +188,10 @@ void CTraceHandle::getTraceFileInf(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcIn
 	{	trace_printf("NULL");
 		return ;
 	}
+	
+	base::CLogDataInf &repDataInf = repCalcInf->m_dataInf;
+	repDataInf.putInf(oper);
+	repDataInf.putInf(sessionId);//session id(大于0)
 
 	TraceFileInf *traceFileInf = iter->second;
 	char fileSize[32];
@@ -198,6 +201,8 @@ void CTraceHandle::getTraceFileInf(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcIn
 	repDataInf.putInf((char *)traceFileInf->m_fileName.c_str());
 	repDataInf.putInf(fileSize);
 	repDataInf.putInf(fileCount);
+	repDataInf.putInf((char *)traceFileInf->m_lastCandy.c_str());
+	
 	repDataInf.packet();
 	trace_printf("getTraceFileInf  %s  %d  %d", traceFileInf->m_fileName.c_str(), traceFileInf->m_fileSize, traceFileInf->m_count);
 	return ;
@@ -276,6 +281,7 @@ bool CTraceClient::getTraceFileInf(const char *fileName, TraceFileInf &traceFile
 	traceFileInf.m_fileName = dataInf.m_infs[2];
 	traceFileInf.m_fileSize = atoi(dataInf.m_infs[3]);
 	traceFileInf.m_count = atoi(dataInf.m_infs[4]);
+	traceFileInf.m_lastCandy = dataInf.m_infs[5];
 	return true;
 }
 
