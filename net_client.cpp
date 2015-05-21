@@ -64,6 +64,14 @@ bool CNetClient::disConnect()
 	base::close(m_socketClient);
 	return true;
 }
+int CNetClient::dealPacket(char *packet, int packetLen, base::CLogDataInf &dataInf)
+{
+	base::pthread_mutex_lock(&socketMutex);
+	send(packet, packetLen);
+	receiveInfData(&dataInf);	
+	base::pthread_mutex_unlock(&socketMutex);
+	return 0;
+}
 
 int CNetClient::send(char *szText,int len)
 {

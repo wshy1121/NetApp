@@ -261,8 +261,7 @@ bool CTraceClient::cleanFile(const char *fileName)
 
 	char *packet = NULL;
 	int packetLen = dataInf.packet(packet);
-	CNetClient::instance()->send(packet, packetLen);
-	CNetClient::instance()->receiveInfData(&dataInf);
+	CNetClient::instance()->dealPacket(packet, packetLen, dataInf);
 
 	if (dataInf.m_infsNum == 0)
 	{	trace_printf("NULL");
@@ -282,9 +281,8 @@ bool CTraceClient::getTraceFileList(TraceFileVec &fileList)
 
 	char *packet = NULL;
 	int packetLen = dataInf.packet(packet);
-	CNetClient::instance()->send(packet, packetLen);
-	CNetClient::instance()->receiveInfData(&dataInf);
-
+	CNetClient::instance()->dealPacket(packet, packetLen, dataInf);
+	
 	if (dataInf.m_infsNum == 0)
 	{	trace_printf("NULL");
 		return false;
@@ -314,8 +312,8 @@ bool CTraceClient::getTraceFileInf(const char *fileName, TraceFileInf &traceFile
 
 	char *packet = NULL;
 	int packetLen = dataInf.packet(packet);
-	CNetClient::instance()->send(packet, packetLen);
-	CNetClient::instance()->receiveInfData(&dataInf);
+	CNetClient::instance()->dealPacket(packet, packetLen, dataInf);
+	
 
 	if (dataInf.m_infsNum == 0)
 	{	trace_printf("NULL");

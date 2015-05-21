@@ -12,8 +12,7 @@ public:
 	static CNetClient* instance();
 	bool disConnect();	
 	bool connect(char *sip);	
-	int send(char *szText,int len);
-	bool receiveInfData(base::CLogDataInf *pDataInf);
+	int dealPacket(char *packet, int packetLen, base::CLogDataInf &dataInf);
 public:
 	int getSessionId();	
 	bool login(char *userName, char *passWord);	
@@ -25,9 +24,12 @@ public:
 	bool getTraceFileList(CTraceClient::TraceFileVec &fileList);
 	bool getTraceFileInf(const char *fileName, TraceFileInf &traceFileInf);
 private:	
-	CNetClient();	
+	CNetClient();		
+	int send(char *szText,int len);
+	bool receiveInfData(base::CLogDataInf *pDataInf);
 private:	
 	static  CNetClient* _instance;
+	base::pthread_mutex_t socketMutex;
 	const int m_maxSessionId;
 	int m_sessionId;
 	SOCKET m_socketClient;
