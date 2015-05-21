@@ -12,7 +12,7 @@ public:
 	static CNetClient* instance();
 	bool disConnect();	
 	bool connect(char *sip);	
-	int dealPacket(char *packet, int packetLen, base::CLogDataInf &dataInf);
+	int dealPacket(char *packet, int packetLen, CLogDataInf &dataInf);
 public:
 	int getSessionId();	
 	bool login(char *userName, char *passWord);	
@@ -26,7 +26,7 @@ public:
 private:	
 	CNetClient();		
 	int send(char *szText,int len);
-	bool receiveInfData(base::CLogDataInf *pDataInf);
+	bool receiveInfData(CLogDataInf *pDataInf);
 private:	
 	static  CNetClient* _instance;
 	base::CPthreadMutex socketMutex;

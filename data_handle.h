@@ -9,7 +9,7 @@
 typedef struct TimeCalcInf
 {
 	TraceInfoId m_traceInfoId;
-	base::CLogDataInf m_dataInf;
+	CLogDataInf m_dataInf;
 	std::shared_ptr<CClientInf> m_clientInf;
 	char *m_pContent;
 	int m_contentLen;

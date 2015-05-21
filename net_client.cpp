@@ -64,7 +64,7 @@ bool CNetClient::disConnect()
 	base::close(m_socketClient);
 	return true;
 }
-int CNetClient::dealPacket(char *packet, int packetLen, base::CLogDataInf &dataInf)
+int CNetClient::dealPacket(char *packet, int packetLen, CLogDataInf &dataInf)
 {
 	CGuardMutex guardMutex(socketMutex);
 	send(packet, packetLen);
@@ -77,7 +77,7 @@ int CNetClient::send(char *szText,int len)
 	return CDataWorkManager::instance()->send(m_socketClient, szText, len);
 }
 
-bool CNetClient::receiveInfData(base::CLogDataInf *pDataInf)
+bool CNetClient::receiveInfData(CLogDataInf *pDataInf)
 {
 	return CDataWorkManager::instance()->receiveInfData(m_socketClient, pDataInf);
 }

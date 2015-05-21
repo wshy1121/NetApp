@@ -37,7 +37,7 @@ public:
 	void dealitemData(ClientConn *pClientConn, RECV_DATA *pRecvData);	
 	node *dealErrNo(ClientConn *pClientConnRead, node *pNode);
 	node *dealDisConnect(ClientConn *pClientConnRead, node *pNode);
-	bool receiveInfData(int socket, base::CLogDataInf *pDataInf);	
+	bool receiveInfData(int socket, CLogDataInf *pDataInf);	
 	int receive(SOCKET fd,char *szText,int len);
 	int send(SOCKET fd,char *szText,int len);	
 	void openFile(ClientConn clientConn, char *fileName);

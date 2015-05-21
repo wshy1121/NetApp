@@ -29,7 +29,7 @@ CTraceHandle::CTraceHandle()
 }
 void CTraceHandle::parseData(TimeCalcInf *pCalcInf)
 {
-	base::CLogDataInf &dataInf = pCalcInf->m_dataInf;
+	CLogDataInf &dataInf = pCalcInf->m_dataInf;
 	m_oper = dataInf.m_infs[0];
 
 	char *tid = pCalcInf->m_dataInf.m_infs[2];
@@ -146,7 +146,7 @@ void CTraceHandle::closeFile(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf)
 
 void CTraceHandle::cleanFile(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf)
 {	trace_worker();
-	base::CLogDataInf &dataInf = pCalcInf->m_dataInf;
+	CLogDataInf &dataInf = pCalcInf->m_dataInf;
 	trace_printf("NULL");
 	char *fileName = dataInf.m_infs[2];
 	trace_printf("fileName  %s", fileName);
@@ -158,12 +158,12 @@ void CTraceHandle::cleanFile(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf)
 void CTraceHandle::getTraceFileList(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf)
 {	trace_worker();
 
-	base::CLogDataInf &reqDataInf = pCalcInf->m_dataInf;
+	CLogDataInf &reqDataInf = pCalcInf->m_dataInf;
 	char *oper = reqDataInf.m_infs[0];
 	char *sessionId = reqDataInf.m_infs[1];
 
 	CClientInf *clientInf = pCalcInf->m_clientInf.get();
-	base::CLogDataInf &repDataInf = repCalcInf->m_dataInf;
+	CLogDataInf &repDataInf = repCalcInf->m_dataInf;
 	repDataInf.putInf(oper);
 	repDataInf.putInf(sessionId);//session id(大于0)
 
@@ -191,7 +191,7 @@ void CTraceHandle::getTraceFileList(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcI
 void CTraceHandle::getTraceFileInf(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf)
 {	trace_worker();
 
-	base::CLogDataInf &reqDataInf = pCalcInf->m_dataInf;
+	CLogDataInf &reqDataInf = pCalcInf->m_dataInf;
 	char *oper = reqDataInf.m_infs[0];
 	char *sessionId = reqDataInf.m_infs[1];
 	char *fileName = reqDataInf.m_infs[2];
@@ -203,7 +203,7 @@ void CTraceHandle::getTraceFileInf(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcIn
 		return ;
 	}
 	
-	base::CLogDataInf &repDataInf = repCalcInf->m_dataInf;
+	CLogDataInf &repDataInf = repCalcInf->m_dataInf;
 	repDataInf.putInf(oper);
 	repDataInf.putInf(sessionId);//session id(大于0)
 
