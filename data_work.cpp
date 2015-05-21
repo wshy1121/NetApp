@@ -123,7 +123,7 @@ void CDataWorkManager::pushWorkData(WORK_DATA *pWorkData)
 }
 
 
-bool CDataWorkManager::receiveInfData(int socket, base::CLogDataInf *pDataInf)
+bool CDataWorkManager::receiveInfData(int socket, CLogDataInf *pDataInf)
 {
 	const int ClenSize = 4;
 	char CLen[ClenSize];
