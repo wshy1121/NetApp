@@ -66,10 +66,9 @@ bool CNetClient::disConnect()
 }
 int CNetClient::dealPacket(char *packet, int packetLen, base::CLogDataInf &dataInf)
 {
-	base::pthread_mutex_lock(&socketMutex);
+	CGuardMutex guardMutex(socketMutex);
 	send(packet, packetLen);
 	receiveInfData(&dataInf);	
-	base::pthread_mutex_unlock(&socketMutex);
 	return 0;
 }
 

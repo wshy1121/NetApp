@@ -29,7 +29,7 @@ private:
 	bool receiveInfData(base::CLogDataInf *pDataInf);
 private:	
 	static  CNetClient* _instance;
-	base::pthread_mutex_t socketMutex;
+	base::CPthreadMutex socketMutex;
 	const int m_maxSessionId;
 	int m_sessionId;
 	SOCKET m_socketClient;
