@@ -124,7 +124,7 @@ void CDataWorkManager::pushWorkData(WORK_DATA *pWorkData)
 
 
 bool CDataWorkManager::receiveInfData(int socket, CLogDataInf *pDataInf)
-{
+{	trace_worker();
 	const int ClenSize = 4;
 	char CLen[ClenSize];
 	if (receive(socket, CLen, ClenSize) <= 0)
