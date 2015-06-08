@@ -34,7 +34,7 @@ void CTraceHandle::parseData(TimeCalcInf *pCalcInf)
 
 	char *tid = pCalcInf->m_dataInf.m_infs[2];
 	m_pTraceInfoId = &(pCalcInf->m_traceInfoId);
-	m_pTraceInfoId->threadId = atoi(tid);
+	m_pTraceInfoId->threadId = atol(tid);
 
 	m_line = atoi(dataInf.m_infs[3]);
 	m_fileName = dataInf.m_infs[4];;
