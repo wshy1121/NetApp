@@ -9,8 +9,8 @@
 #CROSS  = arm-none-linux-gnueabi-
 #CROSS  = arm-linux-gnueabihf-
 
-CFLAGS += -I ../CrossPlat  -I ../LogCore
-LIB_OBJS += net_client.o net_server.o  data_work.o
+CXXFLAGS += -std=c++0x -I../CrossPlat  -I../LogCore  -I../Encrypt  -I../TraceWorker  -I../NetApp
+LIB_OBJS += net_client.o net_server.o  data_work.o  data_handle.o  trace_handel.o
 
 CPP	=	@echo " g++ $@"; $(CROSS)g++
 CC	=	@echo " gcc $@"; $(CROSS)gcc
@@ -25,7 +25,7 @@ RM	= rm
 AFLAGS	+= -r   
 
 
-LIB_TARGET=libNetApp.a
+LIB_TARGET=../CosApp/lib/libNetApp.a
 
 all	:	$(LIB_TARGET)
 
@@ -37,7 +37,7 @@ $(LIB_TARGET): $(LIB_OBJS)
 	$(CC) -c $(CFLAGS) $^ -o $@
 
 .cpp.o:
-	$(CPP) -c -Wall $(CFLAGS) $^ -o $@
+	$(CPP) -c -Wall $(CXXFLAGS) $^ -o $@
 
 clean:
 	$(RM) $(LIB_OBJS)

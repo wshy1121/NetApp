@@ -51,7 +51,7 @@ void CTraceHandle::createCandy(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf)
 	TraceFileInf *traceFileInf = pCalcInf->m_clientInf.get()->m_traceFileInf;
 	traceFileInf->m_candyCount++;
 	traceFileInf->m_lastCandy = m_funcName;
-	CTimeCalc *pTimeCalc = CTimeCalc::createCTimeCalc(m_line, m_fileName, m_funcName, m_displayLevel, *m_pTraceInfoId);
+	CTimeCalc::createCTimeCalc(m_line, m_fileName, m_funcName, m_displayLevel, *m_pTraceInfoId);
 	return ;
 }
 
@@ -162,7 +162,7 @@ void CTraceHandle::getTraceFileList(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcI
 	char *oper = reqDataInf.m_infs[0];
 	char *sessionId = reqDataInf.m_infs[1];
 
-	CClientInf *clientInf = pCalcInf->m_clientInf.get();
+	//CClientInf *clientInf = pCalcInf->m_clientInf.get();
 	CLogDataInf &repDataInf = repCalcInf->m_dataInf;
 	repDataInf.putInf(oper);
 	repDataInf.putInf(sessionId);//session id(大于0)
@@ -252,7 +252,7 @@ bool CTraceClient::cleanFile(const char *fileName)
 {	trace_worker();
 	trace_printf("fileName  %s", fileName);
 	char sessionId[16];
-	snprintf(sessionId, sizeof(sessionId), "%d", CNetClient::instance()->getSessionId());
+	base::snprintf(sessionId, sizeof(sessionId), "%d", CNetClient::instance()->getSessionId());
 
 	CLogDataInf dataInf;
 	dataInf.putInf((char *)"cleanFile");
@@ -273,7 +273,7 @@ bool CTraceClient::cleanFile(const char *fileName)
 bool CTraceClient::getTraceFileList(TraceFileVec &fileList)
 {	trace_worker();
 	char sessionId[16];
-	snprintf(sessionId, sizeof(sessionId), "%d", CNetClient::instance()->getSessionId());
+	base::snprintf(sessionId, sizeof(sessionId), "%d", CNetClient::instance()->getSessionId());
 
 	CLogDataInf dataInf;
 	dataInf.putInf((char *)"getTraceFileList");
@@ -304,7 +304,7 @@ bool CTraceClient::getTraceFileInf(const char *fileName, TraceFileInf &traceFile
 {	trace_worker();
 	trace_printf("fileName  %s", fileName);
 	char sessionId[16];
-	snprintf(sessionId, sizeof(sessionId), "%d", CNetClient::instance()->getSessionId());
+	base::snprintf(sessionId, sizeof(sessionId), "%d", CNetClient::instance()->getSessionId());
 	CLogDataInf dataInf;
 	dataInf.putInf((char *)"getTraceFileInf");
 	dataInf.putInf(sessionId);//session id(大于0)

@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <fcntl.h>
+#include <limits.h>
 
 using namespace base;
 
@@ -285,7 +286,7 @@ void CNetServer::setNoBlock(int socket)
 	opts = opts|O_NONBLOCK;
 	if(fcntl(socket,F_SETFL,opts)<0)
 	{
-		perror("setNoBlock failed  %d\m", socket);
+		perror("setNoBlock failed\n");
 		return;
 	}
 #endif

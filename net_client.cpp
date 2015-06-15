@@ -26,7 +26,7 @@ CNetClient* CNetClient::instance()
 }
 
 
-CNetClient::CNetClient() : m_socketClient(INVALID_SOCKET), m_sessionId(1), m_maxSessionId(1024*1024)
+CNetClient::CNetClient() : m_maxSessionId(1024*1024), m_sessionId(1), m_socketClient(INVALID_SOCKET)
 {
 	return ;
 }
