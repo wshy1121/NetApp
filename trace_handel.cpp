@@ -169,6 +169,7 @@ void CTraceHandle::getTraceFileList(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcI
 
 	char fileSizeMem[1024];
 	char *fileSize = fileSizeMem;
+	int fileMemIndex = 0;
 	int strCount = 0;
 	TraceFileInf *traceFileInf = NULL;
 	CLogOprManager::TraceFileInfMap &traceFileMap = CLogOprManager::instance()->getTraceFileList();
@@ -176,10 +177,11 @@ void CTraceHandle::getTraceFileList(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcI
 	for (; iter != traceFileMap.end(); ++iter)
 	{
 		traceFileInf = iter->second;
-		strCount = base::snprintf(fileSize, sizeof(fileSizeMem)-strCount, "%d", traceFileInf->m_fileSize) + 1;
+		strCount = base::snprintf(fileSize, sizeof(fileSizeMem)-fileMemIndex, "%d", traceFileInf->m_fileSize) + 1;
 		repDataInf.putInf((char *)traceFileInf->m_fileName.c_str());
 		repDataInf.putInf(fileSize);
 		fileSize += strCount;
+		fileMemIndex += strCount;
 		
 		trace_printf("traceFileInf->m_fileName.c_str(), traceFileInf->m_fileSize  %s  %s", traceFileInf->m_fileName.c_str(), fileSize);
 	}
