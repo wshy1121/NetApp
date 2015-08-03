@@ -6,6 +6,7 @@
 #include "safe_server.h"
 #include "data_work.h"
 #include "verify_handel.h"
+#include "SimpleIni.h"
 #include <sys/types.h>
 
 using namespace base;
@@ -39,10 +40,11 @@ bool CNetClient::connect(char *sip)
 	{
 		return false;
 	}
-	int serverPort = 880110;
-#if defined(_DEBUG)
-	serverPort = 8889;
-#endif
+
+	CSimpleIniA ini;  
+	ini.SetUnicode();  
+	ini.LoadFile("Config.ini");  
+	int serverPort = (int)ini.GetLongValue("NetConfig", "NetSerPort");
 
 	struct sockaddr_in addr;
 	addr.sin_family 		= AF_INET;

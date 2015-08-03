@@ -3,6 +3,7 @@
 #include "string_base.h"
 #include "socket_base.h"
 #include "data_work.h"
+#include "SimpleIni.h"
 #include <sys/types.h>
 #include <stdio.h>
 #include <string.h>
@@ -16,11 +17,14 @@ extern CPthreadMutex g_insMutexCalc;
 extern char *dataFormat;
 CNetServer* CNetServer::_instance = NULL;
 
-CNetServer::CNetServer():SERVER_PORT(880110), m_sockLister(INVALID_SOCKET), m_nfds(0)
+CNetServer::CNetServer():SERVER_PORT(-1), m_sockLister(INVALID_SOCKET), m_nfds(0)
 {
-#if defined(_DEBUG)
-	SERVER_PORT = 8889;
-#endif
+
+	CSimpleIniA ini;  
+	ini.SetUnicode();  
+	ini.LoadFile("Config.ini");  
+	SERVER_PORT = (int)ini.GetLongValue("NetConfig", "NetSerPort");
+
 	m_listClientRead = CList::createCList();
 	m_recvList = CList::createCList();
 	m_newId = 0;
