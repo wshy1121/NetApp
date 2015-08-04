@@ -9,6 +9,7 @@
 
 using namespace base;
 extern CPthreadMutex g_insMutexCalc;
+static CTraceHandle traceHandle;
 
 CTraceHandle::CTraceHandle()
 {

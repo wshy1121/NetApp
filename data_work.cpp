@@ -36,8 +36,6 @@ CDataWorkManager *CDataWorkManager::instance()
 
 void CDataWorkManager::initDataHandle()
 {
-	new CTraceHandle;
-	new CVerifyHandle;
 }
 
 WORK_DATA *CDataWorkManager::createWorkData(int contentLen)
@@ -278,7 +276,7 @@ void CDataWorkManager::openFile(ClientConn clientConn, char *fileName)
 	dataInf.putInf(fileName);
 
 	clientConn.socket = INVALID_SOCKET;
-	CDataWorkManager::instance()->dealitemData(&clientConn, pRecvData); 
+	dealitemData(&clientConn, pRecvData); 
 	return ;
 }
 
@@ -298,7 +296,7 @@ void CDataWorkManager::closeFile(ClientConn clientConn)
 	dataInf.putInf("");
 
 	clientConn.socket = INVALID_SOCKET;
-	CDataWorkManager::instance()->dealitemData(&clientConn, pRecvData); 
+	dealitemData(&clientConn, pRecvData); 
 	return ;
 }
 
@@ -319,7 +317,7 @@ void CDataWorkManager::dealException(ClientConn clientConn)
 		dataInf.putInf("0");
 		dataInf.putInf("backtrace");
 
-		CDataWorkManager::instance()->dealitemData(&clientConn, pRecvData); 
+		dealitemData(&clientConn, pRecvData); 
 	}
 	{
 		RECV_DATA *pRecvData = IDealDataHandle::createRecvData();
@@ -334,7 +332,7 @@ void CDataWorkManager::dealException(ClientConn clientConn)
 		dataInf.putInf("0");
 		dataInf.putInf("backtrace");
 
-		CDataWorkManager::instance()->dealitemData(&clientConn, pRecvData); 
+		dealitemData(&clientConn, pRecvData); 
 	}
 	return ;
 }
