@@ -32,7 +32,7 @@ private:
 	base::CPthreadMutex socketMutex;
 	const int m_maxSessionId;
 	int m_sessionId;
-	SOCKET m_socketClient;
+	int m_socketClient;
 	std::string m_sip;
 };
 

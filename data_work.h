@@ -38,8 +38,8 @@ public:
 	node *dealErrNo(ClientConn *pClientConnRead, node *pNode);
 	node *dealDisConnect(ClientConn *pClientConnRead, node *pNode);
 	bool receiveInfData(int socket, CLogDataInf *pDataInf);	
-	int receive(SOCKET fd,char *szText,int len);
-	int send(SOCKET fd,char *szText,int len);	
+	int receive(int fd,char *szText,int len);
+	int send(int fd,char *szText,int len);	
 	void openFile(ClientConn clientConn, char *fileName);
 	void closeFile(ClientConn clientConn);
 private:

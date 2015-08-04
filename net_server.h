@@ -11,7 +11,7 @@
 
 typedef struct ClientConn
 {
-	SOCKET socket;
+	int socket;
 	int clientId;
 	std::shared_ptr<CClientInf> clientInf;
 	struct node node;
@@ -42,13 +42,13 @@ private:
 	base::pthread_t m_hListenThread;
 	
 	static  CNetServer* _instance;
-	SOCKET m_sockLister;
+	int m_sockLister;
 
 	base::CList *m_listClientRead;
 	base::CList *m_recvList;
 	base::CPthreadMutex m_recvListMutex;
 	int m_newId;
-	SOCKET m_nfds;
+	int m_nfds;
 };
 
 #endif //_CHAT_ROOT_SERVER_

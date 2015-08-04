@@ -160,7 +160,7 @@ void *CNetServer::_listenThread(void *arg)
 		//处理连接消息
 		if(FD_ISSET(m_sockLister, &fd_read))
 		{
-			SOCKET socket = accept(m_sockLister,(sockaddr*)&clientAddr,&nLen);		
+			int socket = accept(m_sockLister,(sockaddr*)&clientAddr,&nLen);		
 			if (m_nfds < socket)
 			{
 				m_nfds = socket;
@@ -253,7 +253,7 @@ void CNetServer::sendThreadProc()
 
 void CNetServer::dealRecvData(TimeCalcInf *pCalcInf)
 {
-	SOCKET &socket = pCalcInf->m_traceInfoId.socket;
+	int &socket = pCalcInf->m_traceInfoId.socket;
 	CClientInf *clientInf = pCalcInf->m_clientInf.get();
 
 	if (socket == INVALID_SOCKET || clientInf->m_socket == INVALID_SOCKET)

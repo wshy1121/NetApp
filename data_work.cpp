@@ -146,7 +146,7 @@ bool CDataWorkManager::receiveInfData(int socket, CLogDataInf *pDataInf)
 }
 
 
-int CDataWorkManager::receive(SOCKET fd,char *szText,int iLen)
+int CDataWorkManager::receive(int fd,char *szText,int iLen)
 {	trace_worker();
 	int recvBufLen = 0;
 	int totalRecvLen = 0;
@@ -172,7 +172,7 @@ int CDataWorkManager::receive(SOCKET fd,char *szText,int iLen)
 	return iLen;
 }
 
-int CDataWorkManager::send(SOCKET fd,char *szText,int len)
+int CDataWorkManager::send(int fd,char *szText,int len)
 {
 	int cnt;
 	int rc;
