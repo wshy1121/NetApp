@@ -28,8 +28,7 @@ public:
 		e_rst,			// 对方发送了RST
 		e_intr,			// 被信号中断
 	}ErrNo;
-	static CDataWorkManager *instance();
-	static void initDataHandle();
+	static CDataWorkManager *create();
 public:
 	WORK_DATA *createWorkData(int contentLen);
 	void destroyWorkData(WORK_DATA *pWorkData);

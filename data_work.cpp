@@ -11,31 +11,17 @@
 using namespace base;
 const char *dataFormat = "{\"opr\" : \"%s\", \"threadId\" : %d, \"line\" : %d, \"fileName\" : \"%s\", \"funcName\" : \"%s\", \"displayLevel\" : %d, \"content\" : \"%s\"}";
 
-extern CPthreadMutex g_insMutexCalc;
-
 CDataWorkManager *CDataWorkManager::_instance = NULL;
 
 CDataWorkManager::CDataWorkManager():m_errNo(e_noErr)
 {
 	m_workList = CList::createCList();
-	initDataHandle();
 }
 
-CDataWorkManager *CDataWorkManager::instance()
-{
-	if (NULL == _instance)
-	{
-		CGuardMutex guardMutex(g_insMutexCalc);
-		if (NULL == _instance)
-		{
-			_instance = new CDataWorkManager;
-		}
-	}
-	return _instance;
-}
 
-void CDataWorkManager::initDataHandle()
+CDataWorkManager *CDataWorkManager::create()
 {
+	return new CDataWorkManager;
 }
 
 WORK_DATA *CDataWorkManager::createWorkData(int contentLen)
@@ -103,7 +89,7 @@ void CDataWorkManager::dealWorkData(WORK_DATA *pWorkData)
 }
 void* CDataWorkManager::threadFunc(void *pArg)
 {
-	CDataWorkManager::instance()->threadProc();
+	//CDataWorkManager::instance()->threadProc();
 	return NULL;
 }
 

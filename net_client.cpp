@@ -29,6 +29,7 @@ CNetClient* CNetClient::instance()
 
 CNetClient::CNetClient() : m_maxSessionId(1024*1024), m_sessionId(1), m_socketClient(INVALID_SOCKET)
 {
+	m_dataWorkManager = CDataWorkManager::create();
 	return ;
 }
 
@@ -76,12 +77,12 @@ int CNetClient::dealPacket(char *packet, int packetLen, CLogDataInf &dataInf)
 
 int CNetClient::send(char *szText,int len)
 {
-	return CDataWorkManager::instance()->send(m_socketClient, szText, len);
+	return m_dataWorkManager->send(m_socketClient, szText, len);
 }
 
 bool CNetClient::receiveInfData(CLogDataInf *pDataInf)
 {
-	return CDataWorkManager::instance()->receiveInfData(m_socketClient, pDataInf);
+	return m_dataWorkManager->receiveInfData(m_socketClient, pDataInf);
 }
 
 int CNetClient::getSessionId()

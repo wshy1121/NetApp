@@ -38,6 +38,7 @@ private:
 	void dealRecvData(TimeCalcInf *pCalcInf);
 	void setNoBlock(int socket);
 private:
+	CDataWorkManager *m_dataWorkManager;
 	int SERVER_PORT;
 	base::pthread_t m_hListenThread;
 	

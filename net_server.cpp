@@ -28,6 +28,7 @@ CNetServer::CNetServer():SERVER_PORT(-1), m_sockLister(INVALID_SOCKET), m_nfds(0
 	m_listClientRead = CList::createCList();
 	m_recvList = CList::createCList();
 	m_newId = 0;
+	m_dataWorkManager = CDataWorkManager::create();
 	return ;
 }
 
@@ -140,17 +141,17 @@ void *CNetServer::_listenThread(void *arg)
 			{
 				RECV_DATA *pRecvData = IDealDataHandle::createRecvData();
 				CLogDataInf &dataInf = pRecvData->calcInf.m_dataInf;
-				bool bRet = CDataWorkManager::instance()->receiveInfData(pClientConnRead->socket, &dataInf);
+				bool bRet = m_dataWorkManager->receiveInfData(pClientConnRead->socket, &dataInf);
 				
 				if(bRet)
 				{
-					CDataWorkManager::instance()->dealitemData(pClientConnRead, pRecvData);
+					m_dataWorkManager->dealitemData(pClientConnRead, pRecvData);
 				}
 				//Òì³£´¦Àí
 				else
 				{
 					IDealDataHandle::destroyRecvData(pRecvData);
-					pNode = CDataWorkManager::instance()->dealErrNo(pClientConnRead, pNode);
+					pNode = m_dataWorkManager->dealErrNo(pClientConnRead, pNode);
 					break;
 				}
 			}
@@ -166,7 +167,7 @@ void *CNetServer::_listenThread(void *arg)
 				m_nfds = socket;
 			}
 			ClientConn *pClientConn = dealConnect(socket);
-			CDataWorkManager::instance()->openFile(*pClientConn, (char *)"Debug.cpp");
+			m_dataWorkManager->openFile(*pClientConn, (char *)"Debug.cpp");
 		}
 
 	}
@@ -264,7 +265,7 @@ void CNetServer::dealRecvData(TimeCalcInf *pCalcInf)
 	char *packet = pCalcInf->m_pContent;
 	int &packetLen = pCalcInf->m_contentLen;
 
-	CDataWorkManager::instance()->send(socket, packet, packetLen);
+	m_dataWorkManager->send(socket, packet, packetLen);
 	return ;
 }
 
