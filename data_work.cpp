@@ -116,7 +116,7 @@ bool CDataWorkManager::receiveInfData(int socket, CLogDataInf *pDataInf)
 	int iLen = 0;		
 	pDataInf->C2ILen(CLen,ClenSize,iLen);
 
-	char *packet = new char[iLen];
+	char *packet = (char *)::malloc(iLen);
 	memcpy(packet, CLen, ClenSize);
 	if (receive(socket, packet+ClenSize, iLen-ClenSize) <= 0)
 	{
