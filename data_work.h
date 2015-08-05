@@ -49,8 +49,6 @@ private:
 	void setErrNo(int recvNum);	
 	void dealException(ClientConn clientConn);
 private:
-	static CDataWorkManager *_instance;
-private:
 	ErrNo m_errNo;	
 	base::CList *m_workList;
 	base::CPthreadMutex m_workListMutex;

@@ -11,8 +11,6 @@
 using namespace base;
 const char *dataFormat = "{\"opr\" : \"%s\", \"threadId\" : %d, \"line\" : %d, \"fileName\" : \"%s\", \"funcName\" : \"%s\", \"displayLevel\" : %d, \"content\" : \"%s\"}";
 
-CDataWorkManager *CDataWorkManager::_instance = NULL;
-
 CDataWorkManager::CDataWorkManager():m_errNo(e_noErr)
 {
 	m_workList = CList::createCList();
@@ -140,7 +138,11 @@ int CDataWorkManager::receive(int fd,char *szText,int iLen)
 		if (recvBufLen <= 0)
 		{
 			setErrNo(recvBufLen);
-			if (m_errNo == e_readOk && 0 < totalRecvLen && totalRecvLen < iLen)
+			if (totalRecvLen == 0)
+			{
+				return -1;
+			}
+			if (m_errNo == e_readOk)
 			{
 				continue;
 			}				
