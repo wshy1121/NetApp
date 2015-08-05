@@ -82,7 +82,10 @@ int CNetClient::send(char *szText,int len)
 
 bool CNetClient::receiveInfData(CLogDataInf *pDataInf)
 {
-	return m_dataWorkManager->receiveInfData(m_socketClient, pDataInf);
+	char *packet = NULL;
+	bool bRet = m_dataWorkManager->receiveInfData(m_socketClient, pDataInf, &packet);
+	pDataInf->unPacket(packet);
+	return bRet;
 }
 
 int CNetClient::getSessionId()

@@ -141,7 +141,8 @@ void *CNetServer::_listenThread(void *arg)
 			{
 				RECV_DATA *pRecvData = IDealDataHandle::createRecvData();
 				CLogDataInf &dataInf = pRecvData->calcInf.m_dataInf;
-				bool bRet = m_dataWorkManager->receiveInfData(pClientConnRead->socket, &dataInf);
+				char *&packet =  pRecvData->calcInf.m_packet;
+				bool bRet = m_dataWorkManager->receiveInfData(pClientConnRead->socket, &dataInf, &packet);
 				
 				if(bRet)
 				{
