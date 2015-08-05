@@ -86,7 +86,8 @@ bool CNetServer::startServer()
 	m_nfds = m_sockLister;
 
 	base::pthread_create(&m_hListenThread, NULL,listenThread,NULL);
-
+	base::pthread_create(&m_sendThread, NULL,sendThreadProc,NULL);
+	
 	printf("server is start!\n");
 	return true;
 }
@@ -126,7 +127,6 @@ void *CNetServer::_listenThread(void *arg)
 		}
 		
 		int count = select(m_nfds+1, &fd_read, &fd_write, NULL, &cctv);		
-		sendThreadProc();
 		if (count <= 0)
 		{
 			continue;
@@ -237,10 +237,21 @@ void CNetServer::pushRecvData(RECV_DATA *pRecvData)
 	return ;
 }
 
-void CNetServer::sendThreadProc()
+void *CNetServer::sendThreadProc(void *arg)
 {
-	while (!m_recvList->empty())
+	return CNetServer::instance()->_sendThreadProc(arg);
+}
+
+void *CNetServer::_sendThreadProc(void *arg)
+{
+	while(1)
 	{
+		if(m_recvList->empty())
+		{
+			base::usleep(1000);
+			continue;
+		}
+		
 		m_recvListMutex.Enter();
 		struct node *pNode =  m_recvList->begin();
 		RECV_DATA *pRecvData = recvDataContain(pNode);
@@ -250,6 +261,8 @@ void CNetServer::sendThreadProc()
 		dealRecvData(&pRecvData->calcInf);
 		IDealDataHandle::destroyRecvData(pRecvData);
 	}
+
+	return NULL;
 }
 
 void CNetServer::dealRecvData(TimeCalcInf *pCalcInf)

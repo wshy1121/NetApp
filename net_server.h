@@ -29,18 +29,21 @@ public:
 	node *dealDisconnect(ClientConn *pClientConnRead);
 private:
 	static void *listenThread(void *arg);
+	static void *sendThreadProc(void *arg);
 private:
 	CNetServer();
 	void *_listenThread(void *arg);
 	ClientConn *dealConnect(int socket);
 	int creatClientId();
-	void sendThreadProc();
+	void *_sendThreadProc(void *arg);
 	void dealRecvData(TimeCalcInf *pCalcInf);
 	void setNoBlock(int socket);
 private:
 	CDataWorkManager *m_dataWorkManager;
 	int SERVER_PORT;
 	base::pthread_t m_hListenThread;
+	base::pthread_t m_sendThread;
+
 	
 	static  CNetServer* _instance;
 	int m_sockLister;
