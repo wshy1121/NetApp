@@ -133,11 +133,13 @@ void *CNetServer::_listenThread(void *arg)
 		}
 
 		ClientConn *pClientConnRead = NULL;
+		bool needWhile = false;
 		node *pHead = &m_listClientRead->head_node;
 		for ((pNode)=(pHead)->next; (pHead) != (pNode);)
 		{
 			pClientConnRead = clientConnContain(pNode);
-			while(FD_ISSET(pClientConnRead->socket, &fd_read))
+			needWhile = FD_ISSET(pClientConnRead->socket, &fd_read);
+			while(needWhile)
 			{
 				RECV_DATA *pRecvData = IDealDataHandle::createRecvData();
 				CLogDataInf &dataInf = pRecvData->calcInf.m_dataInf;
