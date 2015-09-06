@@ -30,19 +30,19 @@ CTraceHandle::CTraceHandle()
 }
 void CTraceHandle::parseData(TimeCalcInf *pCalcInf)
 {
-	CLogDataInf &dataInf = pCalcInf->m_dataInf;
-	m_oper = dataInf.m_infs[0];
+	std::shared_ptr<CLogDataInf> &dataInf = pCalcInf->m_dataInf;
+	m_oper = dataInf->m_infs[0];
 
-	char *tid = pCalcInf->m_dataInf.m_infs[2];
+	char *tid = pCalcInf->m_dataInf->m_infs[2];
 	m_pTraceInfoId = &(pCalcInf->m_traceInfoId);
 	m_pTraceInfoId->threadId = atol(tid);
 
-	m_line = atoi(dataInf.m_infs[3]);
-	m_fileName = dataInf.m_infs[4];;
-	m_funcName = dataInf.m_infs[5];
-	m_displayLevel = atoi(dataInf.m_infs[6]);
-	m_content = dataInf.m_infs[7];
-	m_contentLen = dataInf.m_infLens[7] + 1;
+	m_line = atoi(dataInf->m_infs[3]);
+	m_fileName = dataInf->m_infs[4];;
+	m_funcName = dataInf->m_infs[5];
+	m_displayLevel = atoi(dataInf->m_infs[6]);
+	m_content = dataInf->m_infs[7];
+	m_contentLen = dataInf->m_infLens[7] + 1;
 }
 
 void CTraceHandle::createCandy(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf)
@@ -147,9 +147,9 @@ void CTraceHandle::closeFile(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf)
 
 void CTraceHandle::cleanFile(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf)
 {	trace_worker();
-	CLogDataInf &dataInf = pCalcInf->m_dataInf;
+	std::shared_ptr<CLogDataInf> &dataInf = pCalcInf->m_dataInf;
 	trace_printf("NULL");
-	char *fileName = dataInf.m_infs[2];
+	char *fileName = dataInf->m_infs[2];
 	trace_printf("fileName  %s", fileName);
 	CLogOprManager::instance()->cleanFile(fileName);
 	trace_printf("NULL");	
@@ -159,14 +159,14 @@ void CTraceHandle::cleanFile(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf)
 void CTraceHandle::getTraceFileList(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf)
 {	trace_worker();
 
-	CLogDataInf &reqDataInf = pCalcInf->m_dataInf;
-	char *oper = reqDataInf.m_infs[0];
-	char *sessionId = reqDataInf.m_infs[1];
+	std::shared_ptr<CLogDataInf> &reqDataInf = pCalcInf->m_dataInf;
+	char *oper = reqDataInf->m_infs[0];
+	char *sessionId = reqDataInf->m_infs[1];
 
-	//CClientInf *clientInf = pCalcInf->m_clientInf.get();
-	CLogDataInf &repDataInf = repCalcInf->m_dataInf;
-	repDataInf.putInf(oper);
-	repDataInf.putInf(sessionId);//session id(大于0)
+	//CClientInf *clientInf = pCalcInf->m_clientInf.get();z
+	std::shared_ptr<CLogDataInf> &repDataInf = repCalcInf->m_dataInf;
+	repDataInf->putInf(oper);
+	repDataInf->putInf(sessionId);//session id(大于0)
 
 	char fileSizeMem[1024];
 	char *fileSize = fileSizeMem;
@@ -179,25 +179,25 @@ void CTraceHandle::getTraceFileList(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcI
 	{
 		traceFileInf = iter->second;
 		strCount = base::snprintf(fileSize, sizeof(fileSizeMem)-fileMemIndex, "%d", traceFileInf->m_fileSize) + 1;
-		repDataInf.putInf((char *)traceFileInf->m_fileName.c_str());
-		repDataInf.putInf(fileSize);
+		repDataInf->putInf((char *)traceFileInf->m_fileName.c_str());
+		repDataInf->putInf(fileSize);
 		fileSize += strCount;
 		fileMemIndex += strCount;
 		
 		trace_printf("traceFileInf->m_fileName.c_str(), traceFileInf->m_fileSize  %s  %s", traceFileInf->m_fileName.c_str(), fileSize);
 	}
 
-	repDataInf.packet();
+	repDataInf->packet();
 	return ;
 }
 
 void CTraceHandle::getTraceFileInf(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf)
 {	trace_worker();
 
-	CLogDataInf &reqDataInf = pCalcInf->m_dataInf;
-	char *oper = reqDataInf.m_infs[0];
-	char *sessionId = reqDataInf.m_infs[1];
-	char *fileName = reqDataInf.m_infs[2];
+	std::shared_ptr<CLogDataInf> &reqDataInf = pCalcInf->m_dataInf;
+	char *oper = reqDataInf->m_infs[0];
+	char *sessionId = reqDataInf->m_infs[1];
+	char *fileName = reqDataInf->m_infs[2];
 
 	CLogOprManager::TraceFileInfMap &traceFileMap = CLogOprManager::instance()->getTraceFileList();
 	CLogOprManager::TraceFileInfMap::iterator iter = traceFileMap.find(fileName);
@@ -206,9 +206,9 @@ void CTraceHandle::getTraceFileInf(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcIn
 		return ;
 	}
 	
-	CLogDataInf &repDataInf = repCalcInf->m_dataInf;
-	repDataInf.putInf(oper);
-	repDataInf.putInf(sessionId);//session id(大于0)
+	std::shared_ptr<CLogDataInf> &repDataInf = repCalcInf->m_dataInf;
+	repDataInf->putInf(oper);
+	repDataInf->putInf(sessionId);//session id(大于0)
 
 	TraceFileInf *traceFileInf = iter->second;
 	char fileSize[32];
@@ -220,14 +220,14 @@ void CTraceHandle::getTraceFileInf(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcIn
 	base::snprintf(fileCount, sizeof(fileCount), "%d", traceFileInf->m_count);
 	base::snprintf(candyCount, sizeof(fileCount), "%d", traceFileInf->m_candyCount);
 	base::snprintf(traceCount, sizeof(fileCount), "%d", traceFileInf->m_traceCount);
-	repDataInf.putInf((char *)traceFileInf->m_fileName.c_str());
-	repDataInf.putInf(fileSize);
-	repDataInf.putInf(fileCount);
-	repDataInf.putInf(candyCount);
-	repDataInf.putInf(traceCount);
-	repDataInf.putInf((char *)traceFileInf->m_lastCandy.c_str());
+	repDataInf->putInf((char *)traceFileInf->m_fileName.c_str());
+	repDataInf->putInf(fileSize);
+	repDataInf->putInf(fileCount);
+	repDataInf->putInf(candyCount);
+	repDataInf->putInf(traceCount);
+	repDataInf->putInf((char *)traceFileInf->m_lastCandy.c_str());
 	
-	repDataInf.packet();
+	repDataInf->packet();
 	trace_printf("getTraceFileInf  %s  %d  %d", traceFileInf->m_fileName.c_str(), traceFileInf->m_fileSize, traceFileInf->m_count);
 	return ;
 }

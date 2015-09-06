@@ -21,20 +21,20 @@ int IDealDataHandle::addMethod(const char*name, Method method)
 }
 void IDealDataHandle::execute(TimeCalcInf *pCalcInf)
 {	trace_worker();
-	char *oper = pCalcInf->m_dataInf.m_infs[0];
+	char *oper = pCalcInf->m_dataInf->m_infs[0];
 	trace_printf("oper  %s", oper);
 	if (m_dealHandleMap.find(oper) != m_dealHandleMap.end())
 	{
 		RECV_DATA *pRecvData = IDealDataHandle::createRecvData();
 		TimeCalcInf &calcInf = pRecvData->calcInf;
-		CLogDataInf &dataInf = calcInf.m_dataInf;
+		std::shared_ptr<CLogDataInf> &dataInf = calcInf.m_dataInf;
 
 		calcInf.m_traceInfoId = pCalcInf->m_traceInfoId;
 
 		MethodInf methodInf = m_dealHandleMap[oper];
 		(methodInf.object->*methodInf.method)(pCalcInf, &calcInf);
 
-		int sessionId = atoi(pCalcInf->m_dataInf.m_infs[1]);
+		int sessionId = atoi(pCalcInf->m_dataInf->m_infs[1]);
 		if (sessionId <= 0)
 		{
 			IDealDataHandle::destroyRecvData(pRecvData);
@@ -44,7 +44,7 @@ void IDealDataHandle::execute(TimeCalcInf *pCalcInf)
 		calcInf.m_clientInf = pCalcInf->m_clientInf;
 		char *&packet = calcInf.m_pContent;
 		int &packetLen = calcInf.m_contentLen;
-		packetLen = dataInf.getPacket(packet);
+		packetLen = dataInf->getPacket(packet);
 		CNetServer::instance()->pushRecvData(pRecvData);
 	}
 	else
@@ -61,6 +61,7 @@ RECV_DATA *IDealDataHandle::createRecvData(int contentLen)
 	RECV_DATA *pRecvData = new RECV_DATA;
 	TimeCalcInf *pCalcInf = &pRecvData->calcInf;
 	pCalcInf->m_pContent = NULL;
+	pCalcInf->m_dataInf = std::shared_ptr<CLogDataInf>(new CLogDataInf);
 	pCalcInf->m_packet = NULL;
 	pCalcInf->m_contentLen = contentLen;
 

@@ -252,16 +252,16 @@ void CDataWorkManager::openFile(ClientConn clientConn, char *fileName)
 {
 	RECV_DATA *pRecvData =IDealDataHandle::createRecvData();
 	
-	CLogDataInf &dataInf = pRecvData->calcInf.m_dataInf;
+	std::shared_ptr<CLogDataInf> &dataInf = pRecvData->calcInf.m_dataInf;
 	
-	dataInf.putInf("openFile");
-	dataInf.putInf("1");//session id
-	dataInf.putInf("0");
-	dataInf.putInf("0");
-	dataInf.putInf("");
-	dataInf.putInf("");
-	dataInf.putInf("0");
-	dataInf.putInf(fileName);
+	dataInf->putInf("openFile");
+	dataInf->putInf("1");//session id
+	dataInf->putInf("0");
+	dataInf->putInf("0");
+	dataInf->putInf("");
+	dataInf->putInf("");
+	dataInf->putInf("0");
+	dataInf->putInf(fileName);
 
 	clientConn.socket = INVALID_SOCKET;
 	dealitemData(&clientConn, pRecvData); 
@@ -273,15 +273,15 @@ void CDataWorkManager::closeFile(ClientConn clientConn)
 {
 	RECV_DATA *pRecvData = IDealDataHandle::createRecvData();
 	
-	CLogDataInf &dataInf = pRecvData->calcInf.m_dataInf;
-	dataInf.putInf("closeFile");	
-	dataInf.putInf("1");//session id
-	dataInf.putInf("0");
-	dataInf.putInf("0");
-	dataInf.putInf("");
-	dataInf.putInf("");
-	dataInf.putInf("0");
-	dataInf.putInf("");
+	std::shared_ptr<CLogDataInf> &dataInf = pRecvData->calcInf.m_dataInf;
+	dataInf->putInf("closeFile");	
+	dataInf->putInf("1");//session id
+	dataInf->putInf("0");
+	dataInf->putInf("0");
+	dataInf->putInf("");
+	dataInf->putInf("");
+	dataInf->putInf("0");
+	dataInf->putInf("");
 
 	clientConn.socket = INVALID_SOCKET;
 	dealitemData(&clientConn, pRecvData); 
@@ -295,30 +295,30 @@ void CDataWorkManager::dealException(ClientConn clientConn)
 	{
 		RECV_DATA *pRecvData = IDealDataHandle::createRecvData();
 
-		CLogDataInf &dataInf = pRecvData->calcInf.m_dataInf;
-		dataInf.putInf("dispAll");		
-		dataInf.putInf("1");//session id
-		dataInf.putInf("0");
-		dataInf.putInf("0");
-		dataInf.putInf("");
-		dataInf.putInf("");
-		dataInf.putInf("0");
-		dataInf.putInf("backtrace");
+		std::shared_ptr<CLogDataInf> &dataInf = pRecvData->calcInf.m_dataInf;
+		dataInf->putInf("dispAll");		
+		dataInf->putInf("1");//session id
+		dataInf->putInf("0");
+		dataInf->putInf("0");
+		dataInf->putInf("");
+		dataInf->putInf("");
+		dataInf->putInf("0");
+		dataInf->putInf("backtrace");
 
 		dealitemData(&clientConn, pRecvData); 
 	}
 	{
 		RECV_DATA *pRecvData = IDealDataHandle::createRecvData();
 
-		CLogDataInf &dataInf = pRecvData->calcInf.m_dataInf;
-		dataInf.putInf("cleanAll");		
-		dataInf.putInf("1");//session id
-		dataInf.putInf("0");
-		dataInf.putInf("0");
-		dataInf.putInf("");
-		dataInf.putInf("");
-		dataInf.putInf("0");
-		dataInf.putInf("backtrace");
+		std::shared_ptr<CLogDataInf> &dataInf = pRecvData->calcInf.m_dataInf;
+		dataInf->putInf("cleanAll");		
+		dataInf->putInf("1");//session id
+		dataInf->putInf("0");
+		dataInf->putInf("0");
+		dataInf->putInf("");
+		dataInf->putInf("");
+		dataInf->putInf("0");
+		dataInf->putInf("backtrace");
 
 		dealitemData(&clientConn, pRecvData); 
 	}
