@@ -49,7 +49,7 @@ void IDealDataHandle::execute(TimeCalcInf *pCalcInf)
 	}
 	else
 	{
-		printf("failed can not find oper  %s\n", oper);
+		printf("failed can not find oper  |%s|\n", oper);
 	}
 	return ;
 }

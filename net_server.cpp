@@ -9,6 +9,8 @@
 #include <string.h>
 #include <fcntl.h>
 #include <limits.h>
+#include "../Encrypt/verify_handel.h"
+#include "../NetApp/trace_handel.h"
 
 using namespace base;
 
@@ -19,6 +21,8 @@ CNetServer* CNetServer::_instance = NULL;
 
 CNetServer::CNetServer():SERVER_PORT(-1), m_sockLister(INVALID_SOCKET), m_nfds(0)
 {
+	new CVerifyHandle;
+	new CTraceHandle;
 
 	CSimpleIniA ini;  
 	ini.SetUnicode();  
