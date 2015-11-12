@@ -33,6 +33,10 @@ private:
 	int m_displayLevel;
 	const char *m_content;
 	int m_contentLen;
+	
+	int m_preLine;
+	char *m_preFileName;
+	char *m_preFuncName;
 };
 
 class CTraceClient

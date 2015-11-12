@@ -42,6 +42,13 @@ void CTraceHandle::parseData(TimeCalcInf *pCalcInf)
 	m_displayLevel = atoi(dataInf->m_infs[6]);
 	m_content = dataInf->m_infs[7];
 	m_contentLen = dataInf->m_infLens[7] + 1;
+
+	m_preLine = 0;
+	m_preFileName = "";
+	m_preFuncName = "";
+	if (8 < dataInf->m_infsNum) m_preLine = atoi(dataInf->m_infs[8]);
+	if (9 < dataInf->m_infsNum) m_preFileName = dataInf->m_infs[9];
+	if (10 < dataInf->m_infsNum) m_preFuncName = dataInf->m_infs[10];
 }
 
 void CTraceHandle::createCandy(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf)
