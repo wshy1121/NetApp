@@ -58,7 +58,12 @@ void CTraceHandle::createCandy(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf)
 	TraceFileInf *traceFileInf = pCalcInf->m_clientInf.get()->m_traceFileInf;
 	traceFileInf->m_candyCount++;
 	traceFileInf->m_lastCandy = m_funcName;
-	CTimeCalc::createCTimeCalc(m_line, m_fileName, m_funcName, m_displayLevel, *m_pTraceInfoId);
+
+	int line[2] = {m_line, m_preLine};
+	char *fileName[2] = {m_fileName, m_preFileName};
+	char *funcName[2] = {m_funcName, m_preFuncName};
+	
+	CTimeCalc::createCTimeCalc(line, fileName, funcName, m_displayLevel, *m_pTraceInfoId);
 	return ;
 }
 
