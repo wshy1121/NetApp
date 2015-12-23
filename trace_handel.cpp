@@ -80,6 +80,11 @@ void CTraceHandle::destroyCandy(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf)
 	}
 	
 	CTimeCalc *pTimeCalc = CTimeCalcContain(TraceInfo->pCalcList->back());
+	if (strcmp(pTimeCalc->m_FuncName, m_funcName) || strcmp(pTimeCalc->m_FileName, m_fileName))
+	{
+		CTimeCalcManager::instance()->InsertTrace(m_line, m_fileName, *m_pTraceInfoId, "lost trace_exit");
+		return ;
+	}
 	CTimeCalc::destroyCTimeCalc(pTimeCalc);
 	return ;
 }
