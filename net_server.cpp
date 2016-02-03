@@ -285,7 +285,18 @@ void CNetServer::dealRecvData(TimeCalcInf *pCalcInf)
 	char *packet = pCalcInf->m_pContent;
 	int &packetLen = pCalcInf->m_contentLen;
 
+	char sendData[16];
+	int sendDataLen = 0;
+	unsigned int strLenNum = packetLen + 12;
+	
+	memcpy(sendData+sendDataLen, (char *)"\x7B\x7B\x7B\x7B", 4);
+	sendDataLen += 4;
+	memcpy(sendData+sendDataLen, &strLenNum, sizeof(int));
+	sendDataLen += sizeof(int);
+
+	m_dataWorkManager->send(socket, sendData, sendDataLen);
 	m_dataWorkManager->send(socket, packet, packetLen);
+	m_dataWorkManager->send(socket, (char *)"\x7D\x7D\x7D\x7D", 4);
 	return ;
 }
 

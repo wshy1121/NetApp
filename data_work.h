@@ -42,7 +42,8 @@ public:
 	void openFile(ClientConn clientConn, char *fileName);
 	void closeFile(ClientConn clientConn);
 private:
-	CDataWorkManager();	
+	CDataWorkManager();
+	~CDataWorkManager();
 	void threadProc();
 	static void* threadFunc(void *pArg);
 	void dealWorkData(WORK_DATA *pWorkData);	
@@ -53,6 +54,13 @@ private:
 	base::CList *m_workList;
 	base::CPthreadMutex m_workListMutex;
 	base::pthread_t m_threadId;
+
+	unsigned int m_headCount;
+	unsigned int m_tailCount;	
+	unsigned int m_packetPos;
+	char *m_packetBuffer;
+	unsigned int m_curPacketSize;
+	const unsigned int m_maxBufferSize;
 };
 
 

@@ -69,8 +69,19 @@ bool CNetClient::disConnect()
 }
 int CNetClient::dealPacket(char *packet, int packetLen, CLogDataInf &dataInf)
 {
-	CGuardMutex guardMutex(socketMutex);
+	char sendData[16];
+	int sendDataLen = 0;
+	int strLenNum = packetLen + 12;
+
+	memcpy(sendData+sendDataLen, (char *)"\x7B\x7B\x7B\x7B", 4);
+	sendDataLen += 4;
+	memcpy(sendData+sendDataLen, &strLenNum, sizeof(int));
+	sendDataLen += sizeof(int);
+
+	CGuardMutex guardMutex(socketMutex);	
+	send(sendData, sendDataLen);
 	send(packet, packetLen);
+	send((char *)"\x7D\x7D\x7D\x7D", 4);
 	receiveInfData(&dataInf);	
 	return 0;
 }

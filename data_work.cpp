@@ -11,11 +11,24 @@
 using namespace base;
 const char *dataFormat = "{\"opr\" : \"%s\", \"threadId\" : %d, \"line\" : %d, \"fileName\" : \"%s\", \"funcName\" : \"%s\", \"displayLevel\" : %d, \"content\" : \"%s\"}";
 
-CDataWorkManager::CDataWorkManager():m_errNo(e_noErr)
+CDataWorkManager::CDataWorkManager()
+:m_errNo(e_noErr)
+,m_headCount(0)
+,m_tailCount(0)
+,m_packetPos(0)
+,m_curPacketSize(0)
+,m_maxBufferSize(1024*1024)
+
 {
 	m_workList = CList::createCList();
+	m_packetBuffer = new char[m_maxBufferSize];
 }
 
+CDataWorkManager::~CDataWorkManager()
+{
+	delete m_packetBuffer;
+	CList::destroyClist(m_workList);
+}
 
 CDataWorkManager *CDataWorkManager::create()
 {
@@ -106,30 +119,77 @@ void CDataWorkManager::pushWorkData(WORK_DATA *pWorkData)
 
 
 bool CDataWorkManager::receiveInfData(int socket, CLogDataInf *pDataInf, char **pPacket)
-{	trace_worker();
-	const int ClenSize = 4;
-	char CLen[ClenSize];
-	if (receive(socket, CLen, ClenSize) < 0)
-	{
-		return false;
-	}
-	int iLen = 0;		
-	pDataInf->C2ILen(CLen,ClenSize,iLen);
+{ 
 
-	char *packet = (char *)::malloc(iLen);
-	memcpy(packet, CLen, ClenSize);
-	if (receive(socket, packet+ClenSize, iLen-ClenSize) < 0)
+	int nRecv = 0;
+	char charData;
+	while (1)
 	{
-		return false;
+		nRecv = ::recv(socket, &charData, 1, 0);
+		if (nRecv <= 0)
+		{
+			setErrNo(nRecv);	
+			return false;
+		}
+		if (m_curPacketSize == 0 && m_packetPos > 8)
+		{
+			memcpy(&m_curPacketSize, m_packetBuffer+4, 4);
+		}
+		
+		if (m_curPacketSize > 0)
+		{
+			if (m_curPacketSize > m_maxBufferSize || m_packetPos > m_curPacketSize)
+			{
+				m_headCount = 0;
+				m_tailCount = 0;
+				m_packetPos = 0;
+			}
+		}
+		
+		switch (charData)
+		{
+			case '\x7B':
+				++m_headCount;
+				m_packetBuffer[m_packetPos++] = charData;
+				break;
+			case '\x7D':
+				++m_tailCount;
+				m_packetBuffer[m_packetPos++] = charData;
+				if (m_tailCount >= 4)
+				{
+ 					if (m_curPacketSize == m_packetPos)
+					{
+						char *packet = (char *)::malloc(m_packetPos);
+						memcpy(packet, m_packetBuffer + 8, m_packetPos - 12);
+						*pPacket = packet;
+						
+						m_headCount = 0;
+						m_tailCount = 0;
+						m_packetPos = 0;
+						m_curPacketSize = 0;
+						return true;
+					}
+				}
+				break;
+			default:
+				if (m_headCount < 4)
+				{
+					m_headCount = 0;
+					m_tailCount = 0;
+					m_packetPos = 0;
+					m_curPacketSize = 0;
+				}				
+				m_packetBuffer[m_packetPos++] = charData;
+				break;
+		}
 	}
-	*pPacket = packet;
 
 	return true;
 }
 
 
 int CDataWorkManager::receive(int fd,char *szText,int iLen)
-{	trace_worker();
+{
 	int recvBufLen = 0;
 	int totalRecvLen = 0;
 	while (1)
@@ -148,7 +208,6 @@ int CDataWorkManager::receive(int fd,char *szText,int iLen)
 			}				
 			return -1;
 		}
-		trace_str(szText+totalRecvLen, recvBufLen);
 		totalRecvLen += recvBufLen;
 		if (totalRecvLen == iLen)
 		{
@@ -237,7 +296,7 @@ node *CDataWorkManager::dealErrNo(ClientConn *pClientConnRead, node *pNode)
 }
 
 node *CDataWorkManager::dealDisConnect(ClientConn *pClientConnRead, node *pNode)
-{	trace_worker();
+{
 	CClientInf *clientInf = pClientConnRead->clientInf.get();
 	CUserManager::instance()->logout(clientInf);
 
