@@ -122,9 +122,10 @@ bool CDataWorkManager::receiveInfData(int socket, CLogDataInf *pDataInf, char **
 { 
 
 	int nRecv = 0;
-	char charData;
+	
 	while (1)
 	{
+		char &charData = m_packetBuffer[m_packetPos];
 		nRecv = ::recv(socket, &charData, 1, 0);
 		if (nRecv <= 0)
 		{
@@ -150,11 +151,11 @@ bool CDataWorkManager::receiveInfData(int socket, CLogDataInf *pDataInf, char **
 		{
 			case '\x7B':
 				++m_headCount;
-				m_packetBuffer[m_packetPos++] = charData;
+				++m_packetPos;
 				break;
 			case '\x7D':
 				++m_tailCount;
-				m_packetBuffer[m_packetPos++] = charData;
+				++m_packetPos;
 				if (m_tailCount >= 4)
 				{
  					if (m_curPacketSize == m_packetPos)
@@ -179,7 +180,7 @@ bool CDataWorkManager::receiveInfData(int socket, CLogDataInf *pDataInf, char **
 					m_packetPos = 0;
 					m_curPacketSize = 0;
 				}				
-				m_packetBuffer[m_packetPos++] = charData;
+				++m_packetPos;
 				break;
 		}
 	}
