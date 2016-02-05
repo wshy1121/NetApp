@@ -1,6 +1,5 @@
 #ifndef __NET_SERVER_H
 #define __NET_SERVER_H
-#include "thread_base.h"
 #include "link_tool.h"
 #include "defs.h"
 #include <bitset>
@@ -41,8 +40,8 @@ private:
 private:
 	CDataWorkManager *m_dataWorkManager;
 	int SERVER_PORT;
-	base::pthread_t m_hListenThread;
-	base::pthread_t m_sendThread;
+	CBase::pthread_t m_hListenThread;
+	CBase::pthread_t m_sendThread;
 
 	
 	static  CNetServer* _instance;

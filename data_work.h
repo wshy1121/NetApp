@@ -2,7 +2,6 @@
 #define __DATA_WORK_H
 
 #include "link_tool.h"
-#include "thread_base.h"
 #include "time_calc.h"
 #include "net_server.h"
 
@@ -53,7 +52,7 @@ private:
 	ErrNo m_errNo;	
 	base::CList *m_workList;
 	base::CPthreadMutex m_workListMutex;
-	base::pthread_t m_threadId;
+	CBase::pthread_t m_threadId;
 
 	unsigned int m_headCount;
 	unsigned int m_tailCount;	

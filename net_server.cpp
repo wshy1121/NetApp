@@ -89,8 +89,8 @@ bool CNetServer::startServer()
 	}
 	m_nfds = m_sockLister;
 
-	base::pthread_create(&m_hListenThread, NULL,listenThread,NULL);
-	base::pthread_create(&m_sendThread, NULL,sendThreadProc,NULL);
+	CBase::pthread_create(&m_hListenThread, NULL,listenThread,NULL);
+	CBase::pthread_create(&m_sendThread, NULL,sendThreadProc,NULL);
 	
 	printf("server is start!\n");
 	return true;
