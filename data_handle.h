@@ -4,7 +4,7 @@
 #include "mem_calc.h"
 #include "link_tool.h"
 #include "user_manager.h"
-
+#include "trace_packet.h"
 
 typedef struct TimeCalcInf
 {

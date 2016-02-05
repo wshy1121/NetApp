@@ -1,10 +1,11 @@
 #ifndef __NET_CLIENT_H
 #define __NET_CLIENT_H
+#include <string>
 #include "defs.h"
 #include "link_tool.h"
 #include "user_manager.h"
 #include "trace_handel.h"
-#include <string>
+#include "trace_packet.h"
 
 class CNetClient
 {
