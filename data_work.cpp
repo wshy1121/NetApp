@@ -141,20 +141,27 @@ bool CDataWorkManager::receiveInfData(int socket, CLogDataInf *pDataInf, char **
 		{
 			if (m_curPacketSize > m_maxBufferSize || m_packetPos > m_curPacketSize)
 			{
-				m_headCount = 0;
-				m_tailCount = 0;
-				m_packetPos = 0;
+				initPacketInf();
 			}
 		}
 		
 		switch (charData)
 		{
 			case '\x7B':
+                m_tailCount = 0;
 				++m_headCount;
 				++m_packetPos;
 				break;
 			case '\x7D':
-				++m_tailCount;
+                if (m_headCount < 4)
+				{
+					initPacketInf();
+				}
+				else
+                {
+                    ++m_tailCount;
+                }
+                
 				++m_packetPos;
 				if (m_tailCount >= 4)
 				{
@@ -164,21 +171,16 @@ bool CDataWorkManager::receiveInfData(int socket, CLogDataInf *pDataInf, char **
 						memcpy(packet, m_packetBuffer + 8, m_packetPos - 12);
 						*pPacket = packet;
 						
-						m_headCount = 0;
-						m_tailCount = 0;
-						m_packetPos = 0;
-						m_curPacketSize = 0;
+						initPacketInf();
 						return true;
 					}
 				}
 				break;
 			default:
+                m_tailCount = 0;
 				if (m_headCount < 4)
 				{
-					m_headCount = 0;
-					m_tailCount = 0;
-					m_packetPos = 0;
-					m_curPacketSize = 0;
+					initPacketInf();
 				}				
 				++m_packetPos;
 				break;
@@ -188,6 +190,13 @@ bool CDataWorkManager::receiveInfData(int socket, CLogDataInf *pDataInf, char **
 	return true;
 }
 
+void CDataWorkManager::initPacketInf()
+{
+    m_headCount = 0;
+    m_tailCount = 0;
+    m_packetPos = 0;
+    m_curPacketSize = 0;
+}
 
 int CDataWorkManager::receive(int fd,char *szText,int iLen)
 {

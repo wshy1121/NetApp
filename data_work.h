@@ -48,6 +48,7 @@ private:
 	void dealWorkData(WORK_DATA *pWorkData);	
 	void setErrNo(int recvNum);	
 	void dealException(ClientConn clientConn);
+	inline void initPacketInf();
 private:
 	ErrNo m_errNo;	
 	base::CList *m_workList;
