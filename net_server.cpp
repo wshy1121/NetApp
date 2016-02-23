@@ -148,7 +148,8 @@ void *CNetServer::_listenThread(void *arg)
 				RECV_DATA *pRecvData = IDealDataHandle::createRecvData();
 				std::shared_ptr<CLogDataInf> &dataInf = pRecvData->calcInf.m_dataInf;
 				char *&packet =  pRecvData->calcInf.m_packet;
-				bool bRet = m_dataWorkManager->receiveInfData(pClientConnRead->socket, dataInf.get(), &packet);
+                CParsePacket &parsePacket = pClientConnRead->clientInf->m_parsePacket;
+				bool bRet = m_dataWorkManager->receiveInfData(pClientConnRead->socket, parsePacket, &packet);
 				
 				if(bRet)
 				{

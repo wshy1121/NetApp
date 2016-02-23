@@ -94,7 +94,8 @@ int CNetClient::send(char *szText,int len)
 bool CNetClient::receiveInfData(CLogDataInf *pDataInf)
 {
 	char *packet = NULL;
-	bool bRet = m_dataWorkManager->receiveInfData(m_socketClient, pDataInf, &packet);
+    CParsePacket parsePacket;
+	bool bRet = m_dataWorkManager->receiveInfData(m_socketClient, parsePacket, &packet);
 	pDataInf->unPacket(packet);
 	return bRet;
 }
