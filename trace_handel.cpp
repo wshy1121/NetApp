@@ -53,9 +53,14 @@ void CTraceHandle::parseData(TimeCalcInf *pCalcInf)
 
 void CTraceHandle::createCandy(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf)
 {	trace_worker();
-	
-	parseData(pCalcInf);
 	TraceFileInf *traceFileInf = pCalcInf->m_clientInf.get()->m_traceFileInf;
+    if (traceFileInf == NULL)
+    {
+        return ;
+    }
+    
+	parseData(pCalcInf);
+	
 	traceFileInf->m_candyCount++;
 	traceFileInf->m_lastCandy = m_funcName;
 
@@ -91,9 +96,13 @@ void CTraceHandle::destroyCandy(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf)
 
 void CTraceHandle::insertTrace(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf)
 {	trace_worker();
+	TraceFileInf *traceFileInf = pCalcInf->m_clientInf.get()->m_traceFileInf;
+    if (traceFileInf == NULL)
+    {
+        return ;
+    }
 
 	parseData(pCalcInf);
-	TraceFileInf *traceFileInf = pCalcInf->m_clientInf.get()->m_traceFileInf;
 	traceFileInf->m_traceCount++;
 	CTimeCalcManager::instance()->InsertTrace(m_line, m_fileName, *m_pTraceInfoId, m_content);
 }
@@ -159,6 +168,7 @@ void CTraceHandle::closeFile(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf)
 	CClientInf *clientInf = pCalcInf->m_clientInf.get();
 	clientInf->m_fileName = "";
 	CLogOprManager::instance()->closeFile(m_pTraceInfoId->clientId);
+    clientInf->m_traceFileInf = NULL;
 }
 
 void CTraceHandle::cleanFile(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf)
