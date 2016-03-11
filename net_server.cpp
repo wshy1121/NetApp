@@ -174,7 +174,7 @@ void *CNetServer::_listenThread(void *arg)
 			{
 				m_nfds = socket;
 			}
-			ClientConn *pClientConn = dealConnect(socket);
+			ClientConn *pClientConn = dealConnect(socket, clientAddr);
 			m_dataWorkManager->openFile(*pClientConn, (char *)"Debug.cpp");
 		}
 
@@ -201,17 +201,23 @@ node *CNetServer::dealDisconnect(ClientConn *pClientConnRead)
 	return pNode;
 }
 
-ClientConn *CNetServer::dealConnect(int socket)
+ClientConn *CNetServer::dealConnect(int socket, sockaddr_in &clientAddr)
 {	trace_worker();
+    char *ipAddr = NULL;
+    int port = 0;            
+    ipAddr = inet_ntoa(clientAddr.sin_addr);
+    port = ntohs(clientAddr.sin_port);
+
 	ClientConn *pClientConn = new ClientConn;
 	std::shared_ptr<CClientInf> ptr(new CClientInf());	
 	CClientInf *clientInf = ptr.get();
 	pClientConn->clientInf = ptr;
-
 	
 	clientInf->m_socket = pClientConn->socket = socket;
 	clientInf->m_clientId = pClientConn->clientId = creatClientId();
-
+    clientInf->m_clientIpAddr = ipAddr;
+    clientInf->m_clientPort = port;
+    
 	setNoBlock(clientInf->m_socket);
 	m_listClientRead->push_back(&pClientConn->node);
 

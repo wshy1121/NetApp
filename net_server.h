@@ -32,7 +32,7 @@ private:
 private:
 	CNetServer();
 	void *_listenThread(void *arg);
-	ClientConn *dealConnect(int socket);
+	ClientConn *dealConnect(int socket, sockaddr_in &clientAddr);
 	int creatClientId();
 	void *_sendThreadProc(void *arg);
 	void dealRecvData(TimeCalcInf *pCalcInf);

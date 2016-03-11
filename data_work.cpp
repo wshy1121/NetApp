@@ -26,7 +26,7 @@ CDataWorkManager::CDataWorkManager()
 
 CDataWorkManager::~CDataWorkManager()
 {
-	delete m_packetBuffer;
+	delete []m_packetBuffer;
 	CList::destroyClist(m_workList);
 }
 

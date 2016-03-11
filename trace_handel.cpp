@@ -158,7 +158,8 @@ void CTraceHandle::openFile(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf)
 
 	CClientInf *clientInf = pCalcInf->m_clientInf.get();
 	clientInf->m_fileName = m_content;
-	clientInf->m_traceFileInf = CLogOprManager::instance()->openFile(m_pTraceInfoId->clientId, (char *)m_content);
+	clientInf->m_traceFileInf = CLogOprManager::instance()->openFile(m_pTraceInfoId->clientId, (char *)m_content, clientInf->m_clientIpAddr);
+    printf("clientInf->m_clientIpAddr.c_str()  %s\n", clientInf->m_clientIpAddr.c_str());
 }
 void CTraceHandle::closeFile(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf)
 {	trace_worker();
