@@ -118,7 +118,7 @@ void CDataWorkManager::pushWorkData(WORK_DATA *pWorkData)
 }
 
 
-bool CDataWorkManager::receiveInfData(int socket, CParsePacket &parsePacket, char **pPacket)
+bool CDataWorkManager::receiveInfData(int socket, IParsePacket &parsePacket, char **pPacket)
 { 
 
 	int nRecv = 0;

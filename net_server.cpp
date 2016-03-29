@@ -17,9 +17,8 @@ using namespace base;
 
 extern CPthreadMutex g_insMutexCalc;
 extern char *dataFormat;
-CNetServer* CNetServer::_instance = NULL;
 
-CNetServer::CNetServer():SERVER_PORT(-1), m_sockLister(INVALID_SOCKET), m_nfds(0)
+INetServer::INetServer():SERVER_PORT(-1), m_sockLister(INVALID_SOCKET), m_nfds(0)
 {
 	new CVerifyHandle;
 	new CTraceHandle;
@@ -36,24 +35,13 @@ CNetServer::CNetServer():SERVER_PORT(-1), m_sockLister(INVALID_SOCKET), m_nfds(0
 	return ;
 }
 
-CNetServer* CNetServer::instance() 
-{	
-	if (NULL == _instance)
-	{
-		CGuardMutex guardMutex(g_insMutexCalc);
-		if (NULL == _instance)
-		{
-#ifdef WIN32	
-			WSADATA wsa={0};
-			WSAStartup(MAKEWORD(2,2),&wsa);
-#endif
-			_instance = new CNetServer;
-		}
-	}
-	return _instance;
+INetServer::~INetServer()
+{
 }
 
-bool CNetServer::startServer()
+
+
+bool INetServer::startServer()
 {
 	if(INVALID_SOCKET != m_sockLister)
 	{
@@ -89,27 +77,21 @@ bool CNetServer::startServer()
 	}
 	m_nfds = m_sockLister;
 
-	CBase::pthread_create(&m_hListenThread, NULL,listenThread,NULL);
-	CBase::pthread_create(&m_sendThread, NULL,sendThreadProc,NULL);
+    m_hListenThread = WorkThread(new boost::thread(boost::bind(&INetServer::listenThread,this)));
+	m_sendThread = WorkThread(new boost::thread(boost::bind(&INetServer::sendThreadProc,this)));
 	
 	printf("server is start!\n");
 	return true;
 }
 
 
-void *CNetServer::listenThread(void *arg)
-{
-	return CNetServer::instance()->_listenThread(arg);
-}
-
-
-void *CNetServer::_listenThread(void *arg)
+void INetServer::listenThread()
 {
 	int backlog = 50;
 	int ret = listen(m_sockLister, backlog);
 	if (ret == SOCKET_ERROR)
 	{
-		return NULL;
+		return ;
 	}
 	fd_set fd_read, fd_write;
 	sockaddr_in clientAddr;
@@ -148,7 +130,7 @@ void *CNetServer::_listenThread(void *arg)
 				RECV_DATA *pRecvData = IDealDataHandle::createRecvData();
 				std::shared_ptr<CLogDataInf> &dataInf = pRecvData->calcInf.m_dataInf;
 				char *&packet =  pRecvData->calcInf.m_packet;
-                CParsePacket &parsePacket = pClientConnRead->clientInf->m_parsePacket;
+                IParsePacket &parsePacket = pClientConnRead->clientInf->m_parsePacket;
 				bool bRet = m_dataWorkManager->receiveInfData(pClientConnRead->socket, parsePacket, &packet);
 				
 				if(bRet)
@@ -179,14 +161,14 @@ void *CNetServer::_listenThread(void *arg)
 		}
 
 	}
-	return NULL;
+	return ;
 }
 
 
 
 
 
-node *CNetServer::dealDisconnect(ClientConn *pClientConnRead)
+node *INetServer::dealDisconnect(ClientConn *pClientConnRead)
 {	trace_worker();
 	CUserManager::instance()->removeClient(pClientConnRead->clientId);
 	node *pNode = &pClientConnRead->node;
@@ -201,7 +183,7 @@ node *CNetServer::dealDisconnect(ClientConn *pClientConnRead)
 	return pNode;
 }
 
-ClientConn *CNetServer::dealConnect(int socket, sockaddr_in &clientAddr)
+ClientConn *INetServer::dealConnect(int socket, sockaddr_in &clientAddr)
 {	trace_worker();
     char *ipAddr = NULL;
     int port = 0;            
@@ -225,7 +207,7 @@ ClientConn *CNetServer::dealConnect(int socket, sockaddr_in &clientAddr)
 	return pClientConn;
 }
 
-int CNetServer::creatClientId()
+int INetServer::creatClientId()
 {
 	if (m_newId < INT_MAX)
 	{
@@ -238,7 +220,7 @@ int CNetServer::creatClientId()
 	}
 }
 
-void CNetServer::pushRecvData(RECV_DATA *pRecvData)
+void INetServer::pushRecvData(RECV_DATA *pRecvData)
 {
 	if (pRecvData == NULL)
 	{
@@ -251,12 +233,7 @@ void CNetServer::pushRecvData(RECV_DATA *pRecvData)
 	return ;
 }
 
-void *CNetServer::sendThreadProc(void *arg)
-{
-	return CNetServer::instance()->_sendThreadProc(arg);
-}
-
-void *CNetServer::_sendThreadProc(void *arg)
+void INetServer::sendThreadProc()
 {
 	while(1)
 	{
@@ -276,10 +253,10 @@ void *CNetServer::_sendThreadProc(void *arg)
 		IDealDataHandle::destroyRecvData(pRecvData);
 	}
 
-	return NULL;
+	return ;
 }
 
-void CNetServer::dealRecvData(TimeCalcInf *pCalcInf)
+void INetServer::dealRecvData(TimeCalcInf *pCalcInf)
 {
 	int &socket = pCalcInf->m_traceInfoId.socket;
 	CClientInf *clientInf = pCalcInf->m_clientInf.get();
@@ -308,7 +285,7 @@ void CNetServer::dealRecvData(TimeCalcInf *pCalcInf)
 }
 
 
-void CNetServer::setNoBlock(int socket)
+void INetServer::setNoBlock(int socket)
 {
 #ifdef WIN32
 	unsigned long ul = 1;
@@ -333,6 +310,25 @@ void CNetServer::setNoBlock(int socket)
 		return;
 	}
 #endif
+}
+
+CNetServer* CNetServer::_instance = NULL;
+
+CNetServer* CNetServer::instance() 
+{	
+	if (NULL == _instance)
+	{
+		CGuardMutex guardMutex(g_insMutexCalc);
+		if (NULL == _instance)
+		{
+#ifdef WIN32	
+			WSADATA wsa={0};
+			WSAStartup(MAKEWORD(2,2),&wsa);
+#endif
+			_instance = new CNetServer;
+		}
+	}
+	return _instance;
 }
 
 

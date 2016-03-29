@@ -4,6 +4,10 @@
 #include "defs.h"
 #include <bitset>
 #include <memory>
+#include <boost/shared_ptr.hpp>
+#include <boost/thread/mutex.hpp>
+#include <boost/thread/thread.hpp>
+
 #include "link_tool.h"
 #include "data_handle.h"
 #include "user_manager.h"
@@ -18,33 +22,30 @@ typedef struct ClientConn
 #define clientConnContain(ptr)  container_of(ptr, ClientConn, node)
 
 
-class CNetServer
+class INetServer
 {
 public:
-	static CNetServer* instance();
-public:
+    typedef boost::shared_ptr<boost::thread> WorkThread;    
+	INetServer();
+    virtual ~INetServer();
 	bool startServer();
 	void pushRecvData(RECV_DATA *pRecvData);	
 	node *dealDisconnect(ClientConn *pClientConnRead);
 private:
-	static void *listenThread(void *arg);
-	static void *sendThreadProc(void *arg);
+	void listenThread();
+	void sendThreadProc();
 private:
-	CNetServer();
-	void *_listenThread(void *arg);
 	ClientConn *dealConnect(int socket, sockaddr_in &clientAddr);
 	int creatClientId();
-	void *_sendThreadProc(void *arg);
 	void dealRecvData(TimeCalcInf *pCalcInf);
 	void setNoBlock(int socket);
-private:
+protected:
 	CDataWorkManager *m_dataWorkManager;
 	int SERVER_PORT;
-	CBase::pthread_t m_hListenThread;
-	CBase::pthread_t m_sendThread;
+	WorkThread  m_hListenThread;
+	WorkThread m_sendThread;
 
 	
-	static  CNetServer* _instance;
 	int m_sockLister;
 
 	base::CList *m_listClientRead;
@@ -54,5 +55,13 @@ private:
 	int m_nfds;
 };
 
+class CNetServer : public INetServer
+{
+public:
+    static CNetServer* instance();
+private:
+	static  CNetServer* _instance;
+
+};
 #endif //_CHAT_ROOT_SERVER_
 

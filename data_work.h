@@ -35,7 +35,7 @@ public:
 	void dealitemData(ClientConn *pClientConn, RECV_DATA *pRecvData);	
 	node *dealErrNo(ClientConn *pClientConnRead, node *pNode);
 	node *dealDisConnect(ClientConn *pClientConnRead, node *pNode);
-	bool receiveInfData(int socket, CParsePacket &parsePacket, char **pPacket);	
+	bool receiveInfData(int socket, IParsePacket &parsePacket, char **pPacket);	
 	int receive(int fd,char *szText,int len);
 	int send(int fd,char *szText,int len);	
 	void openFile(ClientConn clientConn, char *fileName);
