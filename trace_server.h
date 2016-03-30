@@ -3,21 +3,21 @@
 #include "net_server.h"
 #include "data_work.h"
 
-class CNetServer : public INetServer
+class CTraceServer : public INetServer
 {
 public:
-    static CNetServer* instance();
+    static CTraceServer* instance();
 private:    
-    CNetServer();
+    CTraceServer();
 private:
-	static  CNetServer* _instance;
+	static  CTraceServer* _instance;
 
 };
 
-class CDataWorkManager : public IDataWorkManager
+class CTraceManager : public IDataWorkManager
 {
 public:
-    CDataWorkManager(CNetServer* const netServer = NULL);
+    CTraceManager(CTraceServer* const netServer = NULL);
 };
 
 

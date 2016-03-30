@@ -6,6 +6,7 @@
 #include "user_manager.h"
 #include "trace_handel.h"
 #include "trace_packet.h"
+#include "trace_server.h"
 
 class CNetClient
 {
@@ -30,7 +31,7 @@ private:
 	bool receiveInfData(CLogDataInf *pDataInf);
 private:	
 	static  CNetClient* _instance;
-	CDataWorkManager *m_dataWorkManager;
+	CTraceManager *m_dataWorkManager;
 	base::CPthreadMutex socketMutex;
 	const int m_maxSessionId;
 	int m_sessionId;

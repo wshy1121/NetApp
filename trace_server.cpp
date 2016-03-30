@@ -7,9 +7,9 @@
 
 static boost::mutex g_insMutex;
 
-CNetServer* CNetServer::_instance = NULL;
+CTraceServer* CTraceServer::_instance = NULL;
 
-CNetServer* CNetServer::instance() 
+CTraceServer* CTraceServer::instance() 
 {
 	if (NULL == _instance)
 	{
@@ -20,13 +20,13 @@ CNetServer* CNetServer::instance()
 			WSADATA wsa={0};
 			WSAStartup(MAKEWORD(2,2),&wsa);
 #endif
-			_instance = new CNetServer;
+			_instance = new CTraceServer;
 		}
 	}
 	return _instance;
 }
 
-CNetServer::CNetServer()
+CTraceServer::CTraceServer()
 {
 	new CVerifyHandle;
 	new CTraceHandle;
@@ -36,11 +36,11 @@ CNetServer::CNetServer()
 	ini.LoadFile("Config.ini");
     
 	SERVER_PORT = (int)ini.GetLongValue("NetConfig", "NetSerPort");
-	m_dataWorkManager = new CDataWorkManager(this);
+	m_dataWorkManager = new CTraceManager(this);
     return ;
 }
 
-CDataWorkManager::CDataWorkManager(CNetServer* const netServer)
+CTraceManager::CTraceManager(CTraceServer* const netServer)
 {
     m_netServer = netServer;
 }
