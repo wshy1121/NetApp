@@ -16,7 +16,7 @@ typedef struct WORK_DATA
 #define workDataContain(ptr)  container_of(ptr, WORK_DATA, node)
 
 
-class CDataWorkManager
+class IDataWorkManager
 {
 public:	
 	typedef enum
@@ -27,8 +27,9 @@ public:
 		e_rst,			// 对方发送了RST
 		e_intr,			// 被信号中断
 	}ErrNo;
-	static CDataWorkManager *create();
-public:
+public:    
+	IDataWorkManager();
+	virtual ~IDataWorkManager();
 	WORK_DATA *createWorkData(int contentLen);
 	void destroyWorkData(WORK_DATA *pWorkData);
 	void pushWorkData(WORK_DATA *pWorkData);	
@@ -41,8 +42,6 @@ public:
 	void openFile(ClientConn clientConn, char *fileName);
 	void closeFile(ClientConn clientConn);
 private:
-	CDataWorkManager();
-	~CDataWorkManager();
 	void threadProc();
 	static void* threadFunc(void *pArg);
 	void dealWorkData(WORK_DATA *pWorkData);	
@@ -62,6 +61,11 @@ private:
 	const unsigned int m_maxBufferSize;
 };
 
+class CDataWorkManager : public IDataWorkManager
+{
+public:
+    static CDataWorkManager *create();
+};
 
 #endif
 

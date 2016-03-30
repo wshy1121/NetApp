@@ -59,6 +59,8 @@ class CNetServer : public INetServer
 {
 public:
     static CNetServer* instance();
+private:    
+    CNetServer();
 private:
 	static  CNetServer* _instance;
 

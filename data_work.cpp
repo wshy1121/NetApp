@@ -11,7 +11,7 @@
 using namespace base;
 const char *dataFormat = "{\"opr\" : \"%s\", \"threadId\" : %d, \"line\" : %d, \"fileName\" : \"%s\", \"funcName\" : \"%s\", \"displayLevel\" : %d, \"content\" : \"%s\"}";
 
-CDataWorkManager::CDataWorkManager()
+IDataWorkManager::IDataWorkManager()
 :m_errNo(e_noErr)
 ,m_headCount(0)
 ,m_tailCount(0)
@@ -24,18 +24,13 @@ CDataWorkManager::CDataWorkManager()
 	m_packetBuffer = new char[m_maxBufferSize];
 }
 
-CDataWorkManager::~CDataWorkManager()
+IDataWorkManager::~IDataWorkManager()
 {
 	delete []m_packetBuffer;
 	CList::destroyClist(m_workList);
 }
 
-CDataWorkManager *CDataWorkManager::create()
-{
-	return new CDataWorkManager;
-}
-
-WORK_DATA *CDataWorkManager::createWorkData(int contentLen)
+WORK_DATA *IDataWorkManager::createWorkData(int contentLen)
 {
 	WORK_DATA *pWorkData = (WORK_DATA *)base::malloc(sizeof(WORK_DATA));
 	pWorkData->m_pContent = NULL;
@@ -50,7 +45,7 @@ WORK_DATA *CDataWorkManager::createWorkData(int contentLen)
 	return pWorkData;
 }
 
-void CDataWorkManager::destroyWorkData(WORK_DATA *pWorkData)
+void IDataWorkManager::destroyWorkData(WORK_DATA *pWorkData)
 {
 	char *pContent = pWorkData->m_pContent;
 	int contentLen = pWorkData->m_contentLen;
@@ -63,7 +58,7 @@ void CDataWorkManager::destroyWorkData(WORK_DATA *pWorkData)
 }
 
 
-void CDataWorkManager::threadProc()
+void IDataWorkManager::threadProc()
 {	
 	while(1)
 	{
@@ -83,7 +78,7 @@ void CDataWorkManager::threadProc()
 	}
 }
 
-void CDataWorkManager::dealitemData(ClientConn *pClientConn, RECV_DATA *pRecvData)
+void IDataWorkManager::dealitemData(ClientConn *pClientConn, RECV_DATA *pRecvData)
 {
 	TimeCalcInf *pCalcInf = &pRecvData->calcInf;
 
@@ -94,18 +89,18 @@ void CDataWorkManager::dealitemData(ClientConn *pClientConn, RECV_DATA *pRecvDat
 	CTimeCalcInfManager::instance()->pushRecvData(pRecvData);
 }
 
-void CDataWorkManager::dealWorkData(WORK_DATA *pWorkData)
+void IDataWorkManager::dealWorkData(WORK_DATA *pWorkData)
 {
 
 }
-void* CDataWorkManager::threadFunc(void *pArg)
+void* IDataWorkManager::threadFunc(void *pArg)
 {
-	//CDataWorkManager::instance()->threadProc();
+	//IDataWorkManager::instance()->threadProc();
 	return NULL;
 }
 
 
-void CDataWorkManager::pushWorkData(WORK_DATA *pWorkData)
+void IDataWorkManager::pushWorkData(WORK_DATA *pWorkData)
 {
 	if (pWorkData == NULL)
 	{
@@ -118,7 +113,7 @@ void CDataWorkManager::pushWorkData(WORK_DATA *pWorkData)
 }
 
 
-bool CDataWorkManager::receiveInfData(int socket, IParsePacket &parsePacket, char **pPacket)
+bool IDataWorkManager::receiveInfData(int socket, IParsePacket &parsePacket, char **pPacket)
 { 
 
 	int nRecv = 0;
@@ -142,7 +137,7 @@ bool CDataWorkManager::receiveInfData(int socket, IParsePacket &parsePacket, cha
 	return true;
 }
 
-int CDataWorkManager::receive(int fd,char *szText,int iLen)
+int IDataWorkManager::receive(int fd,char *szText,int iLen)
 {
 	int recvBufLen = 0;
 	int totalRecvLen = 0;
@@ -171,7 +166,7 @@ int CDataWorkManager::receive(int fd,char *szText,int iLen)
 	return iLen;
 }
 
-int CDataWorkManager::send(int fd,char *szText,int len)
+int IDataWorkManager::send(int fd,char *szText,int len)
 {
 	int cnt;
 	int rc;
@@ -194,7 +189,7 @@ int CDataWorkManager::send(int fd,char *szText,int len)
 }
 
 
-void CDataWorkManager::setErrNo(int recvNum)
+void IDataWorkManager::setErrNo(int recvNum)
 {
 	int errNo = 0;
 #ifdef WIN32
@@ -233,7 +228,7 @@ void CDataWorkManager::setErrNo(int recvNum)
 
 
 
-node *CDataWorkManager::dealErrNo(ClientConn *pClientConnRead, node *pNode)
+node *IDataWorkManager::dealErrNo(ClientConn *pClientConnRead, node *pNode)
 {
 	switch (m_errNo)
 	{
@@ -249,7 +244,7 @@ node *CDataWorkManager::dealErrNo(ClientConn *pClientConnRead, node *pNode)
 	return pNode;
 }
 
-node *CDataWorkManager::dealDisConnect(ClientConn *pClientConnRead, node *pNode)
+node *IDataWorkManager::dealDisConnect(ClientConn *pClientConnRead, node *pNode)
 {
 	CClientInf *clientInf = pClientConnRead->clientInf.get();
 	CUserManager::instance()->logout(clientInf);
@@ -261,7 +256,7 @@ node *CDataWorkManager::dealDisConnect(ClientConn *pClientConnRead, node *pNode)
 	return pNode;
 }
 
-void CDataWorkManager::openFile(ClientConn clientConn, char *fileName)
+void IDataWorkManager::openFile(ClientConn clientConn, char *fileName)
 {
 	RECV_DATA *pRecvData =IDealDataHandle::createRecvData();
 	
@@ -282,7 +277,7 @@ void CDataWorkManager::openFile(ClientConn clientConn, char *fileName)
 }
 
 
-void CDataWorkManager::closeFile(ClientConn clientConn)
+void IDataWorkManager::closeFile(ClientConn clientConn)
 {
 	RECV_DATA *pRecvData = IDealDataHandle::createRecvData();
 	
@@ -302,7 +297,7 @@ void CDataWorkManager::closeFile(ClientConn clientConn)
 }
 
 
-void CDataWorkManager::dealException(ClientConn clientConn)
+void IDataWorkManager::dealException(ClientConn clientConn)
 {
 	clientConn.socket = INVALID_SOCKET;
 	{
@@ -337,4 +332,11 @@ void CDataWorkManager::dealException(ClientConn clientConn)
 	}
 	return ;
 }
+
+
+CDataWorkManager *CDataWorkManager::create()
+{
+	return new CDataWorkManager;
+}
+
 

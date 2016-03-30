@@ -20,18 +20,9 @@ extern char *dataFormat;
 
 INetServer::INetServer():SERVER_PORT(-1), m_sockLister(INVALID_SOCKET), m_nfds(0)
 {
-	new CVerifyHandle;
-	new CTraceHandle;
-
-	CSimpleIniA ini;  
-	ini.SetUnicode();  
-	ini.LoadFile("Config.ini");  
-	SERVER_PORT = (int)ini.GetLongValue("NetConfig", "NetSerPort");
-
 	m_listClientRead = CList::createCList();
 	m_recvList = CList::createCList();
 	m_newId = 0;
-	m_dataWorkManager = CDataWorkManager::create();
 	return ;
 }
 
@@ -331,4 +322,16 @@ CNetServer* CNetServer::instance()
 	return _instance;
 }
 
+CNetServer::CNetServer()
+{
+	new CVerifyHandle;
+	new CTraceHandle;
+
+	CSimpleIniA ini;  
+	ini.SetUnicode();  
+	ini.LoadFile("Config.ini");  
+	SERVER_PORT = (int)ini.GetLongValue("NetConfig", "NetSerPort");
+	m_dataWorkManager = CDataWorkManager::create();
+    return ;
+}
 
