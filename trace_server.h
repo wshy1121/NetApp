@@ -20,12 +20,6 @@ public:
     CTraceManager(CTraceServer* const netServer = NULL);
 };
 
-class CClientInf : public IClientInf
-{
-public:
-    CClientInf();
-};
-
 
 
 #endif

@@ -96,7 +96,7 @@ bool CNetClient::receiveInfData(CLogDataInf *pDataInf)
 {
 	char *packet = NULL;
     IParsePacket parsePacket;
-	bool bRet = m_dataWorkManager->receiveInfData(m_socketClient, parsePacket, &packet);
+	bool bRet = m_dataWorkManager->receiveInfData(m_socketClient, &parsePacket, &packet);
 	pDataInf->unPacket(packet);
 	return bRet;
 }
@@ -132,7 +132,7 @@ bool CNetClient::verifyAccess(char *access, int accessLen, char *accessRep)
 	return CVerifyClient::instance()->verifyAccess(access, accessLen, accessRep);
 }
 
-bool CNetClient::getClientInf(CClientInf *clientInf)
+bool CNetClient::getClientInf(IClientInf *clientInf)
 {	trace_worker();
 	return CVerifyClient::instance()->getClientInf(clientInf);
 }

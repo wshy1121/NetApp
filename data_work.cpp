@@ -114,14 +114,14 @@ void IDataWorkManager::pushWorkData(WORK_DATA *pWorkData)
 }
 
 
-bool IDataWorkManager::receiveInfData(int socket, IParsePacket &parsePacket, char **pPacket)
+bool IDataWorkManager::receiveInfData(int socket, IParsePacket *parsePacket, char **pPacket)
 { 
 
 	int nRecv = 0;
 	
 	while (1)
 	{
-		char &charData = parsePacket.charData();
+		char &charData = parsePacket->charData();
 		nRecv = ::recv(socket, &charData, 1, 0);
 		if (nRecv <= 0)
 		{
@@ -129,7 +129,7 @@ bool IDataWorkManager::receiveInfData(int socket, IParsePacket &parsePacket, cha
 			return false;
 		}
         
-        if (parsePacket.parsePacket(charData, pPacket))
+        if (parsePacket->parsePacket(charData, pPacket))
         {
             return true;
         }

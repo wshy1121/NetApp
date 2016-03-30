@@ -18,8 +18,16 @@ using namespace base;
 extern CPthreadMutex g_insMutexCalc;
 extern char *dataFormat;
 
-INetServer::INetServer():SERVER_PORT(-1), m_sockLister(INVALID_SOCKET), m_nfds(0)
+INetServer::INetServer()
+:SERVER_PORT(-1)
+,m_sockLister(INVALID_SOCKET)
+,m_nfds(0)
 {
+#ifdef WIN32	
+    WSADATA wsa={0};
+    WSAStartup(MAKEWORD(2,2),&wsa);
+#endif
+
 	m_listClientRead = CList::createCList();
 	m_recvList = CList::createCList();
 	m_newId = 0;
@@ -71,7 +79,7 @@ bool INetServer::startServer()
     m_hListenThread = WorkThread(new boost::thread(boost::bind(&INetServer::listenThread,this)));
 	m_sendThread = WorkThread(new boost::thread(boost::bind(&INetServer::sendThreadProc,this)));
 	
-	printf("server is start!\n");
+	printf("server is start, port is %d!\n", SERVER_PORT);
 	return true;
 }
 
@@ -121,7 +129,7 @@ void INetServer::listenThread()
 				RECV_DATA *pRecvData = IDealDataHandle::createRecvData();
 				std::shared_ptr<CLogDataInf> &dataInf = pRecvData->calcInf.m_dataInf;
 				char *&packet =  pRecvData->calcInf.m_packet;
-                IParsePacket &parsePacket = pClientConnRead->clientInf->m_parsePacket;
+                IParsePacket *parsePacket = pClientConnRead->clientInf->m_parsePacket.get();
 				bool bRet = m_dataWorkManager->receiveInfData(pClientConnRead->socket, parsePacket, &packet);
 				
 				if(bRet)
@@ -182,7 +190,7 @@ ClientConn *INetServer::dealConnect(int socket, sockaddr_in &clientAddr)
     port = ntohs(clientAddr.sin_port);
 
 	ClientConn *pClientConn = new ClientConn;
-	std::shared_ptr<IClientInf> ptr(new IClientInf());	
+	std::shared_ptr<IClientInf> ptr(createClientInf());	
 	IClientInf *clientInf = ptr.get();
 	pClientConn->clientInf = ptr;
 	
@@ -190,12 +198,25 @@ ClientConn *INetServer::dealConnect(int socket, sockaddr_in &clientAddr)
 	clientInf->m_clientId = pClientConn->clientId = creatClientId();
     clientInf->m_clientIpAddr = ipAddr;
     clientInf->m_clientPort = port;
-    
+
+    boost::shared_ptr<IParsePacket> parsePacket(createParsePacket());
+    clientInf->m_parsePacket = parsePacket;
+
 	setNoBlock(clientInf->m_socket);
 	m_listClientRead->push_back(&pClientConn->node);
 
 	CUserManager::instance()->addClient(clientInf->m_clientId, clientInf);
 	return pClientConn;
+}
+
+IClientInf *INetServer::createClientInf()
+{
+    return new IClientInf;
+}
+
+IParsePacket *INetServer::createParsePacket()
+{
+    return new IParsePacket;
 }
 
 int INetServer::creatClientId()

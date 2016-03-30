@@ -38,6 +38,8 @@ private:
 	void sendThreadProc();
 private:
 	ClientConn *dealConnect(int socket, sockaddr_in &clientAddr);
+    virtual IClientInf *createClientInf();
+    virtual IParsePacket *createParsePacket();
 	int creatClientId();
 	void dealRecvData(TimeCalcInf *pCalcInf);
 	void setNoBlock(int socket);

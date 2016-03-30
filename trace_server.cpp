@@ -16,10 +16,6 @@ CTraceServer* CTraceServer::instance()
 		boost::unique_lock<boost::mutex> lock(g_insMutex);
 		if (NULL == _instance)
 		{
-#ifdef WIN32	
-			WSADATA wsa={0};
-			WSAStartup(MAKEWORD(2,2),&wsa);
-#endif
 			_instance = new CTraceServer;
 		}
 	}
@@ -45,8 +41,4 @@ CTraceManager::CTraceManager(CTraceServer* const netServer)
     m_netServer = netServer;
 }
 
-
-CClientInf::CClientInf()
-{
-}
 
