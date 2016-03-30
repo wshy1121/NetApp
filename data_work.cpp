@@ -247,7 +247,7 @@ node *IDataWorkManager::dealErrNo(ClientConn *pClientConnRead, node *pNode)
 
 node *IDataWorkManager::dealDisConnect(ClientConn *pClientConnRead, node *pNode)
 {
-	CClientInf *clientInf = pClientConnRead->clientInf.get();
+	IClientInf *clientInf = pClientConnRead->clientInf.get();
 	CUserManager::instance()->logout(clientInf);
 
 	dealException(*pClientConnRead);

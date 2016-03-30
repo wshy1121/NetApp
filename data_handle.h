@@ -11,7 +11,7 @@ typedef struct TimeCalcInf
 	TraceInfoId m_traceInfoId;
 	std::shared_ptr<CLogDataInf> m_dataInf;
 	char *m_packet;
-	std::shared_ptr<CClientInf> m_clientInf;
+	std::shared_ptr<IClientInf> m_clientInf;
 	char *m_pContent;
 	int m_contentLen;
 }TimeCalcInf;

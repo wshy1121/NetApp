@@ -18,7 +18,7 @@ typedef struct ClientConn
 {
 	int socket;
 	int clientId;
-	std::shared_ptr<CClientInf> clientInf;
+	std::shared_ptr<IClientInf> clientInf;
 	struct node node;
 }ClientConn;
 #define clientConnContain(ptr)  container_of(ptr, ClientConn, node)

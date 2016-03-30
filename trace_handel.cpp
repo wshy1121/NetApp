@@ -156,7 +156,7 @@ void CTraceHandle::openFile(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf)
 
 	parseData(pCalcInf);
 
-	CClientInf *clientInf = pCalcInf->m_clientInf.get();
+	IClientInf *clientInf = pCalcInf->m_clientInf.get();
 	clientInf->m_fileName = m_content;
 	clientInf->m_traceFileInf = CLogOprManager::instance()->openFile(m_pTraceInfoId->clientId, (char *)m_content, clientInf->m_clientIpAddr);
     printf("clientInf->m_clientIpAddr.c_str()  %s\n", clientInf->m_clientIpAddr.c_str());
@@ -166,7 +166,7 @@ void CTraceHandle::closeFile(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf)
 
 	parseData(pCalcInf);
 
-	CClientInf *clientInf = pCalcInf->m_clientInf.get();
+	IClientInf *clientInf = pCalcInf->m_clientInf.get();
 	clientInf->m_fileName = "";
 	CLogOprManager::instance()->closeFile(m_pTraceInfoId->clientId);
     clientInf->m_traceFileInf = NULL;
@@ -190,7 +190,7 @@ void CTraceHandle::getTraceFileList(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcI
 	char *oper = reqDataInf->m_infs[0];
 	char *sessionId = reqDataInf->m_infs[1];
 
-	//CClientInf *clientInf = pCalcInf->m_clientInf.get();z
+	//IClientInf *clientInf = pCalcInf->m_clientInf.get();z
 	std::shared_ptr<CLogDataInf> &repDataInf = repCalcInf->m_dataInf;
 	repDataInf->putInf(oper);
 	repDataInf->putInf(sessionId);//session id(´óÓÚ0)

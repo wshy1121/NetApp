@@ -20,6 +20,7 @@ SET(SRC_SRCS
   data_handle.cpp
   trace_handel.cpp
   trace_server.cpp
+  cli_server.cpp
 )
 
 # shared library

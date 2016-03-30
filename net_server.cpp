@@ -164,7 +164,7 @@ node *INetServer::dealDisconnect(ClientConn *pClientConnRead)
 	CUserManager::instance()->removeClient(pClientConnRead->clientId);
 	node *pNode = &pClientConnRead->node;
 
-	CClientInf *clientInf = pClientConnRead->clientInf.get();
+	IClientInf *clientInf = pClientConnRead->clientInf.get();
 	clientInf->m_socket = INVALID_SOCKET;
 	
 	base::close(pClientConnRead->socket);	
@@ -182,8 +182,8 @@ ClientConn *INetServer::dealConnect(int socket, sockaddr_in &clientAddr)
     port = ntohs(clientAddr.sin_port);
 
 	ClientConn *pClientConn = new ClientConn;
-	std::shared_ptr<CClientInf> ptr(new CClientInf());	
-	CClientInf *clientInf = ptr.get();
+	std::shared_ptr<IClientInf> ptr(new IClientInf());	
+	IClientInf *clientInf = ptr.get();
 	pClientConn->clientInf = ptr;
 	
 	clientInf->m_socket = pClientConn->socket = socket;
@@ -250,7 +250,7 @@ void INetServer::sendThreadProc()
 void INetServer::dealRecvData(TimeCalcInf *pCalcInf)
 {
 	int &socket = pCalcInf->m_traceInfoId.socket;
-	CClientInf *clientInf = pCalcInf->m_clientInf.get();
+	IClientInf *clientInf = pCalcInf->m_clientInf.get();
 
 	if (socket == INVALID_SOCKET || clientInf->m_socket == INVALID_SOCKET)
 	{

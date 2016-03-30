@@ -46,4 +46,7 @@ CTraceManager::CTraceManager(CTraceServer* const netServer)
 }
 
 
+CClientInf::CClientInf()
+{
+}
 
