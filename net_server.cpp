@@ -64,6 +64,7 @@ bool INetServer::startServer()
 		printf("set sock error!\n");
 		return false;
 	}
+    SERVER_PORT = getServerPort();
 	struct sockaddr_in svraddr;
 	svraddr.sin_family = AF_INET;
 	svraddr.sin_addr.s_addr = INADDR_ANY;
@@ -77,7 +78,6 @@ bool INetServer::startServer()
 	}
 	m_nfds = m_sockLister;
 
-    SERVER_PORT = getServerPort();
 	m_dataWorkManager = createWorkManager();
     m_hListenThread = WorkThread(new boost::thread(boost::bind(&INetServer::listenThread,this)));
 	m_sendThread = WorkThread(new boost::thread(boost::bind(&INetServer::sendThreadProc,this)));
