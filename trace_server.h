@@ -9,6 +9,9 @@ public:
     static CTraceServer* instance();
 private:    
     CTraceServer();
+    virtual IParsePacket *createParsePacket();
+    virtual IDataWorkManager *createWorkManager();
+    virtual int getServerPort();
 private:
 	static  CTraceServer* _instance;
 

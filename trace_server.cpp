@@ -24,16 +24,27 @@ CTraceServer* CTraceServer::instance()
 
 CTraceServer::CTraceServer()
 {
-	new CVerifyHandle;
-	new CTraceHandle;
+    new CVerifyHandle;
+    new CTraceHandle;
+    return ;
+}
 
+IParsePacket *CTraceServer::createParsePacket()
+{
+    return new IParsePacket;
+}
+
+IDataWorkManager *CTraceServer::createWorkManager()
+{
+    return new CTraceManager(this);
+}
+
+int CTraceServer::getServerPort()
+{
 	CSimpleIniA ini;  
 	ini.SetUnicode();  
 	ini.LoadFile("Config.ini");
-    
-	SERVER_PORT = (int)ini.GetLongValue("NetConfig", "NetSerPort");
-	m_dataWorkManager = new CTraceManager(this);
-    return ;
+	return (int)ini.GetLongValue("NetConfig", "NetSerPort");
 }
 
 CTraceManager::CTraceManager(CTraceServer* const netServer)

@@ -39,7 +39,9 @@ private:
 private:
 	ClientConn *dealConnect(int socket, sockaddr_in &clientAddr);
     virtual IClientInf *createClientInf();
-    virtual IParsePacket *createParsePacket();
+    virtual IParsePacket *createParsePacket() = 0;
+    virtual IDataWorkManager *createWorkManager() = 0;
+    virtual int getServerPort() = 0;
 	int creatClientId();
 	void dealRecvData(TimeCalcInf *pCalcInf);
 	void setNoBlock(int socket);

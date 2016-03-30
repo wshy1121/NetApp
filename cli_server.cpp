@@ -23,14 +23,26 @@ CCliServer* CCliServer::instance()
 }
 
 CCliServer::CCliServer()
+{    
+    return ;
+}
+
+IParsePacket *CCliServer::createParsePacket()
 {
+    return new IParsePacket;
+}
+
+IDataWorkManager *CCliServer::createWorkManager()
+{
+    return new CCliManager(this);
+}
+
+int CCliServer::getServerPort()
+{    
 	CSimpleIniA ini;  
 	ini.SetUnicode();  
 	ini.LoadFile("Config.ini");
-    
-	SERVER_PORT = (int)ini.GetLongValue("NetConfig", "CliSerPort");
-	m_dataWorkManager = new CCliManager(this);
-    return ;
+    return (int)ini.GetLongValue("NetConfig", "CliSerPort");
 }
 
 

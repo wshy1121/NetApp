@@ -22,6 +22,7 @@ INetServer::INetServer()
 :SERVER_PORT(-1)
 ,m_sockLister(INVALID_SOCKET)
 ,m_nfds(0)
+,m_dataWorkManager(NULL)
 {
 #ifdef WIN32	
     WSADATA wsa={0};
@@ -76,6 +77,8 @@ bool INetServer::startServer()
 	}
 	m_nfds = m_sockLister;
 
+    SERVER_PORT = getServerPort();
+	m_dataWorkManager = createWorkManager();
     m_hListenThread = WorkThread(new boost::thread(boost::bind(&INetServer::listenThread,this)));
 	m_sendThread = WorkThread(new boost::thread(boost::bind(&INetServer::sendThreadProc,this)));
 	
@@ -214,10 +217,6 @@ IClientInf *INetServer::createClientInf()
     return new IClientInf;
 }
 
-IParsePacket *INetServer::createParsePacket()
-{
-    return new IParsePacket;
-}
 
 int INetServer::creatClientId()
 {

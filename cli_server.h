@@ -8,7 +8,10 @@ class CCliServer : public INetServer
 public:
     static CCliServer* instance();
 private:    
-    CCliServer();    
+    CCliServer();
+    virtual IParsePacket *createParsePacket();
+    virtual IDataWorkManager *createWorkManager();
+    virtual int getServerPort();
 private:
 	static  CCliServer* _instance;
 
