@@ -303,35 +303,5 @@ void INetServer::setNoBlock(int socket)
 #endif
 }
 
-CNetServer* CNetServer::_instance = NULL;
 
-CNetServer* CNetServer::instance() 
-{	
-	if (NULL == _instance)
-	{
-		CGuardMutex guardMutex(g_insMutexCalc);
-		if (NULL == _instance)
-		{
-#ifdef WIN32	
-			WSADATA wsa={0};
-			WSAStartup(MAKEWORD(2,2),&wsa);
-#endif
-			_instance = new CNetServer;
-		}
-	}
-	return _instance;
-}
-
-CNetServer::CNetServer()
-{
-	new CVerifyHandle;
-	new CTraceHandle;
-
-	CSimpleIniA ini;  
-	ini.SetUnicode();  
-	ini.LoadFile("Config.ini");  
-	SERVER_PORT = (int)ini.GetLongValue("NetConfig", "NetSerPort");
-	m_dataWorkManager = CDataWorkManager::create();
-    return ;
-}
 

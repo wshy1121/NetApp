@@ -7,6 +7,7 @@
 #include "data_work.h"
 #include "verify_handel.h"
 #include "SimpleIni.h"
+#include "trace_server.h"
 #include <sys/types.h>
 
 using namespace base;
@@ -29,7 +30,7 @@ CNetClient* CNetClient::instance()
 
 CNetClient::CNetClient() : m_maxSessionId(1024*1024), m_sessionId(1), m_socketClient(INVALID_SOCKET)
 {
-	m_dataWorkManager = CDataWorkManager::create();
+	m_dataWorkManager = new CDataWorkManager;
 	return ;
 }
 

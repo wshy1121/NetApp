@@ -2,6 +2,7 @@
 #include "data_handle.h"
 #include "net_server.h"
 #include "user_manager.h"
+#include "trace_server.h"
 
 using namespace base;
 std::map<std::string, IDealDataHandle::MethodInf> IDealDataHandle::m_dealHandleMap;

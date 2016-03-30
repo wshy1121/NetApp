@@ -12,6 +12,8 @@
 #include "data_handle.h"
 #include "user_manager.h"
 
+class IDataWorkManager;
+
 typedef struct ClientConn
 {
 	int socket;
@@ -40,7 +42,7 @@ private:
 	void dealRecvData(TimeCalcInf *pCalcInf);
 	void setNoBlock(int socket);
 protected:
-	CDataWorkManager *m_dataWorkManager;
+	IDataWorkManager *m_dataWorkManager;
 	int SERVER_PORT;
 	WorkThread  m_hListenThread;
 	WorkThread m_sendThread;
@@ -55,15 +57,6 @@ protected:
 	int m_nfds;
 };
 
-class CNetServer : public INetServer
-{
-public:
-    static CNetServer* instance();
-private:    
-    CNetServer();
-private:
-	static  CNetServer* _instance;
 
-};
 #endif //_CHAT_ROOT_SERVER_
 

@@ -19,6 +19,7 @@ SET(SRC_SRCS
   data_work.cpp
   data_handle.cpp
   trace_handel.cpp
+  trace_server.cpp
 )
 
 # shared library

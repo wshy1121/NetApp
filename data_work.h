@@ -47,7 +47,7 @@ private:
 	void dealWorkData(WORK_DATA *pWorkData);	
 	void setErrNo(int recvNum);	
 	void dealException(ClientConn clientConn);
-private:
+protected:
 	ErrNo m_errNo;	
 	base::CList *m_workList;
 	base::CPthreadMutex m_workListMutex;
@@ -59,13 +59,10 @@ private:
 	char *m_packetBuffer;
 	unsigned int m_curPacketSize;
 	const unsigned int m_maxBufferSize;
+    INetServer *m_netServer;
 };
 
-class CDataWorkManager : public IDataWorkManager
-{
-public:
-    static CDataWorkManager *create();
-};
+
 
 #endif
 

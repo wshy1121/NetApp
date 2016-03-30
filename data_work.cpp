@@ -18,6 +18,7 @@ IDataWorkManager::IDataWorkManager()
 ,m_packetPos(0)
 ,m_curPacketSize(0)
 ,m_maxBufferSize(1024*1024)
+,m_netServer(NULL)
 
 {
 	m_workList = CList::createCList();
@@ -251,7 +252,7 @@ node *IDataWorkManager::dealDisConnect(ClientConn *pClientConnRead, node *pNode)
 
 	dealException(*pClientConnRead);
 	closeFile(*pClientConnRead);
-	pNode = CNetServer::instance()->dealDisconnect(pClientConnRead);
+	pNode = m_netServer->dealDisconnect(pClientConnRead);
 
 	return pNode;
 }
@@ -334,9 +335,5 @@ void IDataWorkManager::dealException(ClientConn clientConn)
 }
 
 
-CDataWorkManager *CDataWorkManager::create()
-{
-	return new CDataWorkManager;
-}
 
 
