@@ -27,12 +27,11 @@ public:
 		e_rst,			// 对方发送了RST
 		e_intr,			// 被信号中断
 	}ErrNo;
+    typedef boost::shared_ptr<boost::thread> WorkThread;
 public:    
 	IDataWorkManager();
 	virtual ~IDataWorkManager();
-	WORK_DATA *createWorkData(int contentLen);
-	void destroyWorkData(WORK_DATA *pWorkData);
-	void pushWorkData(WORK_DATA *pWorkData);	
+	void pushItemData(ClientConn *pClientConn, RECV_DATA *pRecvData);	
 	virtual void dealitemData(ClientConn *pClientConn, RECV_DATA *pRecvData) = 0;	
 	node *dealErrNo(ClientConn *pClientConnRead, node *pNode);
 	node *dealDisConnect(ClientConn *pClientConnRead, node *pNode);
@@ -43,15 +42,13 @@ public:
 	virtual void closeFile(ClientConn clientConn);
 private:
 	void threadProc();
-	static void* threadFunc(void *pArg);
-	void dealWorkData(WORK_DATA *pWorkData);	
 	void setErrNo(int recvNum);	
 	virtual void dealException(ClientConn clientConn);
 protected:
 	ErrNo m_errNo;	
-	base::CList *m_workList;
-	base::CPthreadMutex m_workListMutex;
-	CBase::pthread_t m_threadId;
+	base::CList *m_recvList;
+	base::CPthreadMutex m_recvListMutex;
+	WorkThread m_threadId;
 
 	unsigned int m_headCount;
 	unsigned int m_tailCount;	

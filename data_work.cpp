@@ -21,85 +21,53 @@ IDataWorkManager::IDataWorkManager()
 ,m_netServer(NULL)
 
 {
-	m_workList = CList::createCList();
+	m_recvList = CList::createCList();
 	m_packetBuffer = new char[m_maxBufferSize];
+
+    m_threadId = WorkThread(new boost::thread(boost::bind(&IDataWorkManager::threadProc,this)));
 }
 
 IDataWorkManager::~IDataWorkManager()
 {
 	delete []m_packetBuffer;
-	CList::destroyClist(m_workList);
+	CList::destroyClist(m_recvList);
 }
-
-WORK_DATA *IDataWorkManager::createWorkData(int contentLen)
-{
-	WORK_DATA *pWorkData = (WORK_DATA *)base::malloc(sizeof(WORK_DATA));
-	pWorkData->m_pContent = NULL;
-	pWorkData->m_contentLen = 0;
-
-	if (contentLen > 0)
-	{
-		pWorkData->m_pContent = (char *)base::malloc(contentLen+1);		
-		pWorkData->m_pContent[contentLen] = '\0';
-		pWorkData->m_contentLen = contentLen;
-	}
-	return pWorkData;
-}
-
-void IDataWorkManager::destroyWorkData(WORK_DATA *pWorkData)
-{
-	char *pContent = pWorkData->m_pContent;
-	int contentLen = pWorkData->m_contentLen;
-
-	if (contentLen > 0 && pContent != NULL)
-	{
-		base::free(pContent);
-	}
-	base::free(pWorkData);
-}
-
 
 void IDataWorkManager::threadProc()
 {	
 	while(1)
 	{
-
-		if(m_workList->empty())
+		if(m_recvList->empty())
 		{
 			base::usleep(10 * 1000);
 			continue;
 		}
-		m_workListMutex.Enter();
-		struct node *pNode =  m_workList->begin();
-		WORK_DATA *pWorkData = workDataContain(pNode);
-		m_workList->pop_front();	
-		m_workListMutex.Leave();
-		dealWorkData(pWorkData);
-		destroyWorkData(pWorkData);
+        trace_worker();
+		m_recvListMutex.Enter();
+		struct node *pNode =  m_recvList->begin();
+		RECV_DATA *pRecvData = recvDataContain(pNode);
+        dealitemData(NULL, pRecvData);
+		m_recvList->pop_front();	
+		m_recvListMutex.Leave();
 	}
 }
 
-
-void IDataWorkManager::dealWorkData(WORK_DATA *pWorkData)
-{
-
-}
-void* IDataWorkManager::threadFunc(void *pArg)
-{
-	//IDataWorkManager::instance()->threadProc();
-	return NULL;
-}
-
-
-void IDataWorkManager::pushWorkData(WORK_DATA *pWorkData)
-{
-	if (pWorkData == NULL)
+void IDataWorkManager::pushItemData(ClientConn *pClientConn, RECV_DATA *pRecvData)
+{   trace_worker();
+	if (pRecvData == NULL)
 	{
 		return ;
 	}
-	m_workListMutex.Enter();
-	m_workList->push_back(&pWorkData->node);
-	m_workListMutex.Leave();
+
+	TimeCalcInf *pCalcInf = &pRecvData->calcInf;
+	pCalcInf->m_traceInfoId.clientId = pClientConn->clientId;
+	pCalcInf->m_traceInfoId.socket = pClientConn->socket;
+	pCalcInf->m_traceInfoId.clientInf = pClientConn->clientInf.get();
+	pCalcInf->m_clientInf = pClientConn->clientInf;
+    
+	m_recvListMutex.Enter();
+	m_recvList->push_back(&pRecvData->node);
+	m_recvListMutex.Leave();
 
 }
 

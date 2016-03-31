@@ -19,10 +19,10 @@ extern CPthreadMutex g_insMutexCalc;
 extern char *dataFormat;
 
 INetServer::INetServer()
-:SERVER_PORT(-1)
+:m_dataWorkManager(NULL)
+,SERVER_PORT(-1)
 ,m_sockLister(INVALID_SOCKET)
 ,m_nfds(0)
-,m_dataWorkManager(NULL)
 {
 #ifdef WIN32	
     WSADATA wsa={0};

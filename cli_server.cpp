@@ -62,7 +62,7 @@ void CCliManager::dealException(ClientConn clientConn)
 
 void CCliManager::dealitemData(ClientConn *pClientConn, RECV_DATA *pRecvData)
 {
-    printf("%x %d  %s  %s\n", pRecvData->calcInf.m_packet[0], __LINE__, __FUNCTION__, __FILE__);
+    IDealDataHandle::destroyRecvData(pRecvData);
 }
 
 bool CCliParsePacket::parsePacket(char &charData, char **pPacket)
@@ -72,6 +72,7 @@ bool CCliParsePacket::parsePacket(char &charData, char **pPacket)
     posData = charData;
     *pPacket = &posData;
     m_packetPos = ++m_packetPos % m_maxBufferSize;
+    printf("%d ", m_packetPos);
     return true;
 }
 
