@@ -5,6 +5,9 @@
 #include "trace_handel.h"
 #include "SimpleIni.h"
 
+extern FILE *rl_instream;
+extern FILE *rl_outstream;
+
 static boost::mutex g_insMutex;
 
 CCliServer* CCliServer::_instance = NULL;
@@ -52,13 +55,23 @@ CCliManager::CCliManager(INetServer* const netServer)
     m_netServer = netServer;
 }
 
+void CCliManager::dealException(ClientConn clientConn)
+{
+    printf("CCliServer client disconnect socket:%d clientId:%d\n", clientConn.socket, clientConn.clientId);
+}
+
 void CCliManager::dealitemData(ClientConn *pClientConn, RECV_DATA *pRecvData)
 {
-
+    printf("%x %d  %s  %s\n", pRecvData->calcInf.m_packet[0], __LINE__, __FUNCTION__, __FILE__);
 }
 
 bool CCliParsePacket::parsePacket(char &charData, char **pPacket)
-{
-
+{   trace_worker();
+    trace_printf("charData  %c|", charData);
+    char &posData = m_packetBuffer[m_packetPos];
+    posData = charData;
+    *pPacket = &posData;
+    m_packetPos = ++m_packetPos % m_maxBufferSize;
+    return true;
 }
 

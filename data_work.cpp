@@ -249,78 +249,18 @@ node *IDataWorkManager::dealDisConnect(ClientConn *pClientConnRead, node *pNode)
 
 void IDataWorkManager::openFile(ClientConn clientConn, char *fileName)
 {
-	RECV_DATA *pRecvData =IDealDataHandle::createRecvData();
-	
-	std::shared_ptr<CLogDataInf> &dataInf = pRecvData->calcInf.m_dataInf;
-	
-	dataInf->putInf("openFile");
-	dataInf->putInf("1");//session id
-	dataInf->putInf("0");
-	dataInf->putInf("0");
-	dataInf->putInf("");
-	dataInf->putInf("");
-	dataInf->putInf("0");
-	dataInf->putInf(fileName);
-
-	clientConn.socket = INVALID_SOCKET;
-	dealitemData(&clientConn, pRecvData); 
 	return ;
 }
 
 
 void IDataWorkManager::closeFile(ClientConn clientConn)
 {
-	RECV_DATA *pRecvData = IDealDataHandle::createRecvData();
-	
-	std::shared_ptr<CLogDataInf> &dataInf = pRecvData->calcInf.m_dataInf;
-	dataInf->putInf("closeFile");	
-	dataInf->putInf("1");//session id
-	dataInf->putInf("0");
-	dataInf->putInf("0");
-	dataInf->putInf("");
-	dataInf->putInf("");
-	dataInf->putInf("0");
-	dataInf->putInf("");
-
-	clientConn.socket = INVALID_SOCKET;
-	dealitemData(&clientConn, pRecvData); 
 	return ;
 }
 
 
 void IDataWorkManager::dealException(ClientConn clientConn)
 {
-	clientConn.socket = INVALID_SOCKET;
-	{
-		RECV_DATA *pRecvData = IDealDataHandle::createRecvData();
-
-		std::shared_ptr<CLogDataInf> &dataInf = pRecvData->calcInf.m_dataInf;
-		dataInf->putInf("dispAll");		
-		dataInf->putInf("1");//session id
-		dataInf->putInf("0");
-		dataInf->putInf("0");
-		dataInf->putInf("");
-		dataInf->putInf("");
-		dataInf->putInf("0");
-		dataInf->putInf("backtrace");
-
-		dealitemData(&clientConn, pRecvData); 
-	}
-	{
-		RECV_DATA *pRecvData = IDealDataHandle::createRecvData();
-
-		std::shared_ptr<CLogDataInf> &dataInf = pRecvData->calcInf.m_dataInf;
-		dataInf->putInf("cleanAll");		
-		dataInf->putInf("1");//session id
-		dataInf->putInf("0");
-		dataInf->putInf("0");
-		dataInf->putInf("");
-		dataInf->putInf("");
-		dataInf->putInf("0");
-		dataInf->putInf("backtrace");
-
-		dealitemData(&clientConn, pRecvData); 
-	}
 	return ;
 }
 

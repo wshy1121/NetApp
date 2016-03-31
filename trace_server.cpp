@@ -63,8 +63,86 @@ void CTraceManager::dealitemData(ClientConn *pClientConn, RECV_DATA *pRecvData)
 	CTimeCalcInfManager::instance()->pushRecvData(pRecvData);
 }
 
-bool CTraceParsePacket::parsePacket(char &charData, char **pPacket)
+void CTraceManager::openFile(ClientConn clientConn, char *fileName)
 {
+	RECV_DATA *pRecvData =IDealDataHandle::createRecvData();
+	
+	std::shared_ptr<CLogDataInf> &dataInf = pRecvData->calcInf.m_dataInf;
+	
+	dataInf->putInf("openFile");
+	dataInf->putInf("1");//session id
+	dataInf->putInf("0");
+	dataInf->putInf("0");
+	dataInf->putInf("");
+	dataInf->putInf("");
+	dataInf->putInf("0");
+	dataInf->putInf(fileName);
+
+	clientConn.socket = INVALID_SOCKET;
+	dealitemData(&clientConn, pRecvData); 
+	return ;
+}
+
+
+void CTraceManager::closeFile(ClientConn clientConn)
+{
+	RECV_DATA *pRecvData = IDealDataHandle::createRecvData();
+	
+	std::shared_ptr<CLogDataInf> &dataInf = pRecvData->calcInf.m_dataInf;
+	dataInf->putInf("closeFile");	
+	dataInf->putInf("1");//session id
+	dataInf->putInf("0");
+	dataInf->putInf("0");
+	dataInf->putInf("");
+	dataInf->putInf("");
+	dataInf->putInf("0");
+	dataInf->putInf("");
+
+	clientConn.socket = INVALID_SOCKET;
+	dealitemData(&clientConn, pRecvData); 
+	return ;
+}
+
+
+void CTraceManager::dealException(ClientConn clientConn)
+{
+	clientConn.socket = INVALID_SOCKET;
+	{
+		RECV_DATA *pRecvData = IDealDataHandle::createRecvData();
+
+		std::shared_ptr<CLogDataInf> &dataInf = pRecvData->calcInf.m_dataInf;
+		dataInf->putInf("dispAll");		
+		dataInf->putInf("1");//session id
+		dataInf->putInf("0");
+		dataInf->putInf("0");
+		dataInf->putInf("");
+		dataInf->putInf("");
+		dataInf->putInf("0");
+		dataInf->putInf("backtrace");
+
+		dealitemData(&clientConn, pRecvData); 
+	}
+	{
+		RECV_DATA *pRecvData = IDealDataHandle::createRecvData();
+
+		std::shared_ptr<CLogDataInf> &dataInf = pRecvData->calcInf.m_dataInf;
+		dataInf->putInf("cleanAll");		
+		dataInf->putInf("1");//session id
+		dataInf->putInf("0");
+		dataInf->putInf("0");
+		dataInf->putInf("");
+		dataInf->putInf("");
+		dataInf->putInf("0");
+		dataInf->putInf("backtrace");
+
+		dealitemData(&clientConn, pRecvData); 
+	}
+	return ;
+}
+
+
+bool CTraceParsePacket::parsePacket(char &charData, char **pPacket)
+{   trace_worker();
 	if (m_curPacketSize == 0 && m_packetPos > 8)
 	{
 		memcpy(&m_curPacketSize, m_packetBuffer+4, 4);

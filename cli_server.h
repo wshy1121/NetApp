@@ -22,6 +22,7 @@ class CCliManager : public IDataWorkManager
 public:
     CCliManager(INetServer* const netServer = NULL);
     virtual void dealitemData(ClientConn *pClientConn, RECV_DATA *pRecvData);
+    virtual void dealException(ClientConn clientConn);
 };
 
 class CCliParsePacket : public IParsePacket

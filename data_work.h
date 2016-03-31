@@ -39,14 +39,14 @@ public:
 	bool receiveInfData(int socket, IParsePacket *parsePacket, char **pPacket);	
 	int receive(int fd,char *szText,int len);
 	int send(int fd,char *szText,int len);	
-	void openFile(ClientConn clientConn, char *fileName);
-	void closeFile(ClientConn clientConn);
+	virtual void openFile(ClientConn clientConn, char *fileName);
+	virtual void closeFile(ClientConn clientConn);
 private:
 	void threadProc();
 	static void* threadFunc(void *pArg);
 	void dealWorkData(WORK_DATA *pWorkData);	
 	void setErrNo(int recvNum);	
-	void dealException(ClientConn clientConn);
+	virtual void dealException(ClientConn clientConn);
 protected:
 	ErrNo m_errNo;	
 	base::CList *m_workList;

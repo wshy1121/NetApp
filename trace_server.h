@@ -21,7 +21,10 @@ class CTraceManager : public IDataWorkManager
 {
 public:
     CTraceManager(INetServer* const netServer = NULL);
-    virtual void dealitemData(ClientConn *pClientConn, RECV_DATA *pRecvData);
+    virtual void dealitemData(ClientConn *pClientConn, RECV_DATA *pRecvData);    
+	virtual void openFile(ClientConn clientConn, char *fileName);
+	virtual void closeFile(ClientConn clientConn);
+    virtual void dealException(ClientConn clientConn);
 };
 
 class CTraceParsePacket : public IParsePacket
