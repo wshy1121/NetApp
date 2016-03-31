@@ -31,7 +31,7 @@ CTraceServer::CTraceServer()
 
 IParsePacket *CTraceServer::createParsePacket()
 {
-    return new IParsePacket;
+    return new CTraceParsePacket;
 }
 
 IDataWorkManager *CTraceServer::createWorkManager()
@@ -52,4 +52,61 @@ CTraceManager::CTraceManager(CTraceServer* const netServer)
     m_netServer = netServer;
 }
 
+
+bool CTraceParsePacket::parsePacket(char &charData, char **pPacket)
+{
+	if (m_curPacketSize == 0 && m_packetPos > 8)
+	{
+		memcpy(&m_curPacketSize, m_packetBuffer+4, 4);
+	}
+	
+	if (m_curPacketSize > 0)
+	{
+		if (m_curPacketSize > m_maxBufferSize || m_packetPos > m_curPacketSize)
+		{
+			initPacketInf();
+		}
+	}
+	
+	switch (charData)
+	{
+		case '\x7B':
+            m_tailCount = 0;
+			++m_headCount;
+			++m_packetPos;
+			break;
+		case '\x7D':
+            if (m_headCount < 4)
+			{
+				initPacketInf();
+			}
+			else
+            {
+                ++m_tailCount;
+            }
+            
+			++m_packetPos;
+			if (m_tailCount >= 4)
+			{
+					if (m_curPacketSize == m_packetPos)
+				{
+					char *packet = new char[m_packetPos];
+					memcpy(packet, m_packetBuffer + 8, m_packetPos - 12);
+					*pPacket = packet;
+					initPacketInf();
+					return true;
+				}
+			}
+			break;
+		default:
+            m_tailCount = 0;
+			if (m_headCount < 4)
+			{
+				initPacketInf();
+			}				
+			++m_packetPos;
+			break;
+	}
+	return false;
+}
 

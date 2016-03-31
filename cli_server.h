@@ -23,6 +23,12 @@ public:
     CCliManager(CCliServer* const netServer = NULL);
 };
 
+class CCliParsePacket : public IParsePacket
+{
+public:
+    CCliParsePacket(){}
+    virtual bool parsePacket(char &charData, char **pPacket);
+};
 
 #endif
 

@@ -23,7 +23,12 @@ public:
     CTraceManager(CTraceServer* const netServer = NULL);
 };
 
-
+class CTraceParsePacket : public IParsePacket
+{
+public:
+    CTraceParsePacket(){}
+    virtual bool parsePacket(char &charData, char **pPacket);
+};
 
 #endif
 

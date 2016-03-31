@@ -29,7 +29,7 @@ CCliServer::CCliServer()
 
 IParsePacket *CCliServer::createParsePacket()
 {
-    return new IParsePacket;
+    return new CCliParsePacket;
 }
 
 IDataWorkManager *CCliServer::createWorkManager()
@@ -53,4 +53,8 @@ CCliManager::CCliManager(CCliServer* const netServer)
 }
 
 
+bool CCliParsePacket::parsePacket(char &charData, char **pPacket)
+{
+
+}
 
