@@ -137,7 +137,7 @@ void INetServer::listenThread()
 				
 				if(bRet)
 				{
-					m_dataWorkManager->dealitemData(pClientConnRead, pRecvData);
+					m_dataWorkManager->pushItemData(pClientConnRead, pRecvData);
 				}
 				//“Ï≥£¥¶¿Ì
 				else

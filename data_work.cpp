@@ -46,9 +46,11 @@ void IDataWorkManager::threadProc()
 		m_recvListMutex.Enter();
 		struct node *pNode =  m_recvList->begin();
 		RECV_DATA *pRecvData = recvDataContain(pNode);
-        dealitemData(NULL, pRecvData);
 		m_recvList->pop_front();	
 		m_recvListMutex.Leave();
+        
+        dealitemData(pRecvData);
+        IDealDataHandle::destroyRecvData(pRecvData);
 	}
 }
 

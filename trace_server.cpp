@@ -52,15 +52,15 @@ CTraceManager::CTraceManager(INetServer* const netServer)
     m_netServer = netServer;
 }
 
-void CTraceManager::dealitemData(ClientConn *pClientConn, RECV_DATA *pRecvData)
+void CTraceManager::dealitemData(RECV_DATA *pRecvData)
 {
 	TimeCalcInf *pCalcInf = &pRecvData->calcInf;
 
-	pCalcInf->m_traceInfoId.clientId = pClientConn->clientId;
-	pCalcInf->m_traceInfoId.socket = pClientConn->socket;
-	pCalcInf->m_traceInfoId.clientInf = pClientConn->clientInf.get();
-	pCalcInf->m_clientInf = pClientConn->clientInf;
-	CTimeCalcInfManager::instance()->pushRecvData(pRecvData);
+	if (pCalcInf->m_packet)
+	{
+		pCalcInf->m_dataInf->unPacket(pCalcInf->m_packet);
+	}
+	IDealDataHandle::execute(pCalcInf);
 }
 
 void CTraceManager::openFile(ClientConn clientConn, char *fileName)
@@ -79,7 +79,7 @@ void CTraceManager::openFile(ClientConn clientConn, char *fileName)
 	dataInf->putInf(fileName);
 
 	clientConn.socket = INVALID_SOCKET;
-	dealitemData(&clientConn, pRecvData); 
+	pushItemData(&clientConn, pRecvData); 
 	return ;
 }
 
@@ -99,7 +99,7 @@ void CTraceManager::closeFile(ClientConn clientConn)
 	dataInf->putInf("");
 
 	clientConn.socket = INVALID_SOCKET;
-	dealitemData(&clientConn, pRecvData); 
+	pushItemData(&clientConn, pRecvData); 
 	return ;
 }
 
@@ -120,7 +120,7 @@ void CTraceManager::dealException(ClientConn clientConn)
 		dataInf->putInf("0");
 		dataInf->putInf("backtrace");
 
-		dealitemData(&clientConn, pRecvData); 
+		pushItemData(&clientConn, pRecvData); 
 	}
 	{
 		RECV_DATA *pRecvData = IDealDataHandle::createRecvData();
@@ -135,7 +135,7 @@ void CTraceManager::dealException(ClientConn clientConn)
 		dataInf->putInf("0");
 		dataInf->putInf("backtrace");
 
-		dealitemData(&clientConn, pRecvData); 
+		pushItemData(&clientConn, pRecvData); 
 	}
 	return ;
 }

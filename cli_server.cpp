@@ -60,9 +60,8 @@ void CCliManager::dealException(ClientConn clientConn)
     printf("CCliServer client disconnect socket:%d clientId:%d\n", clientConn.socket, clientConn.clientId);
 }
 
-void CCliManager::dealitemData(ClientConn *pClientConn, RECV_DATA *pRecvData)
+void CCliManager::dealitemData(RECV_DATA *pRecvData)
 {
-    IDealDataHandle::destroyRecvData(pRecvData);
 }
 
 bool CCliParsePacket::parsePacket(char &charData, char **pPacket)
