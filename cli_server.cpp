@@ -47,11 +47,15 @@ int CCliServer::getServerPort()
 
 
 
-CCliManager::CCliManager(CCliServer* const netServer)
+CCliManager::CCliManager(INetServer* const netServer)
 {
     m_netServer = netServer;
 }
 
+void CCliManager::dealitemData(ClientConn *pClientConn, RECV_DATA *pRecvData)
+{
+
+}
 
 bool CCliParsePacket::parsePacket(char &charData, char **pPacket)
 {

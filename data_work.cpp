@@ -79,16 +79,6 @@ void IDataWorkManager::threadProc()
 	}
 }
 
-void IDataWorkManager::dealitemData(ClientConn *pClientConn, RECV_DATA *pRecvData)
-{
-	TimeCalcInf *pCalcInf = &pRecvData->calcInf;
-
-	pCalcInf->m_traceInfoId.clientId = pClientConn->clientId;
-	pCalcInf->m_traceInfoId.socket = pClientConn->socket;
-	pCalcInf->m_traceInfoId.clientInf = pClientConn->clientInf.get();
-	pCalcInf->m_clientInf = pClientConn->clientInf;
-	CTimeCalcInfManager::instance()->pushRecvData(pRecvData);
-}
 
 void IDataWorkManager::dealWorkData(WORK_DATA *pWorkData)
 {

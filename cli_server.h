@@ -20,7 +20,8 @@ private:
 class CCliManager : public IDataWorkManager
 {
 public:
-    CCliManager(CCliServer* const netServer = NULL);
+    CCliManager(INetServer* const netServer = NULL);
+    virtual void dealitemData(ClientConn *pClientConn, RECV_DATA *pRecvData);
 };
 
 class CCliParsePacket : public IParsePacket

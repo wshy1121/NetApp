@@ -47,11 +47,21 @@ int CTraceServer::getServerPort()
 	return (int)ini.GetLongValue("NetConfig", "NetSerPort");
 }
 
-CTraceManager::CTraceManager(CTraceServer* const netServer)
+CTraceManager::CTraceManager(INetServer* const netServer)
 {
     m_netServer = netServer;
 }
 
+void CTraceManager::dealitemData(ClientConn *pClientConn, RECV_DATA *pRecvData)
+{
+	TimeCalcInf *pCalcInf = &pRecvData->calcInf;
+
+	pCalcInf->m_traceInfoId.clientId = pClientConn->clientId;
+	pCalcInf->m_traceInfoId.socket = pClientConn->socket;
+	pCalcInf->m_traceInfoId.clientInf = pClientConn->clientInf.get();
+	pCalcInf->m_clientInf = pClientConn->clientInf;
+	CTimeCalcInfManager::instance()->pushRecvData(pRecvData);
+}
 
 bool CTraceParsePacket::parsePacket(char &charData, char **pPacket)
 {

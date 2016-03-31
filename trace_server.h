@@ -20,7 +20,8 @@ private:
 class CTraceManager : public IDataWorkManager
 {
 public:
-    CTraceManager(CTraceServer* const netServer = NULL);
+    CTraceManager(INetServer* const netServer = NULL);
+    virtual void dealitemData(ClientConn *pClientConn, RECV_DATA *pRecvData);
 };
 
 class CTraceParsePacket : public IParsePacket

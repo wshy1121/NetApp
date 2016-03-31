@@ -33,7 +33,7 @@ public:
 	WORK_DATA *createWorkData(int contentLen);
 	void destroyWorkData(WORK_DATA *pWorkData);
 	void pushWorkData(WORK_DATA *pWorkData);	
-	void dealitemData(ClientConn *pClientConn, RECV_DATA *pRecvData);	
+	virtual void dealitemData(ClientConn *pClientConn, RECV_DATA *pRecvData) = 0;	
 	node *dealErrNo(ClientConn *pClientConnRead, node *pNode);
 	node *dealDisConnect(ClientConn *pClientConnRead, node *pNode);
 	bool receiveInfData(int socket, IParsePacket *parsePacket, char **pPacket);	
