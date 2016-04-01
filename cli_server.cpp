@@ -4,6 +4,7 @@
 #include "verify_handel.h"
 #include "trace_handel.h"
 #include "SimpleIni.h"
+#include "CmdLineInter.h"
 
 extern FILE *rl_instream;
 extern FILE *rl_outstream;
@@ -53,6 +54,56 @@ int CCliServer::getServerPort()
 CCliManager::CCliManager(INetServer* const netServer)
 {
     m_netServer = netServer;
+    
+	pipe(m_instream);
+	m_instreamFile = fdopen(m_instream[0], "r");
+	
+	pipe(m_outstream);
+	m_outstreamFile = fdopen(m_outstream[1], "w");
+
+	m_cliThread = DataWorkThread(new boost::thread(boost::bind(&CCliManager::cliThreadProc,this)));	
+	m_sendThread = DataWorkThread(new boost::thread(boost::bind(&CCliManager::sendThreadProc,this)));	
+}
+
+void CCliManager::cliThreadProc()
+{
+	char *line, *s;
+	initialize_readline();
+	while(1)
+	{
+		boost::this_thread::interruption_point();
+
+		rl_instream = m_instreamFile;
+		rl_outstream = m_outstreamFile;
+        line = readline("\r> ");
+        if (!line || !strcmp(line, "disconnect1234"))
+    	{
+			break;
+		}
+        s = strstrip(line);
+        if (*s) {
+            add_history(s);
+            execute_line(s);
+        }
+	}
+}
+
+void CCliManager::sendThreadProc()
+{
+	char data[1024];
+	int dataLen = 0;
+	while(1)
+	{
+		dataLen = read (m_outstream[0], data, sizeof(data));		
+		if (dataLen <= 0)
+		{
+			break;
+		}
+		data[dataLen] = '\0';
+        printf("data  %s\n", data);
+		//RECV_DATA *repRecvData = packetRecvData(data);
+		//CliNetServer::Instance()->pushRecvData(repRecvData);
+	}
 }
 
 void CCliManager::dealException(ClientConn clientConn)
@@ -61,7 +112,15 @@ void CCliManager::dealException(ClientConn clientConn)
 }
 
 void CCliManager::dealitemData(RECV_DATA *pRecvData)
-{
+{   trace_worker();
+    trace_printf("%c  ", pRecvData->calcInf.m_packet[0]);
+
+
+    char &charData = pRecvData->calcInf.m_packet[0];
+        
+	rl_instream = m_instreamFile;
+	rl_outstream = m_outstreamFile;
+	write (m_instream[1], &charData, sizeof(charData));
 }
 
 bool CCliParsePacket::parsePacket(char &charData, char **pPacket)
@@ -71,7 +130,6 @@ bool CCliParsePacket::parsePacket(char &charData, char **pPacket)
     posData = charData;
     *pPacket = &posData;
     m_packetPos = ++m_packetPos % m_maxBufferSize;
-    printf("%d ", m_packetPos);
     return true;
 }
 
