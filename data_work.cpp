@@ -74,7 +74,7 @@ void IDataWorkManager::pushItemData(ClientConn *pClientConn, RECV_DATA *pRecvDat
 }
 
 
-bool IDataWorkManager::receiveInfData(int socket, IParsePacket *parsePacket, char **pPacket)
+bool IDataWorkManager::receiveInfData(int socket, IParsePacket *parsePacket, std::string &packet)
 { 
 
 	int nRecv = 0;
@@ -89,7 +89,7 @@ bool IDataWorkManager::receiveInfData(int socket, IParsePacket *parsePacket, cha
 			return false;
 		}
         
-        if (parsePacket->parsePacket(charData, pPacket))
+        if (parsePacket->parsePacket(charData, packet))
         {
             return true;
         }

@@ -35,7 +35,7 @@ public:
 	virtual void dealitemData(RECV_DATA *pRecvData) = 0;	
 	node *dealErrNo(ClientConn *pClientConnRead, node *pNode);
 	node *dealDisConnect(ClientConn *pClientConnRead, node *pNode);
-	bool receiveInfData(int socket, IParsePacket *parsePacket, char **pPacket);	
+	bool receiveInfData(int socket, IParsePacket *parsePacket, std::string &packet);	
 	int receive(int fd,char *szText,int len);
 	int send(int fd,char *szText,int len);	
 	virtual void openFile(ClientConn clientConn, char *fileName);

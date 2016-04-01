@@ -62,8 +62,7 @@ RECV_DATA *IDealDataHandle::createRecvData(int contentLen)
 	RECV_DATA *pRecvData = new RECV_DATA;
 	TimeCalcInf *pCalcInf = &pRecvData->calcInf;
 	pCalcInf->m_pContent = NULL;
-	pCalcInf->m_dataInf = std::shared_ptr<CLogDataInf>(new CLogDataInf);
-	pCalcInf->m_packet = NULL;
+	pCalcInf->m_dataInf = std::shared_ptr<CLogDataInf>(new CLogDataInf(false));
 	pCalcInf->m_contentLen = contentLen;
 
 	pCalcInf->m_traceInfoId.threadId = -1;

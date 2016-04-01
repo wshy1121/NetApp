@@ -41,7 +41,7 @@ class CCliParsePacket : public IParsePacket
 {
 public:
     CCliParsePacket(){}
-    virtual bool parsePacket(char &charData, char **pPacket);
+    virtual bool parsePacket(char &charData, std::string &packet);
 };
 
 #endif

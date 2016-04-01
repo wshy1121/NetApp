@@ -102,7 +102,7 @@ void CCliManager::sendThreadProc()
 		data[dataLen] = '\0';
         printf("data  %s\n", data);
 		//RECV_DATA *repRecvData = packetRecvData(data);
-		//CliNetServer::Instance()->pushRecvData(repRecvData);
+		//m_netServer->pushRecvData(repRecvData);
 	}
 }
 
@@ -113,7 +113,7 @@ void CCliManager::dealException(ClientConn clientConn)
 
 void CCliManager::dealitemData(RECV_DATA *pRecvData)
 {   trace_worker();
-    trace_printf("%c  ", pRecvData->calcInf.m_packet[0]);
+    trace_printf("%d  ", pRecvData->calcInf.m_packet[0]);
 
 
     char &charData = pRecvData->calcInf.m_packet[0];
@@ -123,13 +123,17 @@ void CCliManager::dealitemData(RECV_DATA *pRecvData)
 	write (m_instream[1], &charData, sizeof(charData));
 }
 
-bool CCliParsePacket::parsePacket(char &charData, char **pPacket)
+bool CCliParsePacket::parsePacket(char &charData, std::string &packet)
 {   trace_worker();
+    //m_curPacketSize
     trace_printf("charData  %c|", charData);
     char &posData = m_packetBuffer[m_packetPos];
     posData = charData;
-    *pPacket = &posData;
+    packet.assign(&posData, 1);
+    
     m_packetPos = ++m_packetPos % m_maxBufferSize;
+
+    
     return true;
 }
 

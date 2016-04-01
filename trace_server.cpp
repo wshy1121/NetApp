@@ -56,9 +56,9 @@ void CTraceManager::dealitemData(RECV_DATA *pRecvData)
 {
 	TimeCalcInf *pCalcInf = &pRecvData->calcInf;
 
-	if (pCalcInf->m_packet)
+	if (pCalcInf->m_packet.size())
 	{
-		pCalcInf->m_dataInf->unPacket(pCalcInf->m_packet);
+		pCalcInf->m_dataInf->unPacket((char *)pCalcInf->m_packet.c_str());
 	}
 	IDealDataHandle::execute(pCalcInf);
 }
@@ -141,7 +141,7 @@ void CTraceManager::dealException(ClientConn clientConn)
 }
 
 
-bool CTraceParsePacket::parsePacket(char &charData, char **pPacket)
+bool CTraceParsePacket::parsePacket(char &charData, std::string &packet)
 {   trace_worker();
 	if (m_curPacketSize == 0 && m_packetPos > 8)
 	{
@@ -176,11 +176,9 @@ bool CTraceParsePacket::parsePacket(char &charData, char **pPacket)
 			++m_packetPos;
 			if (m_tailCount >= 4)
 			{
-					if (m_curPacketSize == m_packetPos)
+				if (m_curPacketSize == m_packetPos)
 				{
-					char *packet = new char[m_packetPos];
-					memcpy(packet, m_packetBuffer + 8, m_packetPos - 12);
-					*pPacket = packet;
+                    packet.assign(m_packetBuffer + 8, m_packetPos - 12);
 					initPacketInf();
 					return true;
 				}
