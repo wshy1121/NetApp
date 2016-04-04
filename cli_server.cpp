@@ -113,27 +113,39 @@ void CCliManager::dealException(ClientConn clientConn)
 
 void CCliManager::dealitemData(RECV_DATA *pRecvData)
 {   trace_worker();
-    trace_printf("%d  ", pRecvData->calcInf.m_packet[0]);
-
-
-    char &charData = pRecvData->calcInf.m_packet[0];
-        
+    trace_printf("%s  ", pRecvData->calcInf.m_packet.c_str());
+    std::string &packet = pRecvData->calcInf.m_packet;    
+    packet += "\x0D\x0A";
+    
 	rl_instream = m_instreamFile;
 	rl_outstream = m_outstreamFile;
-	write (m_instream[1], &charData, sizeof(charData));
+	write (m_instream[1], packet.c_str(), packet.size());
 }
 
 bool CCliParsePacket::parsePacket(char &charData, std::string &packet)
 {   trace_worker();
-    //m_curPacketSize
-    trace_printf("charData  %c|", charData);
-    char &posData = m_packetBuffer[m_packetPos];
-    posData = charData;
-    packet.assign(&posData, 1);
-    
-    m_packetPos = ++m_packetPos % m_maxBufferSize;
-
-    
-    return true;
+    trace_printf("%d", charData);
+    if (isprint(charData) == 0)
+    {
+        if (m_packetPos > 0 || charData == '\x0D')
+        {
+            packet.assign(m_packetBuffer, m_packetPos);        
+            initPacketInf();
+            trace_printf("packet.c_str()  |%s|", packet.c_str());            
+            return true;
+        }
+    }
+    else
+    {        
+        ++m_packetPos;
+    }
+    return false;  
 }
+
+
+void CCliParsePacket::initPacketInf()
+{
+    m_packetPos= 0;
+}
+
 

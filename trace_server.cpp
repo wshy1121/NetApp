@@ -157,7 +157,7 @@ void CTraceParsePacket::initPacketInf()
 }
 
 bool CTraceParsePacket::parsePacket(char &charData, std::string &packet)
-{   trace_worker();
+{
 	if (m_curPacketSize == 0 && m_packetPos > 8)
 	{
 		memcpy(&m_curPacketSize, m_packetBuffer+4, 4);
