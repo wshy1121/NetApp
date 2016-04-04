@@ -140,6 +140,21 @@ void CTraceManager::dealException(ClientConn clientConn)
 	return ;
 }
 
+CTraceParsePacket::CTraceParsePacket()
+:m_headCount(0)
+,m_tailCount(0)
+,m_curPacketSize(0)
+{
+}
+
+
+void CTraceParsePacket::initPacketInf()
+{
+    m_headCount = 0;
+    m_tailCount = 0;
+    m_packetPos = 0;
+    m_curPacketSize = 0;
+}
 
 bool CTraceParsePacket::parsePacket(char &charData, std::string &packet)
 {   trace_worker();

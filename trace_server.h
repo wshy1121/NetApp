@@ -30,8 +30,14 @@ public:
 class CTraceParsePacket : public IParsePacket
 {
 public:
-    CTraceParsePacket(){}
+    CTraceParsePacket();
     virtual bool parsePacket(char &charData, std::string &packet);
+private:    
+	void initPacketInf();
+private:    
+	unsigned int m_headCount;
+	unsigned int m_tailCount;	
+	unsigned int m_curPacketSize;
 };
 
 #endif
