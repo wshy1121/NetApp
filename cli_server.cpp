@@ -62,6 +62,18 @@ void CCliManager::dealException(ClientConn clientConn)
     printf("CCliServer client disconnect socket:%d clientId:%d\n", clientConn.socket, clientConn.clientId);
 }
 
+void CCliManager::dealSendData(TimeCalcInf *pCalcInf)
+{   trace_worker();
+    IClientInf *clientInf = pCalcInf->m_clientInf.get();
+    int &socket = clientInf->m_socket;
+    if (socket == INVALID_SOCKET)
+    {
+        return ;
+    }
+    std::string &packet = pCalcInf->m_packet;
+    send(socket, (char *)packet.c_str(), packet.size());
+}
+
 void CCliManager::dealitemData(RECV_DATA *pRecvData)
 {   trace_worker();
     trace_printf("%s  ", pRecvData->calcInf.m_packet.c_str());
@@ -80,6 +92,30 @@ CCliParsePacket::CCliParsePacket()
 	m_cliThread = DataWorkThread(new boost::thread(boost::bind(&CCliParsePacket::cliThreadProc,this)));	
 	m_sendThread = DataWorkThread(new boost::thread(boost::bind(&CCliParsePacket::sendThreadProc,this)));	
 }
+
+CCliParsePacket::~CCliParsePacket()
+{   trace_worker();  
+    close(m_instream[1]);
+    fclose(m_instreamFile);
+    trace_printf("NULL");
+    close(m_outstream[0]);
+    fclose(m_outstreamFile);
+    
+    trace_printf("NULL");
+    if(m_cliThread != NULL)
+    {   trace_printf("NULL");
+        m_cliThread->interrupt();
+        m_cliThread->join();
+    }
+    trace_printf("NULL");
+    if(m_sendThread != NULL)
+    {   trace_printf("NULL");
+        m_sendThread->interrupt();
+        m_sendThread->join();
+    }
+    trace_printf("NULL");    
+}
+
 
 bool CCliParsePacket::parsePacket(char &charData, std::string &packet)
 {   trace_worker();
@@ -118,7 +154,7 @@ void CCliParsePacket::cliThreadProc()
 		rl_instream = m_instreamFile;
 		rl_outstream = m_outstreamFile;
         line = readline("\r> ");
-        if (!line || !strcmp(line, "disconnect1234"))
+        if (!line)
     	{
 			break;
 		}
@@ -128,6 +164,7 @@ void CCliParsePacket::cliThreadProc()
             execute_line(s);
         }
 	}
+
 }
 
 void CCliParsePacket::sendThreadProc()
@@ -136,6 +173,7 @@ void CCliParsePacket::sendThreadProc()
 	int dataLen = 0;
 	while(1)
 	{
+	    boost::this_thread::interruption_point();
 		dataLen = read (m_outstream[0], data, sizeof(data));		
 		if (dataLen <= 0)
 		{
@@ -143,8 +181,19 @@ void CCliParsePacket::sendThreadProc()
 		}
 		data[dataLen] = '\0';
         printf("data  %s\n", data);
-		//RECV_DATA *repRecvData = packetRecvData(data);
-		//m_netServer->pushRecvData(repRecvData);
+		RECV_DATA *repRecvData = packetRecvData(data);
+		CCliServer::instance()->pushRecvData(repRecvData);
 	}
 }
+
+RECV_DATA *CCliParsePacket::packetRecvData(char *data)
+{
+	RECV_DATA *recvData = IDealDataHandle::createRecvData();
+    
+	recvData->calcInf.m_packet = data;
+	recvData->calcInf.m_clientInf = m_clientInf;
+	return recvData;
+}
+
+
 

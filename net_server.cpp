@@ -175,6 +175,7 @@ node *INetServer::dealDisconnect(ClientConn *pClientConnRead)
 	CUserManager::instance()->removeClient(pClientConnRead->clientId);
 	node *pNode = &pClientConnRead->node;
 
+    pClientConnRead->clientInf->m_parsePacket->resetClientInf();
 	IClientInf *clientInf = pClientConnRead->clientInf.get();
 	clientInf->m_socket = INVALID_SOCKET;
 	
@@ -203,6 +204,7 @@ ClientConn *INetServer::dealConnect(int socket, sockaddr_in &clientAddr)
     clientInf->m_clientPort = port;
 
     boost::shared_ptr<IParsePacket> parsePacket(createParsePacket());
+    parsePacket->setClientInf(pClientConn->clientInf);
     clientInf->m_parsePacket = parsePacket;
 
 	setNoBlock(clientInf->m_socket);
@@ -260,41 +262,12 @@ void INetServer::sendThreadProc()
 		m_recvList->pop_front();	
 		m_recvListMutex.Leave();
 		
-		dealRecvData(&pRecvData->calcInf);
+		m_dataWorkManager->dealSendData(&pRecvData->calcInf);
 		IDealDataHandle::destroyRecvData(pRecvData);
 	}
 
 	return ;
 }
-
-void INetServer::dealRecvData(TimeCalcInf *pCalcInf)
-{
-	int &socket = pCalcInf->m_traceInfoId.socket;
-	IClientInf *clientInf = pCalcInf->m_clientInf.get();
-
-	if (socket == INVALID_SOCKET || clientInf->m_socket == INVALID_SOCKET)
-	{
-		return ;
-	}
-
-	char *packet = pCalcInf->m_pContent;
-	int &packetLen = pCalcInf->m_contentLen;
-
-	char sendData[16];
-	int sendDataLen = 0;
-	unsigned int strLenNum = packetLen + 12;
-	
-	memcpy(sendData+sendDataLen, (char *)"\x7B\x7B\x7B\x7B", 4);
-	sendDataLen += 4;
-	memcpy(sendData+sendDataLen, &strLenNum, sizeof(int));
-	sendDataLen += sizeof(int);
-
-	m_dataWorkManager->send(socket, sendData, sendDataLen);
-	m_dataWorkManager->send(socket, packet, packetLen);
-	m_dataWorkManager->send(socket, (char *)"\x7D\x7D\x7D\x7D", 4);
-	return ;
-}
-
 
 void INetServer::setNoBlock(int socket)
 {

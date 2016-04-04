@@ -52,6 +52,34 @@ CTraceManager::CTraceManager(INetServer* const netServer)
     m_netServer = netServer;
 }
 
+void CTraceManager::dealSendData(TimeCalcInf *pCalcInf)
+{
+	int &socket = pCalcInf->m_traceInfoId.socket;
+	IClientInf *clientInf = pCalcInf->m_clientInf.get();
+
+	if (socket == INVALID_SOCKET || clientInf->m_socket == INVALID_SOCKET)
+	{
+		return ;
+	}
+
+	char *packet = pCalcInf->m_pContent;
+	int &packetLen = pCalcInf->m_contentLen;
+
+	char sendData[16];
+	int sendDataLen = 0;
+	unsigned int strLenNum = packetLen + 12;
+	
+	memcpy(sendData+sendDataLen, (char *)"\x7B\x7B\x7B\x7B", 4);
+	sendDataLen += 4;
+	memcpy(sendData+sendDataLen, &strLenNum, sizeof(int));
+	sendDataLen += sizeof(int);
+
+	send(socket, sendData, sendDataLen);
+	send(socket, packet, packetLen);
+	send(socket, (char *)"\x7D\x7D\x7D\x7D", 4);
+	return ;
+}
+
 void CTraceManager::dealitemData(RECV_DATA *pRecvData)
 {
 	TimeCalcInf *pCalcInf = &pRecvData->calcInf;

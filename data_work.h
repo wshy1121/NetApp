@@ -40,6 +40,7 @@ public:
 	int send(int fd,char *szText,int len);	
 	virtual void openFile(ClientConn clientConn, char *fileName);
 	virtual void closeFile(ClientConn clientConn);
+	virtual void dealSendData(TimeCalcInf *pCalcInf) = 0;
 private:
 	void threadProc();
 	void setErrNo(int recvNum);	

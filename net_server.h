@@ -43,7 +43,6 @@ private:
     virtual IDataWorkManager *createWorkManager() = 0;
     virtual int getServerPort() = 0;
 	int creatClientId();
-	void dealRecvData(TimeCalcInf *pCalcInf);
 	void setNoBlock(int socket);
 protected:
 	IDataWorkManager *m_dataWorkManager;

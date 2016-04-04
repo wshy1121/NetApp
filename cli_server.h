@@ -22,6 +22,7 @@ class CCliManager : public IDataWorkManager
 public:
     CCliManager(INetServer* const netServer = NULL);
     virtual void dealitemData(RECV_DATA *pRecvData);
+    virtual void dealSendData(TimeCalcInf *pCalcInf);
     virtual void dealException(ClientConn clientConn);
 };
 
@@ -30,12 +31,14 @@ class CCliParsePacket : public IParsePacket
 public:    
     typedef boost::shared_ptr<boost::thread> DataWorkThread;
     CCliParsePacket();
+    ~CCliParsePacket();
     void initPacketInf();
     virtual bool parsePacket(char &charData, std::string &packet);
     virtual void writeData(char *data, int dataLen);
 private:
     void cliThreadProc();
     void sendThreadProc();
+    RECV_DATA *packetRecvData(char *data);
 private:
     DataWorkThread m_cliThread;
     DataWorkThread m_sendThread;
