@@ -20,29 +20,30 @@ private:
 class CCliManager : public IDataWorkManager
 {
 public:
-    typedef boost::shared_ptr<boost::thread> DataWorkThread;
     CCliManager(INetServer* const netServer = NULL);
     virtual void dealitemData(RECV_DATA *pRecvData);
     virtual void dealException(ClientConn clientConn);
+};
+
+class CCliParsePacket : public IParsePacket
+{
+public:    
+    typedef boost::shared_ptr<boost::thread> DataWorkThread;
+    CCliParsePacket();
+    void initPacketInf();
+    virtual bool parsePacket(char &charData, std::string &packet);
+    virtual void writeData(char *data, int dataLen);
 private:
     void cliThreadProc();
     void sendThreadProc();
 private:
     DataWorkThread m_cliThread;
-	DataWorkThread m_sendThread;
+    DataWorkThread m_sendThread;
     
-	int m_instream[2];
-	int m_outstream[2];
-	FILE *m_instreamFile;
-	FILE *m_outstreamFile;	
-};
-
-class CCliParsePacket : public IParsePacket
-{
-public:
-    CCliParsePacket(){}
-    void initPacketInf();
-    virtual bool parsePacket(char &charData, std::string &packet);
+    int m_instream[2];
+    int m_outstream[2];
+    FILE *m_instreamFile;
+    FILE *m_outstreamFile;
 };
 
 #endif

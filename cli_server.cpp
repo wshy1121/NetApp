@@ -54,18 +54,60 @@ int CCliServer::getServerPort()
 CCliManager::CCliManager(INetServer* const netServer)
 {
     m_netServer = netServer;
-    
+}
+
+
+void CCliManager::dealException(ClientConn clientConn)
+{
+    printf("CCliServer client disconnect socket:%d clientId:%d\n", clientConn.socket, clientConn.clientId);
+}
+
+void CCliManager::dealitemData(RECV_DATA *pRecvData)
+{   trace_worker();
+    trace_printf("%s  ", pRecvData->calcInf.m_packet.c_str());
+    std::string &packet = pRecvData->calcInf.m_packet;
+    pRecvData->calcInf.m_clientInf->m_parsePacket->writeData((char *)packet.c_str(), packet.size());
+}
+
+CCliParsePacket::CCliParsePacket()
+{   trace_worker();
 	pipe(m_instream);
 	m_instreamFile = fdopen(m_instream[0], "r");
 	
 	pipe(m_outstream);
 	m_outstreamFile = fdopen(m_outstream[1], "w");
 
-	m_cliThread = DataWorkThread(new boost::thread(boost::bind(&CCliManager::cliThreadProc,this)));	
-	m_sendThread = DataWorkThread(new boost::thread(boost::bind(&CCliManager::sendThreadProc,this)));	
+	m_cliThread = DataWorkThread(new boost::thread(boost::bind(&CCliParsePacket::cliThreadProc,this)));	
+	m_sendThread = DataWorkThread(new boost::thread(boost::bind(&CCliParsePacket::sendThreadProc,this)));	
 }
 
-void CCliManager::cliThreadProc()
+bool CCliParsePacket::parsePacket(char &charData, std::string &packet)
+{   trace_worker();
+    trace_printf("charData  %c|", charData);
+    char &posData = m_packetBuffer[m_packetPos];
+    posData = charData;
+    packet.assign(&posData, 1);
+    
+    m_packetPos = ++m_packetPos % m_maxBufferSize;
+    return true;
+}
+
+
+
+void CCliParsePacket::initPacketInf()
+{
+    m_packetPos= 0;
+}
+
+void CCliParsePacket::writeData(char *data, int dataLen)
+{   trace_worker();
+	rl_instream = m_instreamFile;
+	rl_outstream = m_outstreamFile;
+	write (m_instream[1], data, dataLen);
+
+}
+
+void CCliParsePacket::cliThreadProc()
 {
 	char *line, *s;
 	initialize_readline();
@@ -88,7 +130,7 @@ void CCliManager::cliThreadProc()
 	}
 }
 
-void CCliManager::sendThreadProc()
+void CCliParsePacket::sendThreadProc()
 {
 	char data[1024];
 	int dataLen = 0;
@@ -105,47 +147,4 @@ void CCliManager::sendThreadProc()
 		//m_netServer->pushRecvData(repRecvData);
 	}
 }
-
-void CCliManager::dealException(ClientConn clientConn)
-{
-    printf("CCliServer client disconnect socket:%d clientId:%d\n", clientConn.socket, clientConn.clientId);
-}
-
-void CCliManager::dealitemData(RECV_DATA *pRecvData)
-{   trace_worker();
-    trace_printf("%s  ", pRecvData->calcInf.m_packet.c_str());
-    std::string &packet = pRecvData->calcInf.m_packet;    
-    packet += "\x0D\x0A";
-    
-	rl_instream = m_instreamFile;
-	rl_outstream = m_outstreamFile;
-	write (m_instream[1], packet.c_str(), packet.size());
-}
-
-bool CCliParsePacket::parsePacket(char &charData, std::string &packet)
-{   trace_worker();
-    trace_printf("%d", charData);
-    if (isprint(charData) == 0)
-    {
-        if (m_packetPos > 0 || charData == '\x0D')
-        {
-            packet.assign(m_packetBuffer, m_packetPos);        
-            initPacketInf();
-            trace_printf("packet.c_str()  |%s|", packet.c_str());            
-            return true;
-        }
-    }
-    else
-    {        
-        ++m_packetPos;
-    }
-    return false;  
-}
-
-
-void CCliParsePacket::initPacketInf()
-{
-    m_packetPos= 0;
-}
-
 
