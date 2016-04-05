@@ -130,7 +130,6 @@ void INetServer::listenThread()
 			while(needWhile)
 			{
 				RECV_DATA *pRecvData = IDealDataHandle::createRecvData();
-				std::shared_ptr<CLogDataInf> &dataInf = pRecvData->calcInf.m_dataInf;
 				std::string &packet =  pRecvData->calcInf.m_packet;
                 IParsePacket *parsePacket = pClientConnRead->clientInf->m_parsePacket.get();
 				bool bRet = m_dataWorkManager->receiveInfData(pClientConnRead->socket, parsePacket, packet);
