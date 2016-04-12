@@ -129,12 +129,12 @@ void INetServer::listenThread()
 			needWhile = FD_ISSET(pClientConnRead->socket, &fd_read);
 			while(needWhile)
 			{
+				bool &isBackClient = pClientConnRead->clientInf->m_isBackClient;
 				RECV_DATA *pRecvData = IDealDataHandle::createRecvData();
 				std::string &packet =  pRecvData->calcInf.m_packet;
                 IParsePacket *parsePacket = pClientConnRead->clientInf->m_parsePacket.get();
 				bool bRet = m_dataWorkManager->receiveInfData(pClientConnRead->socket, parsePacket, packet);
-				
-				if(bRet)
+				if(bRet && !isBackClient)
 				{
 					m_dataWorkManager->pushItemData(pClientConnRead, pRecvData);
 				}
