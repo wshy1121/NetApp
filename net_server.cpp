@@ -121,30 +121,25 @@ void INetServer::listenThread()
 		}
 
 		ClientConn *pClientConnRead = NULL;
-		bool needWhile = false;
 		node *pHead = &m_listClientRead->head_node;
 		for ((pNode)=(pHead)->next; (pHead) != (pNode);)
 		{
 			pClientConnRead = clientConnContain(pNode);
-			needWhile = FD_ISSET(pClientConnRead->socket, &fd_read);
-			while(needWhile)
+
+			bool &isBackClient = pClientConnRead->clientInf->m_isBackClient;
+			RECV_DATA *pRecvData = IDealDataHandle::createRecvData();
+			std::string &packet =  pRecvData->calcInf.m_packet;
+            IParsePacket *parsePacket = pClientConnRead->clientInf->m_parsePacket.get();
+			bool bRet = m_dataWorkManager->receiveInfData(pClientConnRead->socket, parsePacket, packet);
+			if(bRet && !isBackClient)
 			{
-				bool &isBackClient = pClientConnRead->clientInf->m_isBackClient;
-				RECV_DATA *pRecvData = IDealDataHandle::createRecvData();
-				std::string &packet =  pRecvData->calcInf.m_packet;
-                IParsePacket *parsePacket = pClientConnRead->clientInf->m_parsePacket.get();
-				bool bRet = m_dataWorkManager->receiveInfData(pClientConnRead->socket, parsePacket, packet);
-				if(bRet && !isBackClient)
-				{
-					m_dataWorkManager->pushItemData(pClientConnRead, pRecvData);
-				}
-				//异常处理
-				else
-				{
-					IDealDataHandle::destroyRecvData(pRecvData);
-					pNode = m_dataWorkManager->dealErrNo(pClientConnRead, pNode);
-					break;
-				}
+				m_dataWorkManager->pushItemData(pClientConnRead, pRecvData);
+			}
+			//异常处理
+			else
+			{
+				IDealDataHandle::destroyRecvData(pRecvData);
+				pNode = m_dataWorkManager->dealErrNo(pClientConnRead, pNode);
 			}
 			(pNode)=(pNode)->next;
 		}
