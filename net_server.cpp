@@ -127,7 +127,7 @@ void INetServer::listenThread()
 			pClientConnRead = clientConnContain(pNode);
 
 			bool &isBackClient = pClientConnRead->clientInf->m_isBackClient;
-			RECV_DATA *pRecvData = IDealDataHandle::createRecvData();
+			RECV_DATA *pRecvData = IDealDataHandle::createRecvData(false);
 			std::string &packet =  pRecvData->calcInf.m_packet;
             IParsePacket *parsePacket = pClientConnRead->clientInf->m_parsePacket.get();
 			bool bRet = m_dataWorkManager->receiveInfData(pClientConnRead->socket, parsePacket, packet);

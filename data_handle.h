@@ -35,7 +35,7 @@ public:
 	}MethodInf;
 	
 	virtual ~IDealDataHandle() = 0;
-	static RECV_DATA *createRecvData(int contentLen = 0);
+	static RECV_DATA *createRecvData(int contentLen = 0, bool isCopy = true);
 	static void destroyRecvData(RECV_DATA *pRecvData);
 	int addMethod(const char*name, Method method);
 	static void execute(TimeCalcInf *pCalcInf);	
