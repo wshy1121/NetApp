@@ -93,7 +93,7 @@ void CTraceManager::dealitemData(RECV_DATA *pRecvData)
 
 void CTraceManager::openFile(ClientConn clientConn, char *fileName)
 {
-	RECV_DATA *pRecvData =IDealDataHandle::createRecvData();
+	RECV_DATA *pRecvData = IDealDataHandle::createRecvData();
 	
 	std::shared_ptr<CLogDataInf> &dataInf = pRecvData->calcInf.m_dataInf;
 	
@@ -105,7 +105,7 @@ void CTraceManager::openFile(ClientConn clientConn, char *fileName)
 	dataInf->putInf("");
 	dataInf->putInf("0");
 	dataInf->putInf(fileName);
-
+    dataInf->packet();
 	clientConn.socket = INVALID_SOCKET;
 	pushItemData(&clientConn, pRecvData); 
 	return ;
@@ -125,7 +125,7 @@ void CTraceManager::closeFile(ClientConn clientConn)
 	dataInf->putInf("");
 	dataInf->putInf("0");
 	dataInf->putInf("");
-
+    dataInf->packet();
 	clientConn.socket = INVALID_SOCKET;
 	pushItemData(&clientConn, pRecvData); 
 	return ;
@@ -147,7 +147,7 @@ void CTraceManager::dealException(ClientConn clientConn)
 		dataInf->putInf("");
 		dataInf->putInf("0");
 		dataInf->putInf("backtrace");
-
+        dataInf->packet();
 		pushItemData(&clientConn, pRecvData); 
 	}
 	{
@@ -162,7 +162,7 @@ void CTraceManager::dealException(ClientConn clientConn)
 		dataInf->putInf("");
 		dataInf->putInf("0");
 		dataInf->putInf("backtrace");
-
+        dataInf->packet();
 		pushItemData(&clientConn, pRecvData); 
 	}
 	return ;
