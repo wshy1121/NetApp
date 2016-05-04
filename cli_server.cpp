@@ -180,7 +180,6 @@ void CCliParsePacket::sendThreadProc()
 			break;
 		}
 		data[dataLen] = '\0';
-        printf("data  %s\n", data);
 		RECV_DATA *repRecvData = packetRecvData(data);
 		CCliServer::instance()->pushRecvData(repRecvData);
 	}
