@@ -178,7 +178,8 @@ void CTraceHandle::cleanFile(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcInf)
 	trace_printf("NULL");
 	char *fileName = dataInf->m_infs[2];
 	trace_printf("fileName  %s", fileName);
-	CLogOprManager::instance()->cleanFile(fileName);
+    
+	CLogOprManager::instance()->cleanFile(m_pTraceInfoId->clientId);
 	trace_printf("NULL");	
 	return ;
 }
