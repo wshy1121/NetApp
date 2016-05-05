@@ -200,7 +200,8 @@ void CTraceHandle::getTraceFileList(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcI
 	int fileMemIndex = 0;
 	int strCount = 0;
 	TraceFileInf *traceFileInf = NULL;
-	CLogOprManager::TraceFileInfMap &traceFileMap = CLogOprManager::instance()->getTraceFileList();
+	CLogOprManager::TraceFileInfMap traceFileMap;
+    CLogOprManager::instance()->getTraceFileList(traceFileMap);
 	CLogOprManager::TraceFileInfMap::iterator iter = traceFileMap.begin();
 	for (; iter != traceFileMap.end(); ++iter)
 	{
@@ -226,7 +227,8 @@ void CTraceHandle::getTraceFileInf(TimeCalcInf *pCalcInf, TimeCalcInf *repCalcIn
 	char *sessionId = reqDataInf->m_infs[1];
 	char *fileName = reqDataInf->m_infs[2];
 
-	CLogOprManager::TraceFileInfMap &traceFileMap = CLogOprManager::instance()->getTraceFileList();
+	CLogOprManager::TraceFileInfMap traceFileMap;
+    CLogOprManager::instance()->getTraceFileList(traceFileMap);
 	CLogOprManager::TraceFileInfMap::iterator iter = traceFileMap.find(fileName);
 	if (iter == traceFileMap.end())
 	{	trace_printf("NULL");
