@@ -181,7 +181,8 @@ void CCliParsePacket::sendThreadProc()
 		}
 		data[dataLen] = '\0';
 		RECV_DATA *repRecvData = packetRecvData(data);
-		CCliServer::instance()->pushRecvData(repRecvData);
+        INetServer *&netServer = m_clientInf->m_netServer;      
+		netServer->pushRecvData(repRecvData);
 	}
 }
 
@@ -194,5 +195,44 @@ RECV_DATA *CCliParsePacket::packetRecvData(char *data)
 	return recvData;
 }
 
+
+
+CCliUdpServer* CCliUdpServer::_instance = NULL;
+
+CCliUdpServer* CCliUdpServer::instance() 
+{
+	if (NULL == _instance)
+	{
+		boost::unique_lock<boost::mutex> lock(g_insMutex);
+		if (NULL == _instance)
+		{
+			_instance = new CCliUdpServer;
+		}
+	}
+	return _instance;
+}
+
+CCliUdpServer::CCliUdpServer()
+{    
+    return ;
+}
+
+IParsePacket *CCliUdpServer::createParsePacket()
+{
+    return new CCliParsePacket;
+}
+
+IDataWorkManager *CCliUdpServer::createWorkManager()
+{
+    return new CCliManager(this);
+}
+
+int CCliUdpServer::getServerPort()
+{    
+	CSimpleIniA ini;  
+	ini.SetUnicode();  
+	ini.LoadFile("Config.ini");
+    return (int)ini.GetLongValue("NetConfig", "CliSerPort");
+}
 
 

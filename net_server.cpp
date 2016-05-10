@@ -188,7 +188,7 @@ ClientConn *INetServer::dealConnect(int socket, sockaddr_in &clientAddr)
     port = ntohs(clientAddr.sin_port);
 
 	ClientConn *pClientConn = new ClientConn;
-	std::shared_ptr<IClientInf> ptr(createClientInf());	
+	std::shared_ptr<IClientInf> ptr(createClientInf(this));	
 	IClientInf *clientInf = ptr.get();
 	pClientConn->clientInf = ptr;
 	
@@ -208,9 +208,9 @@ ClientConn *INetServer::dealConnect(int socket, sockaddr_in &clientAddr)
 	return pClientConn;
 }
 
-IClientInf *INetServer::createClientInf()
+IClientInf *INetServer::createClientInf(INetServer *netServer)
 {
-    return new IClientInf;
+    return new IClientInf(netServer);
 }
 
 

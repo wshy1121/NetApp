@@ -38,7 +38,7 @@ private:
 	void sendThreadProc();
 private:
 	ClientConn *dealConnect(int socket, sockaddr_in &clientAddr);
-    virtual IClientInf *createClientInf();
+    virtual IClientInf *createClientInf(INetServer *netServer);
     virtual IParsePacket *createParsePacket() = 0;
     virtual IDataWorkManager *createWorkManager() = 0;
     virtual int getServerPort() = 0;

@@ -49,5 +49,23 @@ private:
     FILE *m_outstreamFile;
 };
 
+
+#include "udp_server.h"
+class CCliUdpServer : public IUdpServer
+{
+public:
+    static CCliUdpServer* instance();
+private:    
+    CCliUdpServer();
+    virtual IParsePacket *createParsePacket();
+    virtual IDataWorkManager *createWorkManager();
+    virtual int getServerPort();
+private:
+	static  CCliUdpServer* _instance;
+
+};
+
+
+
 #endif
 
