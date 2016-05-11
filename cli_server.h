@@ -4,20 +4,6 @@
 #include "tcp_server.h"
 #include "udp_server.h"
 
-class CCliServer : public ITcpServer
-{
-public:
-    static CCliServer* instance();
-private:    
-    CCliServer();
-    virtual IParsePacket *createParsePacket();
-    virtual IDataWorkManager *createWorkManager();
-    virtual int getServerPort();
-private:
-	static  CCliServer* _instance;
-
-};
-
 class CCliManager : public IDataWorkManager
 {
 public:
@@ -34,7 +20,7 @@ public:
     CCliParsePacket();
     ~CCliParsePacket();
     void initPacketInf();
-    virtual bool parsePacket(char &charData, std::string &packet);
+    virtual bool parsePacket(char *charData, int charDataLen, std::string &packet);
     virtual void writeData(char *data, int dataLen);
 private:
     void cliThreadProc();
@@ -48,6 +34,21 @@ private:
     int m_outstream[2];
     FILE *m_instreamFile;
     FILE *m_outstreamFile;
+};
+
+
+class CCliTcpServer : public ITcpServer
+{
+public:
+    static CCliTcpServer* instance();
+private:    
+    CCliTcpServer();
+    virtual IParsePacket *createParsePacket();
+    virtual IDataWorkManager *createWorkManager();
+    virtual int getServerPort();
+private:
+	static  CCliTcpServer* _instance;
+
 };
 
 

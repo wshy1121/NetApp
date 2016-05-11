@@ -43,7 +43,7 @@ bool ITcpServer::startServer()
     m_hListenThread = WorkThread(new boost::thread(boost::bind(&ITcpServer::listenThread,this)));
 	m_sendThread = WorkThread(new boost::thread(boost::bind(&INetServer::sendThreadProc,this)));
 	
-	printf("server is start, port is %d!\n", SERVER_PORT);
+	printf("tcp server is start, port is %d!\n", SERVER_PORT);
 	return true;
 }
 
@@ -122,5 +122,10 @@ void ITcpServer::listenThread()
 bool ITcpServer::receiveInfData(int socket, IParsePacket *parsePacket, std::string &packet)
 { 
     return m_dataWorkManager->receiveInfData(socket, parsePacket, packet);
+}
+
+int ITcpServer::send(IClientInf *clientInf, char *szText,int len)
+{
+    return m_dataWorkManager->send(clientInf->m_socket, szText, len);
 }
 

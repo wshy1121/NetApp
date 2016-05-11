@@ -32,7 +32,7 @@ class CTraceParsePacket : public IParsePacket
 {
 public:
     CTraceParsePacket();
-    virtual bool parsePacket(char &charData, std::string &packet);
+    virtual bool parsePacket(char *charData, int charDataLen, std::string &packet);
 private:    
 	void initPacketInf();
 private:    

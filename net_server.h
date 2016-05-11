@@ -28,21 +28,23 @@ class INetServer
 {
 public:
     friend class ITcpServer;
+    friend class IUdpServer;
     typedef boost::shared_ptr<boost::thread> WorkThread;    
 	INetServer();
     virtual ~INetServer();
 	virtual bool startServer() = 0;
+    virtual int send(IClientInf *clientInf, char *szText,int len) = 0;
+    
 	void pushRecvData(RECV_DATA *pRecvData);	
 	node *dealDisconnect(ClientConn *pClientConnRead);
 private:
 	void sendThreadProc();
-private:
+protected:
 	ClientConn *dealConnect(int socket, sockaddr_in &clientAddr);
     IClientInf *createClientInf();
     virtual IParsePacket *createParsePacket() = 0;
     int creatClientId();
-	void setNoBlock(int socket);    
-protected:    
+	void setNoBlock(int socket);     
     virtual int getServerPort() = 0;
     virtual IDataWorkManager *createWorkManager() = 0;
 protected:
@@ -62,5 +64,5 @@ protected:
 };
 
 
-#endif //_CHAT_ROOT_SERVER_
+#endif 
 

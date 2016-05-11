@@ -184,7 +184,7 @@ void CTraceParsePacket::initPacketInf()
     m_curPacketSize = 0;
 }
 
-bool CTraceParsePacket::parsePacket(char &charData, std::string &packet)
+bool CTraceParsePacket::parsePacket(char *charData, int charDataLen, std::string &packet)
 {
 	if (m_curPacketSize == 0 && m_packetPos > 8)
 	{
@@ -199,7 +199,7 @@ bool CTraceParsePacket::parsePacket(char &charData, std::string &packet)
 		}
 	}
 	
-	switch (charData)
+	switch (charData[0])
 	{
 		case '\x7B':
             m_tailCount = 0;

@@ -81,15 +81,15 @@ bool IDataWorkManager::receiveInfData(int socket, IParsePacket *parsePacket, std
 	
 	while (1)
 	{
-		char &charData = parsePacket->charData();
-		nRecv = ::recv(socket, &charData, 1, 0);
+		char *charData = parsePacket->charData();
+		nRecv = ::recv(socket, charData, 1, 0);
 		if (nRecv <= 0)
 		{
 			setErrNo(nRecv);	
 			return false;
 		}
         
-        if (parsePacket->parsePacket(charData, packet))
+        if (parsePacket->parsePacket(charData, 1, packet))
         {
             return true;
         }

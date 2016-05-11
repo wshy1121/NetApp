@@ -11,46 +11,6 @@ extern FILE *rl_outstream;
 
 static boost::mutex g_insMutex;
 
-CCliServer* CCliServer::_instance = NULL;
-
-CCliServer* CCliServer::instance() 
-{
-	if (NULL == _instance)
-	{
-		boost::unique_lock<boost::mutex> lock(g_insMutex);
-		if (NULL == _instance)
-		{
-			_instance = new CCliServer;
-		}
-	}
-	return _instance;
-}
-
-CCliServer::CCliServer()
-{    
-    return ;
-}
-
-IParsePacket *CCliServer::createParsePacket()
-{
-    return new CCliParsePacket;
-}
-
-IDataWorkManager *CCliServer::createWorkManager()
-{
-    return new CCliManager(this);
-}
-
-int CCliServer::getServerPort()
-{    
-	CSimpleIniA ini;  
-	ini.SetUnicode();  
-	ini.LoadFile("Config.ini");
-    return (int)ini.GetLongValue("NetConfig", "CliSerPort");
-}
-
-
-
 CCliManager::CCliManager(INetServer* const netServer)
 {
     m_netServer = netServer;
@@ -59,7 +19,7 @@ CCliManager::CCliManager(INetServer* const netServer)
 
 void CCliManager::dealException(ClientConn clientConn)
 {
-    printf("CCliServer client disconnect socket:%d clientId:%d\n", clientConn.socket, clientConn.clientId);
+    printf("CCliTcpServer client disconnect socket:%d clientId:%d\n", clientConn.socket, clientConn.clientId);
 }
 
 void CCliManager::dealSendData(TimeCalcInf *pCalcInf)
@@ -71,7 +31,7 @@ void CCliManager::dealSendData(TimeCalcInf *pCalcInf)
         return ;
     }
     std::string &packet = pCalcInf->m_packet;
-    send(socket, (char *)packet.c_str(), packet.size());
+    clientInf->m_netServer->send(clientInf, (char *)packet.c_str(), packet.size());
 }
 
 void CCliManager::dealitemData(RECV_DATA *pRecvData)
@@ -117,14 +77,12 @@ CCliParsePacket::~CCliParsePacket()
 }
 
 
-bool CCliParsePacket::parsePacket(char &charData, std::string &packet)
+bool CCliParsePacket::parsePacket(char *charData, int charDataLen, std::string &packet)
 {   trace_worker();
-    trace_printf("charData  %c|", charData);
-    char &posData = m_packetBuffer[m_packetPos];
-    posData = charData;
-    packet.assign(&posData, 1);
+    trace_printf("charData  %s|", charData);
+    packet.assign(charData, charDataLen);
     
-    m_packetPos = (m_packetPos + 1) % m_maxBufferSize;
+    m_packetPos = 0;
     return true;
 }
 
@@ -195,6 +153,44 @@ RECV_DATA *CCliParsePacket::packetRecvData(char *data)
 	return recvData;
 }
 
+
+CCliTcpServer* CCliTcpServer::_instance = NULL;
+
+CCliTcpServer* CCliTcpServer::instance() 
+{
+	if (NULL == _instance)
+	{
+		boost::unique_lock<boost::mutex> lock(g_insMutex);
+		if (NULL == _instance)
+		{
+			_instance = new CCliTcpServer;
+		}
+	}
+	return _instance;
+}
+
+CCliTcpServer::CCliTcpServer()
+{    
+    return ;
+}
+
+IParsePacket *CCliTcpServer::createParsePacket()
+{
+    return new CCliParsePacket;
+}
+
+IDataWorkManager *CCliTcpServer::createWorkManager()
+{
+    return new CCliManager(this);
+}
+
+int CCliTcpServer::getServerPort()
+{    
+	CSimpleIniA ini;  
+	ini.SetUnicode();  
+	ini.LoadFile("Config.ini");
+    return (int)ini.GetLongValue("NetConfig", "CliSerPort");
+}
 
 
 CCliUdpServer* CCliUdpServer::_instance = NULL;

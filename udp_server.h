@@ -9,9 +9,13 @@ public:
 	IUdpServer();
     virtual ~IUdpServer();
 	virtual bool startServer();
+    virtual int send(IClientInf *clientInf, char *szText,int len);
 private:
 	void listenThread();
     bool receiveInfData(int socket, IParsePacket *parsePacket, std::string &packet);
+    void initClientConn(ClientConn &clientConn);
+private:
+    const int m_maxBufferSize;
 };
 
 
