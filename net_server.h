@@ -1,13 +1,13 @@
 #ifndef __NET_SERVER_H
 #define __NET_SERVER_H
-#include "link_tool.h"
-#include "defs.h"
+
 #include <bitset>
 #include <memory>
 #include <boost/shared_ptr.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/thread.hpp>
 
+#include "defs.h"
 #include "link_tool.h"
 #include "data_handle.h"
 #include "user_manager.h"
@@ -38,10 +38,11 @@ private:
 	void sendThreadProc();
 private:
 	ClientConn *dealConnect(int socket, sockaddr_in &clientAddr);
-    virtual IClientInf *createClientInf(INetServer *netServer);
+    virtual IClientInf *createClientInf();
     virtual IParsePacket *createParsePacket() = 0;
     virtual IDataWorkManager *createWorkManager() = 0;
     virtual int getServerPort() = 0;
+	virtual bool receiveInfData(int socket, IParsePacket *parsePacket, std::string &packet);	
 	int creatClientId();
 	void setNoBlock(int socket);
 protected:

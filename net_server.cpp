@@ -130,7 +130,7 @@ void INetServer::listenThread()
 			RECV_DATA *pRecvData = IDealDataHandle::createRecvData(false);
 			std::string &packet =  pRecvData->calcInf.m_packet;
             IParsePacket *parsePacket = pClientConnRead->clientInf->m_parsePacket.get();
-			bool bRet = m_dataWorkManager->receiveInfData(pClientConnRead->socket, parsePacket, packet);
+			bool bRet = receiveInfData(pClientConnRead->socket, parsePacket, packet);
 			if(bRet && !isBackClient)
 			{
 				m_dataWorkManager->pushItemData(pClientConnRead, pRecvData);
@@ -188,7 +188,7 @@ ClientConn *INetServer::dealConnect(int socket, sockaddr_in &clientAddr)
     port = ntohs(clientAddr.sin_port);
 
 	ClientConn *pClientConn = new ClientConn;
-	std::shared_ptr<IClientInf> ptr(createClientInf(this));	
+	std::shared_ptr<IClientInf> ptr(createClientInf());	
 	IClientInf *clientInf = ptr.get();
 	pClientConn->clientInf = ptr;
 	
@@ -208,9 +208,9 @@ ClientConn *INetServer::dealConnect(int socket, sockaddr_in &clientAddr)
 	return pClientConn;
 }
 
-IClientInf *INetServer::createClientInf(INetServer *netServer)
+IClientInf *INetServer::createClientInf()
 {
-    return new IClientInf(netServer);
+    return new IClientInf(this);
 }
 
 
@@ -290,5 +290,9 @@ void INetServer::setNoBlock(int socket)
 #endif
 }
 
+bool INetServer::receiveInfData(int socket, IParsePacket *parsePacket, std::string &packet)
+{ 
+    return m_dataWorkManager->receiveInfData(socket, parsePacket, packet);
+}
 
 
