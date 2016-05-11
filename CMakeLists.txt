@@ -18,6 +18,7 @@ SET(SRC_SRCS
   trace_server.cpp
   cli_server.cpp
   udp_server.cpp
+  tcp_server.cpp
 )
 
 # shared library

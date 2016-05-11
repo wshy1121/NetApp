@@ -62,16 +62,6 @@ protected:
 	int m_nfds;
 };
 
-class ITcpServer : public INetServer
-{
-public:
-    ITcpServer(){}
-    virtual ~ITcpServer(){}
-public:
-    virtual bool startServer();
-private:
-    void listenThread();
-    bool receiveInfData(int socket, IParsePacket *parsePacket, std::string &packet);
-};
+
 #endif //_CHAT_ROOT_SERVER_
 

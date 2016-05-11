@@ -1,6 +1,6 @@
 #ifndef __CLI_SERVER_H
 #define __CLI_SERVER_H
-#include "net_server.h"
+#include "tcp_server.h"
 #include "data_work.h"
 
 class CCliServer : public ITcpServer
