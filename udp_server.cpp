@@ -77,9 +77,8 @@ void IUdpServer::listenThread()
         RECV_DATA *pRecvData = IDealDataHandle::createRecvData(false);
 		std::string &packet =  pRecvData->calcInf.m_packet;
         IParsePacket *parsePacket = clientConn.clientInf->m_parsePacket.get();
-		bool bRet = receiveInfData(clientConn.socket, parsePacket, packet);
+		bool bRet = receiveInfData(clientConn, parsePacket, packet);
         
-        printf("packet.c_str()  %s\n", packet.c_str());
 		if(bRet)
 		{
 			m_dataWorkManager->pushItemData(&clientConn, pRecvData);
@@ -87,7 +86,7 @@ void IUdpServer::listenThread()
     }
 }
 
-bool IUdpServer::receiveInfData(int socket, IParsePacket *parsePacket, std::string &packet)
+bool IUdpServer::receiveInfData(ClientConn &clientConn, IParsePacket *parsePacket, std::string &packet)
 {   trace_worker();
     struct sockaddr_in clientAddr;
     socklen_t addrLen = sizeof(clientAddr);
@@ -96,7 +95,7 @@ bool IUdpServer::receiveInfData(int socket, IParsePacket *parsePacket, std::stri
     while (1)
     {
         char *charData = parsePacket->charData();
-        nRecv = ::recvfrom(socket, charData, m_maxBufferSize, 0, (struct sockaddr*)&clientAddr, &addrLen);
+        nRecv = ::recvfrom(clientConn.socket, charData, m_maxBufferSize, 0, (struct sockaddr*)&clientAddr, &addrLen);
         if (nRecv <= 0)
         {
             return false;
@@ -104,11 +103,12 @@ bool IUdpServer::receiveInfData(int socket, IParsePacket *parsePacket, std::stri
         
         if (parsePacket->parsePacket(charData, nRecv, packet))
         {
+            clientConn.clientInf->m_clientAddr = clientAddr;
             return true;
         }
     }
 
-    return true;
+    return false;
 }
 
 void IUdpServer::initClientConn(ClientConn &clientConn)
@@ -125,8 +125,21 @@ void IUdpServer::initClientConn(ClientConn &clientConn)
     
 }
 
-int IUdpServer::send(IClientInf *clientInf, char *szText,int len)
-{
+int IUdpServer::send(IClientInf *clientInf, char *szText, int len)
+{   trace_worker();
+    if (clientInf == NULL)
+    {
+        return -1;
+    }
+
+    int socket = clientInf->m_socket;
+    if (socket <= 0)
+    {
+        return -1;
+    }
+    
+    sockaddr_in &clientAddr = clientInf->m_clientAddr;
+    sendto(socket, szText, len, 0, (struct sockaddr *)&clientAddr, sizeof(clientAddr));
     return 0;
 }
 
