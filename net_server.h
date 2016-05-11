@@ -27,24 +27,25 @@ typedef struct ClientConn
 class INetServer
 {
 public:
+    friend class ITcpServer;
     typedef boost::shared_ptr<boost::thread> WorkThread;    
 	INetServer();
     virtual ~INetServer();
-	bool startServer();
+	virtual bool startServer() = 0;
 	void pushRecvData(RECV_DATA *pRecvData);	
 	node *dealDisconnect(ClientConn *pClientConnRead);
 private:
-	void listenThread();
 	void sendThreadProc();
 private:
 	ClientConn *dealConnect(int socket, sockaddr_in &clientAddr);
-    virtual IClientInf *createClientInf();
+    IClientInf *createClientInf();
     virtual IParsePacket *createParsePacket() = 0;
-    virtual IDataWorkManager *createWorkManager() = 0;
+	bool receiveInfData(int socket, IParsePacket *parsePacket, std::string &packet);
+    int creatClientId();
+	void setNoBlock(int socket);    
+protected:    
     virtual int getServerPort() = 0;
-	virtual bool receiveInfData(int socket, IParsePacket *parsePacket, std::string &packet);	
-	int creatClientId();
-	void setNoBlock(int socket);
+    virtual IDataWorkManager *createWorkManager() = 0;
 protected:
 	IDataWorkManager *m_dataWorkManager;
 	int SERVER_PORT;
@@ -61,6 +62,16 @@ protected:
 	int m_nfds;
 };
 
-
+class ITcpServer : public INetServer
+{
+public:
+    ITcpServer(){}
+    virtual ~ITcpServer(){}
+public:
+    virtual bool startServer();
+private:
+    void listenThread();
+    bool receiveInfData(int socket, IParsePacket *parsePacket, std::string &packet);
+};
 #endif //_CHAT_ROOT_SERVER_
 

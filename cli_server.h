@@ -3,7 +3,7 @@
 #include "net_server.h"
 #include "data_work.h"
 
-class CCliServer : public INetServer
+class CCliServer : public ITcpServer
 {
 public:
     static CCliServer* instance();

@@ -3,7 +3,7 @@
 #include "net_server.h"
 #include "data_work.h"
 
-class CTraceServer : public INetServer
+class CTraceServer : public ITcpServer
 {
 public:
     static CTraceServer* instance();
