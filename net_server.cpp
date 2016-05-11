@@ -59,8 +59,6 @@ ClientConn *INetServer::dealConnect(int socket, sockaddr_in &clientAddr)
 {	trace_worker();
     char *ipAddr = NULL;
     int port = 0;            
-    ipAddr = inet_ntoa(clientAddr.sin_addr);
-    port = ntohs(clientAddr.sin_port);
 
 	ClientConn *pClientConn = new ClientConn;
 	std::shared_ptr<IClientInf> ptr(createClientInf());	
@@ -69,8 +67,7 @@ ClientConn *INetServer::dealConnect(int socket, sockaddr_in &clientAddr)
 	
 	clientInf->m_socket = pClientConn->socket = socket;
 	clientInf->m_clientId = pClientConn->clientId = creatClientId();
-    clientInf->m_clientIpAddr = ipAddr;
-    clientInf->m_clientPort = port;
+    clientInf->m_clientAddr = clientAddr;
 
     boost::shared_ptr<IParsePacket> parsePacket(createParsePacket());
     parsePacket->setClientInf(pClientConn->clientInf);
