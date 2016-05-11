@@ -40,7 +40,6 @@ private:
 	ClientConn *dealConnect(int socket, sockaddr_in &clientAddr);
     IClientInf *createClientInf();
     virtual IParsePacket *createParsePacket() = 0;
-	bool receiveInfData(int socket, IParsePacket *parsePacket, std::string &packet);
     int creatClientId();
 	void setNoBlock(int socket);    
 protected:    

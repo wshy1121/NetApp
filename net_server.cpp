@@ -39,15 +39,6 @@ INetServer::~INetServer()
 {
 }
 
-
-
-
-
-
-
-
-
-
 node *INetServer::dealDisconnect(ClientConn *pClientConnRead)
 {	trace_worker();
 	CUserManager::instance()->removeClient(pClientConnRead->clientId);

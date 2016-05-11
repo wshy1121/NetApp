@@ -1,7 +1,8 @@
 #ifndef __CLI_SERVER_H
 #define __CLI_SERVER_H
-#include "tcp_server.h"
 #include "data_work.h"
+#include "tcp_server.h"
+#include "udp_server.h"
 
 class CCliServer : public ITcpServer
 {
@@ -50,7 +51,6 @@ private:
 };
 
 
-#include "udp_server.h"
 class CCliUdpServer : public IUdpServer
 {
 public:

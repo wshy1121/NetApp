@@ -124,7 +124,7 @@ bool CCliParsePacket::parsePacket(char &charData, std::string &packet)
     posData = charData;
     packet.assign(&posData, 1);
     
-    m_packetPos = ++m_packetPos % m_maxBufferSize;
+    m_packetPos = (m_packetPos + 1) % m_maxBufferSize;
     return true;
 }
 
@@ -213,22 +213,22 @@ CCliUdpServer* CCliUdpServer::instance()
 }
 
 CCliUdpServer::CCliUdpServer()
-{    
+{   trace_worker();
     return ;
 }
 
 IParsePacket *CCliUdpServer::createParsePacket()
-{
+{   trace_worker();
     return new CCliParsePacket;
 }
 
 IDataWorkManager *CCliUdpServer::createWorkManager()
-{
+{   trace_worker();
     return new CCliManager(this);
 }
 
 int CCliUdpServer::getServerPort()
-{    
+{   trace_worker();
 	CSimpleIniA ini;  
 	ini.SetUnicode();  
 	ini.LoadFile("Config.ini");
