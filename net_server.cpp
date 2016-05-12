@@ -57,8 +57,6 @@ node *INetServer::dealDisconnect(ClientConn *pClientConnRead)
 
 ClientConn *INetServer::dealConnect(int socket, sockaddr_in &clientAddr)
 {	trace_worker();
-    char *ipAddr = NULL;
-    int port = 0;            
 
 	ClientConn *pClientConn = new ClientConn;
 	std::shared_ptr<IClientInf> ptr(createClientInf());	
