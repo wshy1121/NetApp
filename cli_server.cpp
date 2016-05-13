@@ -30,15 +30,15 @@ void CCliManager::dealSendData(TimeCalcInf *pCalcInf)
     {
         return ;
     }
-    std::string &packet = pCalcInf->m_packet;
-    clientInf->m_netServer->send(clientInf, (char *)packet.c_str(), packet.size());
+    std::shared_ptr<std::string> &packet = pCalcInf->m_packet;
+    clientInf->m_netServer->send(clientInf, (char *)packet->c_str(), packet->size());
 }
 
 void CCliManager::dealitemData(RECV_DATA *pRecvData)
 {   trace_worker();
-    trace_printf("%s  ", pRecvData->calcInf.m_packet.c_str());
-    std::string &packet = pRecvData->calcInf.m_packet;
-    pRecvData->calcInf.m_clientInf->m_parsePacket->writeData((char *)packet.c_str(), packet.size());
+    trace_printf("%s  ", pRecvData->calcInf.m_packet->c_str());
+    std::shared_ptr<std::string> &packet = pRecvData->calcInf.m_packet;
+    pRecvData->calcInf.m_clientInf->m_parsePacket->writeData((char *)packet->c_str(), packet->size());
 }
 
 CCliParsePacket::CCliParsePacket()
@@ -147,8 +147,9 @@ void CCliParsePacket::sendThreadProc()
 RECV_DATA *CCliParsePacket::packetRecvData(char *data)
 {
 	RECV_DATA *recvData = IDealDataHandle::createRecvData();
-    
-	recvData->calcInf.m_packet = data;
+
+    std::string &packet = *(recvData->calcInf.m_packet.get());
+	packet = data;
 	recvData->calcInf.m_clientInf = m_clientInf;
 	return recvData;
 }

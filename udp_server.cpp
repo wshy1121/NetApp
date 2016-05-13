@@ -75,9 +75,9 @@ void IUdpServer::listenThread()
     {
         boost::this_thread::interruption_point();
         RECV_DATA *pRecvData = IDealDataHandle::createRecvData(false);
-		std::string &packet =  pRecvData->calcInf.m_packet;
+		std::shared_ptr<std::string> &packet =  pRecvData->calcInf.m_packet;
         IParsePacket *parsePacket = clientConn.clientInf->m_parsePacket.get();
-		bool bRet = receiveInfData(clientConn, parsePacket, packet);
+		bool bRet = receiveInfData(clientConn, parsePacket, *packet.get());
         
 		if(bRet)
 		{

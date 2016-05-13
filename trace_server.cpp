@@ -84,9 +84,9 @@ void CTraceManager::dealitemData(RECV_DATA *pRecvData)
 {
 	TimeCalcInf *pCalcInf = &pRecvData->calcInf;
 
-	if (pCalcInf->m_packet.size())
+	if (pCalcInf->m_packet->size())
 	{
-		pCalcInf->m_dataInf->unPacket((char *)pCalcInf->m_packet.c_str());
+		pCalcInf->m_dataInf->unPacket((char *)pCalcInf->m_packet->c_str());
 	}
 	IDealDataHandle::execute(pCalcInf);
 }
