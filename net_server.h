@@ -59,7 +59,7 @@ protected:
 	base::CList *m_listClientRead;
 	base::CList *m_recvList;
 	base::CPthreadMutex m_recvListMutex;
-	int m_newId;
+	static int m_newId;
 	int m_nfds;
 };
 

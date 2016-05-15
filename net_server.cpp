@@ -18,6 +18,8 @@ using namespace base;
 extern CPthreadMutex g_insMutexCalc;
 extern char *dataFormat;
 
+int INetServer::m_newId = 0;
+
 INetServer::INetServer()
 :m_dataWorkManager(NULL)
 ,SERVER_PORT(-1)
@@ -31,7 +33,6 @@ INetServer::INetServer()
 
 	m_listClientRead = CList::createCList();
 	m_recvList = CList::createCList();
-	m_newId = 0;
 	return ;
 }
 
