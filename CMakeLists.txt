@@ -19,6 +19,8 @@ SET(SRC_SRCS
   cli_server.cpp
   udp_server.cpp
   tcp_server.cpp
+  udp_client.cpp
+  cli_client.cpp
 )
 
 # shared library
