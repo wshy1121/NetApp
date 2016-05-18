@@ -3,7 +3,7 @@
 
 
 bool ITcpServer::startServer()
-{
+{   trace_worker();
 	if(INVALID_SOCKET != m_sockLister)
 	{
 		printf("server is runing!\n");
@@ -16,6 +16,8 @@ bool ITcpServer::startServer()
 		printf("create sock error!\n");
 		return false;
 	}
+    evutil_make_socket_nonblocking(m_sockLister);
+    
 	int nRecvBuf = 1024*256;
 	setsockopt(m_sockLister, SOL_SOCKET,SO_RCVBUF, (const char*)&nRecvBuf, sizeof(int));
 
@@ -37,10 +39,20 @@ bool ITcpServer::startServer()
 		printf("bind sock error!\n");
 		return false;
 	}
-	m_nfds = m_sockLister;
+
+    int backlog = 50;
+	ret = listen(m_sockLister, backlog);
+	if (ret == SOCKET_ERROR)
+	{
+		return false;
+	}
 
 	m_dataWorkManager = createWorkManager();
-    m_hListenThread = WorkThread(new boost::thread(boost::bind(&ITcpServer::listenThread,this)));
+
+    struct event *listener_event = NULL;
+    listener_event = event_new(m_base, m_sockLister, EV_READ|EV_PERSIST, doAccept, this);  
+    event_add(listener_event, NULL);
+    
 	m_sendThread = WorkThread(new boost::thread(boost::bind(&INetServer::sendThreadProc,this)));
 	
 	printf("tcp server is start, port is %d!\n", SERVER_PORT);
@@ -48,76 +60,26 @@ bool ITcpServer::startServer()
 }
 
 
-void ITcpServer::listenThread()
-{
-	int backlog = 50;
-	int ret = listen(m_sockLister, backlog);
-	if (ret == SOCKET_ERROR)
+bool ITcpServer::doRead(ClientConn *clientConn)
+{   trace_worker();
+    
+    RECV_DATA *pRecvData = IDealDataHandle::createRecvData(false);
+    std::shared_ptr<std::string> &packet =  pRecvData->calcInf.m_packet;
+    IParsePacket *parsePacket = clientConn->clientInf->m_parsePacket.get();
+    
+    bool bRet = receiveInfData(clientConn->socket, parsePacket, *packet.get());
+	if(bRet)
 	{
-		return ;
+		m_dataWorkManager->pushItemData(clientConn, pRecvData);
 	}
-	fd_set fd_read, fd_write;
-	sockaddr_in clientAddr;
-	socklen_t nLen = sizeof(sockaddr);
-	
-	node *pNode = NULL;
-	while(true)
+	else
 	{
-		struct timeval cctv = {0, 5000};
-		FD_ZERO(&fd_read);
-		FD_ZERO(&fd_write);
-		FD_SET(m_sockLister, &fd_read);
-
-		ClientConn *pClientConnTmp = NULL;
-		each_link_node(&m_listClientRead->head_node, pNode)
-		{
-			pClientConnTmp = clientConnContain(pNode);
-			FD_SET(pClientConnTmp->socket, &fd_read);
-		}
-		
-		int count = select(m_nfds+1, &fd_read, &fd_write, NULL, &cctv);		
-		if (count <= 0)
-		{
-			continue;
-		}
-
-		ClientConn *pClientConnRead = NULL;
-		node *pHead = &m_listClientRead->head_node;
-		for ((pNode)=(pHead)->next; (pHead) != (pNode);)
-		{
-			pClientConnRead = clientConnContain(pNode);
-
-			bool &isBackClient = pClientConnRead->clientInf->m_isBackClient;
-			RECV_DATA *pRecvData = IDealDataHandle::createRecvData(false);
-			std::shared_ptr<std::string> &packet =  pRecvData->calcInf.m_packet;
-            IParsePacket *parsePacket = pClientConnRead->clientInf->m_parsePacket.get();
-			bool bRet = receiveInfData(pClientConnRead->socket, parsePacket, *packet.get());
-			if(bRet && !isBackClient)
-			{
-				m_dataWorkManager->pushItemData(pClientConnRead, pRecvData);
-			}
-			else
-			{
-				IDealDataHandle::destroyRecvData(pRecvData);
-				pNode = m_dataWorkManager->dealErrNo(pClientConnRead, pNode);
-			}
-			(pNode)=(pNode)->next;
-		}
-		
-		if(FD_ISSET(m_sockLister, &fd_read))
-		{
-			int socket = accept(m_sockLister,(sockaddr*)&clientAddr,&nLen);		
-			if (m_nfds < socket)
-			{
-				m_nfds = socket;
-			}
-			ClientConn *pClientConn = dealConnect(socket, clientAddr);
-			m_dataWorkManager->openFile(*pClientConn, (char *)"Debug.cpp");
-		}
-
+		IDealDataHandle::destroyRecvData(pRecvData);
+		m_dataWorkManager->dealErrNo(clientConn);
 	}
-	return ;
+    return true;
 }
+
 
 bool ITcpServer::receiveInfData(int socket, IParsePacket *parsePacket, std::string &packet)
 { 
@@ -128,4 +90,31 @@ int ITcpServer::send(IClientInf *clientInf, char *szText,int len)
 {
     return m_dataWorkManager->send(clientInf->m_socket, szText, len);
 }
+
+void ITcpServer::doAccept(evutil_socket_t listenerSocket, short event, void *arg)
+{   trace_worker();
+    INetServer *netServer = (INetServer *)arg;
+    
+    struct sockaddr_storage clientAddr;
+    socklen_t clientAddrLen = sizeof(clientAddr);
+    
+    int clientSocket = accept(listenerSocket, (struct sockaddr*)&clientAddr, &clientAddrLen);  
+    if (clientSocket < 0)  
+    {
+        perror("accept");  
+    }
+    
+    else if (clientSocket > FD_SETSIZE)  
+    {  
+        close(clientSocket);// XXX replace all closes with EVUTIL_CLOSESOCKET */  
+    }  
+    else  
+    {
+        netServer->dealConnect(clientSocket, (sockaddr_in *)&clientAddr);
+    }  
+}
+
+
+
+
 

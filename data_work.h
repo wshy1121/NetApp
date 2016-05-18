@@ -33,8 +33,8 @@ public:
 	virtual ~IDataWorkManager();
 	void pushItemData(ClientConn *pClientConn, RECV_DATA *pRecvData);	
 	virtual void dealitemData(RECV_DATA *pRecvData) = 0;	
-	node *dealErrNo(ClientConn *pClientConnRead, node *pNode);
-	node *dealDisConnect(ClientConn *pClientConnRead, node *pNode);
+	void dealErrNo(ClientConn *pClientConnRead);
+	void dealDisConnect(ClientConn *pClientConnRead);
 	bool receiveInfData(int socket, IParsePacket *parsePacket, std::string &packet);	
 	int receive(int fd,char *szText,int len);
 	int send(int fd,char *szText,int len);	

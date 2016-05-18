@@ -14,9 +14,12 @@
 
 using namespace base;
 
+static boost::mutex g_insMutex;
 
 extern CPthreadMutex g_insMutexCalc;
 extern char *dataFormat;
+
+struct event_base *INetServer::m_base = NULL;
 
 int INetServer::m_newId = 0;
 
@@ -24,15 +27,15 @@ INetServer::INetServer()
 :m_dataWorkManager(NULL)
 ,SERVER_PORT(-1)
 ,m_sockLister(INVALID_SOCKET)
-,m_nfds(0)
 {
 #ifdef WIN32	
     WSADATA wsa={0};
     WSAStartup(MAKEWORD(2,2),&wsa);
 #endif
 
-	m_listClientRead = CList::createCList();
 	m_recvList = CList::createCList();
+
+    initEvent();
 	return ;
 }
 
@@ -40,42 +43,72 @@ INetServer::~INetServer()
 {
 }
 
-node *INetServer::dealDisconnect(ClientConn *pClientConnRead)
-{	trace_worker();
-	CUserManager::instance()->removeClient(pClientConnRead->clientId);
-	node *pNode = &pClientConnRead->node;
+void INetServer::destroyClientConn(ClientConn *pClientConnRead)
+{   trace_worker();
+
 
     pClientConnRead->clientInf->m_parsePacket->resetClientInf();
-	IClientInf *clientInf = pClientConnRead->clientInf.get();
-	clientInf->m_socket = INVALID_SOCKET;
-	
-	base::close(pClientConnRead->socket);	
-	pNode = m_listClientRead->erase(pNode);
+    IClientInf *clientInf = pClientConnRead->clientInf.get();
+    clientInf->m_socket = INVALID_SOCKET;
 
-	delete pClientConnRead;
-	return pNode;
+    base::close(pClientConnRead->socket);	
+
+    struct event *readEvent = clientInf->m_readEvent.get();
+    event_del(readEvent);
+    
+    delete pClientConnRead;
 }
 
-ClientConn *INetServer::dealConnect(int socket, sockaddr_in &clientAddr)
-{	trace_worker();
 
-	ClientConn *pClientConn = new ClientConn;
-	std::shared_ptr<IClientInf> ptr(createClientInf());	
-	IClientInf *clientInf = ptr.get();
-	pClientConn->clientInf = ptr;
-	
-	clientInf->m_socket = pClientConn->socket = socket;
-	clientInf->m_clientId = pClientConn->clientId = creatClientId();
-    clientInf->m_clientAddr = clientAddr;
+ClientConn *INetServer::createClientConn(int socket, sockaddr_in *clientAddr)
+{   trace_worker();
+
+    ClientConn *pClientConn = new ClientConn;
+    std::shared_ptr<IClientInf> ptr(createClientInf()); 
+    IClientInf *clientInf = ptr.get();
+    pClientConn->clientInf = ptr;
+
+    clientInf->m_socket = pClientConn->socket = socket;
+    clientInf->m_clientId = pClientConn->clientId = creatClientId();
+    clientInf->m_clientAddr = *clientAddr;
 
     boost::shared_ptr<IParsePacket> parsePacket(createParsePacket());
     parsePacket->setClientInf(pClientConn->clientInf);
     clientInf->m_parsePacket = parsePacket;
+    
+    trace_printf("parsePacket.get()  %p", parsePacket.get());
+    
+    boost::shared_ptr<event> readEvent(event_new(m_base, socket, EV_READ|EV_PERSIST, doRead, pClientConn));
+    if (readEvent == NULL)
+    {
+        destroyClientConn(pClientConn);
+        return NULL;
+    }
+    clientInf->m_readEvent = readEvent;
+    event_add(readEvent.get(), NULL);
+    return pClientConn;
+}
 
-	setNoBlock(clientInf->m_socket);
-	m_listClientRead->push_back(&pClientConn->node);
+void INetServer::dealDisconnect(ClientConn *pClientConnRead)
+{	trace_worker();    
+    CUserManager::instance()->removeClient(pClientConnRead->clientId);
 
-	CUserManager::instance()->addClient(clientInf->m_clientId, clientInf);
+    destroyClientConn(pClientConnRead);
+	return ;
+}
+
+ClientConn *INetServer::dealConnect(int socket, sockaddr_in *clientAddr)
+{	trace_worker();
+
+    evutil_make_socket_nonblocking(socket);
+    ClientConn *pClientConn = createClientConn(socket, clientAddr);
+    if (pClientConn == NULL)
+    {   trace_printf("NULL");
+        return NULL;
+    }
+    
+    std::shared_ptr<IClientInf> &clientInf = pClientConn->clientInf;
+	CUserManager::instance()->addClient(clientInf->m_clientId, clientInf.get());
 	return pClientConn;
 }
 
@@ -161,4 +194,36 @@ void INetServer::setNoBlock(int socket)
 #endif
 }
 
+bool INetServer::initEvent()
+{   trace_worker();
+    if (NULL == m_base)
+    {
+        boost::unique_lock<boost::mutex> lock(g_insMutex);
+        if (NULL == m_base)
+        {
+            m_base = event_base_new();
+            if (!m_base)  
+            {   trace_printf(NULL);
+                return false;
+            }
+            
+        }
+    }
+    return true;
+}
+
+int INetServer::dispatch()
+{
+    event_base_dispatch(m_base);
+    return 0;
+}
+
+void INetServer::doRead(evutil_socket_t clientSocket, short events, void *arg)
+{   trace_worker();
+    ClientConn *clientConn = (ClientConn *)arg;
+    
+    INetServer *netServer = clientConn->clientInf->m_netServer;
+    netServer->doRead(clientConn);
+    return ;
+}
 

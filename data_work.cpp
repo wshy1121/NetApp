@@ -189,32 +189,32 @@ void IDataWorkManager::setErrNo(int recvNum)
 
 
 
-node *IDataWorkManager::dealErrNo(ClientConn *pClientConnRead, node *pNode)
+void IDataWorkManager::dealErrNo(ClientConn *pClientConnRead)
 {
 	switch (m_errNo)
 	{
 		case e_readOk:
 			break;
 		case e_disConnect:
-			pNode = dealDisConnect(pClientConnRead, pNode);
+			dealDisConnect(pClientConnRead);
 			break;
 		default:
 			break;
 
 	}
-	return pNode;
+	return ;
 }
 
-node *IDataWorkManager::dealDisConnect(ClientConn *pClientConnRead, node *pNode)
+void IDataWorkManager::dealDisConnect(ClientConn *pClientConnRead)
 {
 	IClientInf *clientInf = pClientConnRead->clientInf.get();
 	CUserManager::instance()->logout(clientInf);
 
 	dealException(*pClientConnRead);
 	closeFile(*pClientConnRead);
-	pNode = m_netServer->dealDisconnect(pClientConnRead);
+    m_netServer->dealDisconnect(pClientConnRead);
 
-	return pNode;
+	return ;
 }
 
 void IDataWorkManager::openFile(ClientConn clientConn, char *fileName)

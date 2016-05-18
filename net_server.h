@@ -11,6 +11,7 @@
 #include "link_tool.h"
 #include "data_handle.h"
 #include "user_manager.h"
+#include "event.h"
 
 class IDataWorkManager;
 
@@ -34,13 +35,19 @@ public:
     virtual ~INetServer();
 	virtual bool startServer() = 0;
     virtual int send(IClientInf *clientInf, char *szText,int len) = 0;
+    virtual bool doRead(ClientConn *clientConn) = 0;
     
+    static bool initEvent();
+    static int dispatch();
+    static void doRead(evutil_socket_t clientSocket, short events, void *arg);
 	void pushRecvData(RECV_DATA *pRecvData);	
-	node *dealDisconnect(ClientConn *pClientConnRead);
+	void dealDisconnect(ClientConn *pClientConnRead);
 private:
 	void sendThreadProc();
 protected:
-	ClientConn *dealConnect(int socket, sockaddr_in &clientAddr);
+    ClientConn *createClientConn(int socket, sockaddr_in *clientAddr);
+    void destroyClientConn(ClientConn *pClientConnRead);
+	ClientConn *dealConnect(int socket, sockaddr_in *clientAddr);
     IClientInf *createClientInf();
     virtual IParsePacket *createParsePacket() = 0;
     int creatClientId();
@@ -54,13 +61,13 @@ protected:
 	WorkThread m_sendThread;
 
 	
-	int m_sockLister;
+	evutil_socket_t m_sockLister;
 
-	base::CList *m_listClientRead;
 	base::CList *m_recvList;
 	base::CPthreadMutex m_recvListMutex;
 	static int m_newId;
-	int m_nfds;
+
+    static struct event_base *m_base;
 };
 
 

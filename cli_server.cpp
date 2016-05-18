@@ -138,9 +138,12 @@ void CCliParsePacket::sendThreadProc()
 			break;
 		}
 		data[dataLen] = '\0';
-		RECV_DATA *repRecvData = packetRecvData(data);
-        INetServer *&netServer = m_clientInf->m_netServer;      
-		netServer->pushRecvData(repRecvData);
+        if (m_clientInf != NULL)
+        {
+            RECV_DATA *repRecvData = packetRecvData(data);
+            INetServer *&netServer = m_clientInf->m_netServer;      
+            netServer->pushRecvData(repRecvData);
+        }
 	}
 }
 

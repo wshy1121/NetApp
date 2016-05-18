@@ -10,6 +10,7 @@ public:
     virtual ~IUdpServer();
 	virtual bool startServer();
     virtual int send(IClientInf *clientInf, char *szText,int len);
+    virtual bool doRead(ClientConn *clientConn);
 private:
 	void listenThread();
     bool receiveInfData(ClientConn &clientConn, IParsePacket *parsePacket, std::string &packet);

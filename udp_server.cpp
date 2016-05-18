@@ -143,3 +143,9 @@ int IUdpServer::send(IClientInf *clientInf, char *szText, int len)
     return 0;
 }
 
+
+bool IUdpServer::doRead(ClientConn *clientConn)
+{
+    return true;
+}
+
