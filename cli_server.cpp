@@ -80,7 +80,7 @@ CCliParsePacket::~CCliParsePacket()
 bool CCliParsePacket::parsePacket(char *charData, int charDataLen, std::string &packet)
 {   trace_worker();
     trace_printf("charData  %s|", charData);
-    packet.assign(charData, charDataLen);
+    packet.push_back(charData[0]);
     
     return true;
 }
