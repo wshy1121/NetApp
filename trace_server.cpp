@@ -86,7 +86,7 @@ void CTraceManager::dealitemData(RECV_DATA *pRecvData)
 
 	if (pCalcInf->m_packet->size())
 	{
-		pCalcInf->m_dataInf->unPacket((char *)pCalcInf->m_packet->c_str());
+		pCalcInf->m_dataInf->unPacket((char *)pCalcInf->m_packet->c_str() + 8);
 	}
 	IDealDataHandle::execute(pCalcInf);
 }
@@ -180,21 +180,21 @@ void CTraceParsePacket::initPacketInf()
 {
     m_headCount = 0;
     m_tailCount = 0;
-    m_packetPos = 0;
     m_curPacketSize = 0;
 }
 
 bool CTraceParsePacket::parsePacket(char *charData, int charDataLen, std::string &packet)
 {
-	if (m_curPacketSize == 0 && m_packetPos > 8)
+	if (m_curPacketSize == 0 && packet.size() > 8)
 	{
-		memcpy(&m_curPacketSize, m_packetBuffer+4, 4);
+		memcpy(&m_curPacketSize, packet.c_str()+4, 4);
 	}
 	
 	if (m_curPacketSize > 0)
 	{
-		if (m_curPacketSize > m_maxBufferSize || m_packetPos > m_curPacketSize)
+		if (m_curPacketSize > m_maxBufferSize || packet.size() > m_curPacketSize)
 		{
+            packet.clear();
 			initPacketInf();
 		}
 	}
@@ -204,11 +204,12 @@ bool CTraceParsePacket::parsePacket(char *charData, int charDataLen, std::string
 		case '\x7B':
             m_tailCount = 0;
 			++m_headCount;
-			++m_packetPos;
+            packet.push_back(charData[0]);
 			break;
 		case '\x7D':
             if (m_headCount < 4)
 			{
+			    packet.clear();
 				initPacketInf();
 			}
 			else
@@ -216,12 +217,11 @@ bool CTraceParsePacket::parsePacket(char *charData, int charDataLen, std::string
                 ++m_tailCount;
             }
             
-			++m_packetPos;
+            packet.push_back(charData[0]);
 			if (m_tailCount >= 4)
 			{
-				if (m_curPacketSize == m_packetPos)
+				if (m_curPacketSize == packet.size())
 				{
-                    packet.assign(m_packetBuffer + 8, m_packetPos - 12);
 					initPacketInf();
 					return true;
 				}
@@ -231,9 +231,10 @@ bool CTraceParsePacket::parsePacket(char *charData, int charDataLen, std::string
             m_tailCount = 0;
 			if (m_headCount < 4)
 			{
+			    packet.clear();
 				initPacketInf();
 			}				
-			++m_packetPos;
+            packet.push_back(charData[0]);
 			break;
 	}
 	return false;
