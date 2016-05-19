@@ -82,7 +82,6 @@ bool CCliParsePacket::parsePacket(char *charData, int charDataLen, std::string &
     trace_printf("charData  %s|", charData);
     packet.assign(charData, charDataLen);
     
-    m_packetPos = 0;
     return true;
 }
 
@@ -90,7 +89,6 @@ bool CCliParsePacket::parsePacket(char *charData, int charDataLen, std::string &
 
 void CCliParsePacket::initPacketInf()
 {
-    m_packetPos= 0;
 }
 
 void CCliParsePacket::writeData(char *data, int dataLen)
